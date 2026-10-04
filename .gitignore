@@ -4,4 +4,5 @@ __pycache__/
 .state/
 .build/
 .codex-finalizer/
+.chart-data-*/
 *.log

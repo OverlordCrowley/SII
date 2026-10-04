@@ -44,7 +44,9 @@ def analyze_query(text, symptoms):
 def format_proof(proof, labels, indent=0):
     name = labels.get(proof["fact"], proof["fact"])
     value = {True: "да", False: "нет", None: "неизвестно"}[proof["value"]]
-    suffix = f" [{proof['rule']}: {proof['condition']}]" if "rule" in proof else " [ввод пользователя]"
+    sources = {"input": "ввод пользователя", "not_proven": "нет доказательства", "cycle": "цикл целей"}
+    suffix = (f" [{proof['rule']}: {proof['condition']}]" if "rule" in proof
+              else " [" + sources.get(proof.get("source"), "неизвестный источник") + "]")
     lines = ["  " * indent + f"{name} = {value}{suffix}"]
     for child in proof.get("children", []):
         lines.extend(format_proof(child, labels, indent + 1))

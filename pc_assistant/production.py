@@ -1,17 +1,6 @@
 """Прямой продукционный вывод до неподвижной точки."""
 
-from .logic import LogicalEngine, evaluate_node, validate_facts
-
-
-def support(node, facts):
-    """Только факты, которые подтверждают сработавшую ветвь условия."""
-    if node[0] == "ATOM":
-        return [node[1]]
-    if node[0] == "OR":
-        for child in node[1:]:
-            if evaluate_node(child, facts.get) is True:
-                return support(child, facts)
-    return list(dict.fromkeys(name for child in node[1:] for name in support(child, facts)))
+from .logic import LogicalEngine, evaluate_node, support_atoms, validate_facts
 
 
 class ProductionEngine:
@@ -34,7 +23,7 @@ class ProductionEngine:
                     raise ValueError(f"Правило {rule['id']} противоречит факту {conclusion}=false")
                 if conclusion in facts:
                     continue
-                reasons = [{"fact": name, "value": facts.get(name)} for name in support(node, facts)]
+                reasons = [{"fact": name, "value": facts.get(name)} for name in support_atoms(node, facts)]
                 facts[conclusion] = True
                 trace.append({"rule": rule["id"], "condition": rule["if"],
                               "conclusion": conclusion, "premises": reasons, "step": len(trace) + 1})

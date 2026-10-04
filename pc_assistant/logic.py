@@ -100,6 +100,20 @@ def evaluate(expression, facts):
     return evaluate_node(parse(expression), facts.get)
 
 
+def support_atoms(node, facts, expected=True):
+    """Минимальная подтверждающая ветвь для истинного или ложного условия."""
+    if node[0] == "ATOM":
+        return [node[1]]
+    if node[0] == "NOT":
+        return support_atoms(node[1], facts, not expected)
+    if (node[0] == "OR" and expected) or (node[0] == "AND" and not expected):
+        for child in node[1:]:
+            if evaluate_node(child, facts.get) is expected:
+                return support_atoms(child, facts, expected)
+    return list(dict.fromkeys(name for child in node[1:]
+                              for name in support_atoms(child, facts, expected)))
+
+
 class LogicalEngine:
     """Обратный вывод: проверяет заданную цель по фактам и правилам."""
 
@@ -125,16 +139,12 @@ class LogicalEngine:
             for rule, node in self.rules:
                 if rule["then"] != atom:
                     continue
-                evidence = []
-
-                def lookup(name):
-                    proof = solve(name, next_path)
-                    evidence.append(proof)
-                    return proof["value"]
-
-                if evaluate_node(node, lookup) is True:
+                proofs = {name: solve(name, next_path) for name in atoms(node)}
+                values = {name: proof["value"] for name, proof in proofs.items()}
+                if evaluate_node(node, values.get) is True:
                     return {"fact": atom, "value": True, "rule": rule["id"],
-                            "condition": rule["if"], "children": evidence}
+                            "condition": rule["if"],
+                            "children": [proofs[name] for name in support_atoms(node, values)]}
             return {"fact": atom, "value": None, "source": "not_proven"}
 
         return solve(goal, set())

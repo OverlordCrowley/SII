@@ -71,8 +71,12 @@ class FrameStore:
         return self.describe(name)
 
     def find(self, slot, value):
-        return [name for name in sorted(self.frames)
-                if self.describe(name)["slots"].get(slot) == value]
+        found = []
+        for name in sorted(self.frames):
+            slots = self.describe(name)["slots"]
+            if slot in slots and type(slots[slot]) is type(value) and slots[slot] == value:
+                found.append(name)
+        return found
 
     def save(self, path):
         save_json(path, {"version": 1, "frames": self.frames})
