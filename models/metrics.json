@@ -1,0 +1,132 @@
+{
+  "dataset_sha256": "c4f08ff2457068d9b677e75fa10322b98ec1658dea0f7e36a9bdce3c259207f9",
+  "source": "synthetic",
+  "split_counts": {
+    "train": 840,
+    "validation": 176,
+    "test": 244
+  },
+  "majority_baseline_accuracy": 0.08196721311475409,
+  "bayes": {
+    "accuracy": 0.9590163934426229,
+    "macro_f1": 0.9591959208457672,
+    "confusion_matrix": [
+      [
+        26,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        95,
+        1,
+        0,
+        0,
+        2,
+        0
+      ],
+      [
+        0,
+        4,
+        24,
+        1,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        22,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        21,
+        1,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        20,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        26
+      ]
+    ],
+    "labels": [
+      "power_failure",
+      "display_failure",
+      "ram_failure",
+      "overheating",
+      "disk_failure",
+      "network_failure",
+      "software_issue"
+    ],
+    "per_class": {
+      "power_failure": {
+        "precision": 0.9629629629629629,
+        "recall": 1.0,
+        "f1": 0.9811320754716981,
+        "support": 26
+      },
+      "display_failure": {
+        "precision": 0.9595959595959596,
+        "recall": 0.9595959595959596,
+        "f1": 0.9595959595959596,
+        "support": 99
+      },
+      "ram_failure": {
+        "precision": 0.96,
+        "recall": 0.8275862068965517,
+        "f1": 0.888888888888889,
+        "support": 29
+      },
+      "overheating": {
+        "precision": 0.9565217391304348,
+        "recall": 1.0,
+        "f1": 0.9777777777777777,
+        "support": 22
+      },
+      "disk_failure": {
+        "precision": 1.0,
+        "recall": 0.9545454545454546,
+        "f1": 0.9767441860465117,
+        "support": 22
+      },
+      "network_failure": {
+        "precision": 0.8695652173913043,
+        "recall": 1.0,
+        "f1": 0.9302325581395349,
+        "support": 20
+      },
+      "software_issue": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 26
+      }
+    }
+  }
+}
