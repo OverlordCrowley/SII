@@ -1,7 +1,11 @@
 """Фреймы: слоты, значения по умолчанию и одиночное наследование."""
 
 from copy import deepcopy
+import json
+from pathlib import Path
 import re
+
+from .knowledge import save_json
 
 
 class FrameStore:
@@ -43,5 +47,42 @@ class FrameStore:
         if not re.fullmatch(r"[a-z_][a-z_0-9]{0,63}", name) or name in self.frames:
             raise ValueError("Имя фрейма недопустимо или уже используется")
         self.describe(parent)
-        self.frames[name] = {"parent": parent, "slots": deepcopy(slots or {})}
+        self.frames[name] = {"parent": parent, "slots": {}}
+        try:
+            for key, value in (slots or {}).items():
+                self.set(name, key, value)
+        except (ValueError, TypeError):
+            del self.frames[name]
+            raise
         return self.describe(name)
+
+    def set(self, name, slot, value):
+        if not re.fullmatch(r"[a-z_][a-z_0-9]{0,63}", slot):
+            raise ValueError("Недопустимое имя слота")
+        effective = self.describe(name)["slots"]
+        if type(value) not in (str, int, float, bool, list, dict, type(None)):
+            raise ValueError("Значение должно быть совместимо с JSON")
+        if slot in effective and type(value) is not type(effective[slot]):
+            raise ValueError(f"Тип слота {slot} должен быть {type(effective[slot]).__name__}")
+        if slot == "ram_gb" and (type(value) is not int or value <= 0):
+            raise ValueError("Объём памяти должен быть положительным целым числом")
+        json.dumps(value, allow_nan=False)
+        self.frames[name]["slots"][slot] = deepcopy(value)
+        return self.describe(name)
+
+    def find(self, slot, value):
+        return [name for name in sorted(self.frames)
+                if self.describe(name)["slots"].get(slot) == value]
+
+    def save(self, path):
+        save_json(path, {"version": 1, "frames": self.frames})
+
+    @classmethod
+    def load(cls, path, defaults):
+        path = Path(path)
+        if not path.exists():
+            return cls(defaults)
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if data.get("version") != 1:
+            raise ValueError("Неизвестная версия сохранённых фреймов")
+        return cls(data["frames"])
