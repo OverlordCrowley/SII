@@ -110,17 +110,46 @@ class LogicalEngine:
             raise ValueError("NOT допускается только для исходных фактов")
 
     def query(self, goal, facts):
+        return self.explain(goal, facts)["value"]
+
+    def explain(self, goal, facts):
+        """Возвращает дерево доказательства, включая явные отрицания."""
         validate_facts(facts)
 
         def solve(atom, visiting):
             if atom in facts:
-                return facts[atom]
+                return {"fact": atom, "value": facts[atom], "source": "input"}
             if atom in visiting:
-                return None
+                return {"fact": atom, "value": None, "source": "cycle"}
             next_path = visiting | {atom}
             for rule, node in self.rules:
-                if rule["then"] == atom and evaluate_node(node, lambda name: solve(name, next_path)) is True:
-                    return True
-            return None
+                if rule["then"] != atom:
+                    continue
+                evidence = []
+
+                def lookup(name):
+                    proof = solve(name, next_path)
+                    evidence.append(proof)
+                    return proof["value"]
+
+                if evaluate_node(node, lookup) is True:
+                    return {"fact": atom, "value": True, "rule": rule["id"],
+                            "condition": rule["if"], "children": evidence}
+            return {"fact": atom, "value": None, "source": "not_proven"}
 
         return solve(goal, set())
+
+
+def truth_table(expression):
+    """Классическая таблица истинности для полностью заданных переменных."""
+    from itertools import product
+
+    node = parse(expression)
+    names = sorted(atoms(node))
+    if len(names) > 10:
+        raise ValueError("Таблица ограничена 10 переменными")
+    rows = []
+    for values in product((False, True), repeat=len(names)):
+        facts = dict(zip(names, values))
+        rows.append({**facts, "result": evaluate_node(node, facts.get)})
+    return rows
