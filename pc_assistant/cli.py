@@ -65,6 +65,7 @@ def build_parser():
     ask.add_argument("--device", default="office_pc")
     ask.add_argument("--json", action="store_true")
     commands.add_parser("demo", help="Семь сценариев для защиты")
+    commands.add_parser("week56", help="Показ ЛР 4 за недели 5–6: факты, логика и объяснения")
     commands.add_parser("chat", help="Диалог с уточняющими вопросами")
     commands.add_parser("symptoms", help="Словарь симптомов и фраз")
     commands.add_parser("rules", help="База продукционных правил")
@@ -126,6 +127,9 @@ def main(argv=None):
     parser = build_parser()
     args = parser.parse_args(argv)
     try:
+        if args.command == "week56":
+            from .week56 import main as show_week56
+            return show_week56()
         if args.command == "train":
             from .dataset import generate
             from .ml import train_bayes, train_neural
