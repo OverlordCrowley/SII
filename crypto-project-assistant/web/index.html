@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Криптоскоп — ИИ-помощник</title>
+<style>:root {
+  --ink: #1c2640;
+  --muted: #5e6a80;
+  --line: #d9deea;
+  --paper: #fff;
+  --bg: #eef1f6;
+  --accent: #5947c7;
+  --accent-soft: #f0edfc;
+  --red: #9b382e;
+  --amber: #81531b;
+  --green: #25604f;
+  --display: "Bahnschrift", "Segoe UI", Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; color: var(--ink); background: var(--bg); font: 16px/1.5 "Calibri", "Segoe UI", Arial, sans-serif; }
+button, input, select, textarea { font: inherit; }
+button, summary { cursor: pointer; }
+button:disabled { cursor: wait; opacity: .6; }
+button, a, input, select, textarea, summary { outline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--accent); }
+[hidden] { display: none !important; }
+p { margin: 0; }
+h1, h2, h3 { font-family: var(--display); font-weight: 600; margin: 0; }
+h1 { font-size: 36px; line-height: 1.15; letter-spacing: -.9px; }
+h2 { font-size: 20px; line-height: 1.3; }
+h3 { font-size: 17px; line-height: 1.4; margin-bottom: 12px; }
+header { background: var(--paper); border-bottom: 1px solid var(--line); }
+.header-inner { max-width: 1600px; margin: auto; padding: 18px 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.brand { display: flex; gap: 12px; align-items: center; }
+.logo { width: 38px; height: 38px; color: var(--accent); flex: none; }
+.brand strong { font: 600 25px/1.1 var(--display); letter-spacing: -.7px; }
+.subbrand { color: var(--muted); font-size: 13px; margin-top: 4px; }
+.local { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); }
+.local svg { flex: none; color: var(--green); }
+main { max-width: 1600px; margin: auto; padding: 30px 32px 40px; }
+.intro { display: flex; justify-content: space-between; gap: 24px; align-items: center; margin-bottom: 24px; }
+.intro p { max-width: 580px; color: var(--muted); font-size: 15px; margin-top: 9px; }
+.examples { flex: none; max-width: 460px; }
+.examples-label { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+.example-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+.example-buttons .button { font-weight: 400; font-size: 13px; padding: 7px 10px; }
+.workspace { display: grid; grid-template-columns: minmax(330px, 380px) minmax(0, 1fr); gap: 24px; align-items: start; }
+.panel { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; min-width: 0; }
+.input-panel { position: sticky; top: 24px; padding: 20px 22px 0; }
+.panel-title { display: flex; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+.editor-note { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+.link-button { background: none; border: 0; padding: 3px 0; color: var(--accent); font-size: 14px; text-decoration: underline; text-underline-offset: 3px; }
+.editor-scroll { max-height: calc(100vh - 410px); min-height: 180px; overflow: auto; padding-right: 8px; padding-bottom: 12px; scrollbar-width: thin; scrollbar-color: #b4bccc transparent; }
+.label { display: block; font-size: 14px; font-weight: 600; margin: 14px 0 5px; }
+.editor-scroll > .label:first-child { margin-top: 0; }
+.field { width: 100%; min-width: 0; border: 1px solid #cbd2e1; border-radius: 5px; background: #fff; padding: 9px 10px; color: var(--ink); font-size: 15px; }
+.field:hover { border-color: #a8b2c7; }
+.field::placeholder { color: #6c778b; opacity: 1; }
+textarea.field { min-height: 120px; resize: vertical; line-height: 1.5; }
+.hint { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+.row { display: flex; gap: 10px; align-items: center; }
+.row > div { min-width: 0; }
+.button { border: 1px solid #cbd2e1; border-radius: 5px; padding: 9px 13px; background: #fff; color: var(--ink); font-weight: 600; font-size: 14px; }
+.button:hover { background: #f3f4f9; border-color: #adb5c9; }
+.primary { color: #fff; background: var(--accent); border-color: var(--accent); padding: 11px 16px; }
+.primary:hover { background: #4936b4; border-color: #4936b4; }
+.footer-form { display: flex; gap: 10px; align-items: center; padding: 16px 0; border-top: 1px solid var(--line); }
+.footer-form .primary { flex: 1; }
+.criteria-wrap { margin-top: 24px; }
+.criteria-heading { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; font-weight: 600; margin-bottom: 10px; font-size: 14px; }
+.criteria-heading .hint { font-weight: 400; margin: 0; }
+.group { border-bottom: 1px solid var(--line); }
+.group > summary { display: flex; align-items: center; gap: 8px; padding: 12px 2px; font-size: 15px; font-weight: 600; list-style: none; }
+.group > summary::-webkit-details-marker { display: none; }
+.group > summary::before { content: "+"; color: var(--accent); font-size: 19px; font-weight: 400; width: 14px; flex: none; }
+.group[open] > summary::before { content: "−"; }
+.group-count { font-size: 12px; font-weight: 400; color: var(--muted); margin-left: auto; }
+#market-input { margin-top: 20px; border-top: 1px solid var(--line); }
+.market-input-body { padding: 0 2px 16px; }
+.criterion { padding: 15px 2px; border-top: 1px solid var(--line); }
+.criterion-head { display: grid; grid-template-columns: minmax(0, 1fr) 100px; gap: 12px; align-items: center; font-size: 14px; }
+.criterion select { padding: 6px; font-size: 14px; }
+.evidence { font-size: 13px; margin-top: 9px; padding: 7px 8px; }
+.source-fields { display: grid; grid-template-columns: minmax(0, 1fr) 125px; gap: 7px; margin-top: 7px; }
+.source-fields .field { font-size: 12px; padding: 6px; }
+.recognition { font-size: 12px; color: var(--accent); margin-top: 6px; }
+.recognition:empty { display: none; }
+.market-input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
+.error { color: var(--red); background: #fff4f0; border-left: 3px solid var(--red); border-radius: 4px; padding: 12px; margin: 12px 0; font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.empty { padding: 38px; min-height: 570px; position: relative; overflow: hidden; }
+.empty-scope { color: var(--accent); width: 64px; height: 64px; margin: 4px 0 25px; }
+.empty h2 { font-size: 34px; line-height: 1.15; letter-spacing: -.7px; max-width: 450px; margin-bottom: 14px; }
+.empty > p { color: var(--muted); max-width: 470px; }
+.research-map { margin-top: 30px; max-width: 530px; }
+.research-row { display: grid; grid-template-columns: 110px 1fr; gap: 18px; border-top: 1px solid var(--line); padding: 16px 0; font-size: 15px; }
+.research-row span { color: var(--muted); }
+.empty-tip { color: var(--muted); font-size: 13px; max-width: 500px; margin-top: 22px; }
+.report { padding: 26px 30px 24px; }
+.report-top { display: flex; justify-content: space-between; gap: 16px; align-items: start; }
+.report-identity { color: var(--muted); font-size: 14px; margin-bottom: 8px; overflow-wrap: anywhere; }
+.project-name { font-size: 28px; line-height: 1.2; letter-spacing: -.6px; overflow-wrap: anywhere; }
+.status-line { margin-top: 14px; }
+.badge { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; padding: 4px 8px; border-radius: 4px; color: var(--green); background: #eaf4ef; font-weight: 600; }
+.badge.high { color: var(--amber); background: #fff3dc; }
+.badge.critical { color: var(--red); background: #fceee9; }
+.badge.medium { color: #65506f; background: #f0ebf4; }
+.summary { color: var(--muted); font-size: 15px; margin-top: 16px; max-width: 78ch; }
+.metrics { display: grid; grid-template-columns: 1.35fr 1fr 1fr; margin: 22px 0 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.metric { padding: 17px 18px; border-left: 1px solid var(--line); min-width: 0; }
+.metric:first-child { padding-left: 0; border-left: 0; }
+.metric:last-child { padding-right: 0; }
+.metric-title { font-size: 13px; color: var(--muted); }
+.metric-value { font: 500 30px/1.2 var(--display); font-variant-numeric: tabular-nums; letter-spacing: -.5px; margin-top: 7px; }
+.metric-unit { color: var(--muted); font: 14px "Calibri", "Segoe UI", sans-serif; margin-left: 4px; }
+.bar { height: 5px; background: #e8ebf2; position: relative; margin-top: 12px; overflow: hidden; border-radius: 2px; }
+.bar-range, .bar-known { height: 100%; position: absolute; inset: 0 auto 0 0; }
+.bar-range { background: #d9d1f6; }
+.bar-known { background: var(--accent); }
+.section { margin: 26px 0; }
+.section-heading { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; margin-bottom: 4px; }
+.unit-label { font-size: 12px; color: var(--muted); }
+.market-results { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 16px 0 12px; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #f8f9fc; }
+.market-stat { padding: 14px 16px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.market-stat:nth-child(3n) { border-right: 0; }
+.market-stat:nth-last-child(-n+3) { border-bottom: 0; }
+.market-stat .hint { margin: 0; font-size: 12px; }
+.market-number { font: 500 23px/1.25 var(--display); font-variant-numeric: tabular-nums; margin-top: 8px; overflow-wrap: anywhere; }
+.market-number.unknown { font: 14px/1.5 "Calibri", "Segoe UI", sans-serif; color: var(--muted); }
+.tabs { display: flex; gap: 24px; border-bottom: 1px solid var(--line); margin-top: 28px; margin-bottom: 24px; }
+.tab { font-size: 15px; padding: 12px 0; border: 0; border-bottom: 3px solid transparent; color: var(--muted); background: none; white-space: nowrap; }
+.tab[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.tab:hover { color: var(--ink); }
+.action-list { font-size: 15px; padding-left: 22px; margin: 0; }
+.action-list li { padding: 5px 0 5px 4px; }
+.action-list li::marker { color: var(--accent); font-weight: 600; }
+.insight { border-bottom: 1px solid var(--line); padding: 18px 0 18px 14px; position: relative; }
+.insight:first-child { border-top: 1px solid var(--line); }
+.insight::before { content: ""; position: absolute; left: 0; top: 22px; height: 16px; width: 3px; border-radius: 1px; background: var(--green); }
+.insight.critical::before { background: var(--red); }
+.insight.high::before { background: #b07622; }
+.insight.medium::before { background: #80608e; }
+.insight-title { display: flex; gap: 16px; align-items: start; justify-content: space-between; }
+.insight-title strong { font-size: 16px; line-height: 1.35; }
+.insight .badge { font-size: 12px; white-space: nowrap; flex: none; }
+.insight p { color: var(--muted); font-size: 14px; margin-top: 8px; max-width: 75ch; }
+.insight details { margin-top: 12px; font-size: 13px; }
+.insight summary { color: var(--accent); width: fit-content; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; font: 12px/1.7 Consolas, monospace; background: #f2f3f9; border-left: 2px solid #b3a7e3; border-radius: 3px; padding: 14px 16px; max-height: 400px; overflow: auto; }
+.question { display: block; width: 100%; border: 0; border-bottom: 1px solid var(--line); padding: 13px 10px 13px 0; font-size: 15px; text-align: left; color: var(--ink); background: none; }
+.question:hover { background: #f6f5fc; color: var(--accent); }
+.question:focus-visible { position: relative; }
+.method { color: var(--muted); font-size: 14px; background: #f4f3fa; border-radius: 5px; padding: 16px; line-height: 1.6; }
+.evidence-list { margin: 18px 0 26px; border-top: 1px solid var(--line); }
+.evidence-row { padding: 15px 0; border-bottom: 1px solid var(--line); font-size: 14px; overflow-wrap: anywhere; }
+.evidence-title { display: flex; justify-content: space-between; gap: 18px; font-size: 15px; }
+.evidence-title strong { font-size: 13px; color: var(--accent); flex: none; }
+.evidence-note { color: var(--muted); font-size: 13px; margin-top: 6px; overflow-wrap: anywhere; }
+.downloads { display: flex; flex-wrap: wrap; gap: 10px; border-top: 1px solid var(--line); padding-top: 22px; margin-top: 30px; }
+.limit { color: var(--muted); font-size: 13px; line-height: 1.6; margin-top: 16px; }
+footer { max-width: 1600px; margin: auto; padding: 0 32px 28px; color: var(--muted); font-size: 13px; display: flex; gap: 12px; justify-content: space-between; flex-wrap: wrap; }
+@media (min-width: 1550px) { .workspace { grid-template-columns: 410px minmax(0, 1fr); } .report { padding: 32px 38px; } }
+@media (max-width: 1100px) {
+  .header-inner, main { padding-left: 24px; padding-right: 24px; }
+  .intro { align-items: start; flex-direction: column; gap: 16px; }
+  .examples { max-width: none; display: flex; align-items: center; gap: 14px; }
+  .examples-label { margin: 0; }
+  .workspace { grid-template-columns: 330px minmax(0, 1fr); gap: 18px; }
+  .report { padding: 24px; }
+  .editor-scroll { max-height: calc(100vh - 475px); }
+  .metric { padding: 14px 10px; }
+  .metric-title { font-size: 12px; }
+  .metric-value { font-size: 25px; }
+  .market-stat { padding: 12px; }
+  .market-number { font-size: 20px; }
+  .insight-title { flex-direction: column; gap: 7px; }
+  .empty { padding: 28px; }
+  .research-row { grid-template-columns: 1fr; gap: 5px; }
+}
+@media (max-width: 850px) {
+  .header-inner { padding: 16px 20px; }
+  .local span { max-width: 135px; font-size: 12px; }
+  main { padding: 24px 20px 30px; }
+  h1 { font-size: 32px; }
+  .workspace { grid-template-columns: 1fr; }
+  .input-panel { position: static; padding: 20px 22px 0; }
+  .editor-scroll { max-height: none; min-height: 0; overflow: visible; padding-right: 0; }
+  .insight-title { flex-direction: row; }
+  .empty { min-height: 500px; }
+  footer { padding-left: 20px; padding-right: 20px; }
+}
+@media (max-width: 480px) {
+  .header-inner { gap: 12px; padding: 16px; }
+  .brand { gap: 8px; }
+  .brand strong { font-size: 22px; }
+  .logo { width: 31px; height: 31px; }
+  .subbrand { font-size: 12px; }
+  .local { display: none; }
+  main { padding: 22px 14px 28px; }
+  h1 { font-size: 29px; }
+  .examples { display: block; }
+  .examples-label { margin-bottom: 8px; }
+  .example-buttons { gap: 5px; }
+  .example-buttons .button { font-size: 12px; padding: 7px 8px; }
+  .input-panel { padding: 18px 16px 0; }
+  .report { padding: 22px 18px; }
+  .project-name { font-size: 25px; }
+  .metric { padding: 13px 9px; }
+  .metric-value { font-size: 25px; }
+  .metric-unit { display: block; font-size: 12px; margin-top: 3px; margin-left: 0; }
+  .metric-title { font-size: 12px; min-height: 36px; }
+  .market-results { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .market-stat { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .market-stat:nth-child(3n) { border-right: 1px solid var(--line); }
+  .market-stat:nth-child(2n) { border-right: 0; }
+  .market-stat:nth-last-child(-n+3) { border-bottom: 1px solid var(--line); }
+  .market-stat:nth-last-child(-n+2) { border-bottom: 0; }
+  .tabs { gap: 18px; }
+  .tab { font-size: 14px; }
+  .insight-title { flex-direction: column; }
+  .empty { padding: 28px 22px; }
+  .empty h2 { font-size: 30px; }
+  .research-row { grid-template-columns: 1fr; }
+  .downloads .button { width: 100%; }
+  .source-fields { grid-template-columns: 1fr 120px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
+}
+/* Shared semantic surfaces keep the same data readable in every interface. */
+body { font-family: var(--body, "Calibri"), "Segoe UI", Arial, sans-serif; }
+.identity-fields > .label:first-child { margin-top: 0; }
+.field, .button { background: var(--paper); color: var(--ink); border-color: var(--line); }
+.field:hover, .button:hover { border-color: var(--muted); }
+.field::placeholder { color: var(--muted); }
+.button:hover { background: var(--surface); }
+.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.primary:hover { background: var(--accent); border-color: var(--accent); filter: brightness(.93); }
+.badge { color: var(--green); background: var(--positive-bg); }
+.badge.critical { color: var(--red); background: var(--critical-bg); }
+.badge.high { color: var(--amber); background: var(--high-bg); }
+.badge.medium { color: var(--medium); background: var(--medium-bg); }
+.insight.high::before { background: var(--amber); }
+.insight.medium::before { background: var(--medium); }
+.market-results, pre { background: var(--surface); }
+pre { border-left-color: var(--accent); }
+.method { background: var(--accent-soft); }
+.bar { background: var(--line); }
+.bar-range { background: var(--range); }
+.question:hover { color: var(--accent); background: var(--accent-soft); }
+.error { color: var(--red); background: var(--critical-bg); }
+.editor-scroll { scrollbar-color: var(--muted) transparent; }
+.header-tools { display: flex; align-items: center; justify-content: flex-end; gap: 20px; }
+.theme-button { display: flex; gap: 9px; align-items: center; white-space: nowrap; }
+.theme-button span { color: var(--muted); font-size: 13px; font-weight: 400; }
+.theme-button svg { width: 12px; height: 12px; }
+
+/* A native dialog supplies focus trapping, Escape and keyboard activation. */
+.ui-dialog { width: min(920px, calc(100vw - 32px)); max-height: calc(100dvh - 48px); overflow: auto; margin: auto; padding: 26px; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 14px; }
+.ui-dialog::backdrop { background: #101b2baa; }
+.ui-dialog-header { display: flex; justify-content: space-between; gap: 20px; align-items: start; margin-bottom: 24px; }
+.ui-dialog h2 { font-size: 26px; }
+.ui-dialog p { color: var(--muted); font-size: 14px; max-width: 65ch; margin-top: 8px; }
+.ui-close { width: 42px; height: 42px; flex: none; padding: 0; font-size: 24px; line-height: 1; }
+.ui-gallery { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.ui-choice { padding: 10px; background: var(--paper); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; text-align: left; min-width: 0; }
+.ui-choice:hover { border-color: var(--accent); }
+.ui-choice[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ui-choice:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.ui-choice strong { display: block; font: 600 16px/1.3 "Segoe UI", Arial, sans-serif; margin: 12px 0 4px; }
+.ui-choice-copy { font: 13px/1.45 "Calibri", "Segoe UI", sans-serif; color: var(--muted); min-height: 39px; display: block; }
+.ui-thumb { height: 98px; padding: 8px; display: grid; grid-template-columns: 34% 1fr; gap: 5px; background: var(--preview-bg); border: 1px solid var(--preview-line); border-radius: 4px; overflow: hidden; }
+.thumb-editor { padding: 7px 5px; background: var(--preview-paper); border: 1px solid var(--preview-line); border-radius: 3px; display: flex; flex-direction: column; gap: 6px; }
+.thumb-field { height: 8px; width: 100%; border: 1px solid var(--preview-line); border-radius: 1px; }
+.thumb-action { height: 8px; background: var(--preview-accent); margin-top: auto; border-radius: 1px; }
+.thumb-report { padding: 7px; border: 1px solid var(--preview-line); background: var(--preview-paper); border-radius: 3px; display: flex; flex-direction: column; gap: 6px; }
+.thumb-title { height: 4px; width: 70%; background: var(--preview-ink); opacity: .65; }
+.thumb-metrics { display: flex; gap: 3px; margin-top: 3px; }
+.thumb-metrics i { height: 13px; flex: 1; background: var(--preview-bg); border-bottom: 2px solid var(--preview-accent); }
+.thumb-row { height: 4px; background: var(--preview-line); }
+.thumb-night { grid-template-columns: 1fr 34%; }
+.thumb-night .thumb-editor { order: 2; }
+.thumb-terminal, .thumb-terminal > div { border-radius: 0; }
+.thumb-terminal .thumb-metrics { gap: 1px; }
+.thumb-terminal .thumb-row { height: 2px; }
+.thumb-paper .thumb-report { border-radius: 0; border-left: 3px solid var(--preview-accent); }
+.thumb-studio { border-top: 6px solid var(--preview-accent); padding-top: 5px; }
+.thumb-studio .thumb-report { border: 2px solid var(--preview-accent); }
+.thumb-compact { grid-template-columns: 27% 1fr; gap: 3px; padding: 5px; }
+.thumb-compact > div { gap: 4px; padding: 5px; }
+.thumb-focus { grid-template-columns: 1fr; grid-template-rows: 28px 1fr; }
+.thumb-focus .thumb-editor { flex-direction: row; align-items: center; }
+.thumb-focus .thumb-field { flex: 1; }
+.thumb-focus .thumb-action { width: 15%; margin: 0; }
+.thumb-focus .thumb-report { display: grid; grid-template-columns: 1fr 1fr; }
+.thumb-cards .thumb-report { border-radius: 7px; }
+.thumb-cards .thumb-row { height: 12px; border-radius: 3px; }
+.ui-footnote { padding-top: 20px; border-top: 1px solid var(--line); margin-top: 20px !important; }
+
+/* Layout and type, not only colour, distinguish the designs. */
+:root[data-ui="night"] .workspace { grid-template-columns: minmax(0, 1fr) minmax(330px, 380px); }
+:root[data-ui="night"] .input-panel { grid-column: 2; grid-row: 1; }
+:root[data-ui="night"] .result-panel { grid-column: 1; grid-row: 1; }
+:root[data-ui="night"] .panel { border-radius: 8px; }
+:root[data-ui="night"] .market-number { font-family: "Consolas", monospace; font-size: 21px; }
+:root[data-ui="night"] .tabs { gap: 18px; }
+:root[data-ui="terminal"] { --display: "Consolas", monospace; }
+:root[data-ui="terminal"] .panel, :root[data-ui="terminal"] .field,
+:root[data-ui="terminal"] .button, :root[data-ui="terminal"] .market-results,
+:root[data-ui="terminal"] .badge { border-radius: 2px; }
+:root[data-ui="terminal"] .report { padding: 22px; }
+:root[data-ui="terminal"] .brand strong { font-size: 23px; }
+:root[data-ui="terminal"] h1 { font-size: 30px; letter-spacing: -1px; }
+:root[data-ui="terminal"] .project-name { font-size: 24px; }
+:root[data-ui="terminal"] .market-number { font-size: 21px; }
+:root[data-ui="terminal"] .insight { padding-top: 13px; padding-bottom: 13px; }
+:root[data-ui="terminal"] .field { font-size: 14px; }
+:root[data-ui="terminal"] .group > summary { font-size: 14px; padding: 9px 2px; }
+:root[data-ui="paper"] .brand strong { font-family: "Georgia", serif; font-size: 24px; }
+:root[data-ui="paper"] .panel { border-radius: 3px; }
+:root[data-ui="paper"] .report { padding: 34px; border-top: 4px solid var(--accent); }
+:root[data-ui="paper"] .project-name { font-size: 29px; line-height: 1.35; }
+:root[data-ui="paper"] .input-panel { position: static; }
+:root[data-ui="paper"] .editor-scroll { max-height: none; overflow: visible; }
+:root[data-ui="paper"] .insight-title strong { font-family: "Georgia", serif; font-weight: 600; }
+:root[data-ui="paper"] .metric-value, :root[data-ui="paper"] .market-number { font-family: "Georgia", serif; }
+:root[data-ui="paper"] .market-number { font-size: 21px; }
+:root[data-ui="studio"] header { background: var(--accent); }
+:root[data-ui="studio"] .brand, :root[data-ui="studio"] .logo { color: #fff; }
+:root[data-ui="studio"] .subbrand, :root[data-ui="studio"] .local,
+:root[data-ui="studio"] .local svg { color: #e3ebff; }
+:root[data-ui="studio"] .panel { border-radius: 16px; border-width: 2px; }
+:root[data-ui="studio"] .result-panel { border-color: var(--accent); box-shadow: 5px 5px 0 var(--line); }
+:root[data-ui="studio"] .report { padding: 30px; }
+:root[data-ui="studio"] .project-name { font-size: 31px; }
+:root[data-ui="studio"] .metric-value { color: var(--accent); font-size: 34px; }
+:root[data-ui="studio"] .market-results { background: var(--paper); border-radius: 10px; border-width: 2px; }
+:root[data-ui="compact"] .workspace { grid-template-columns: 300px minmax(0, 1fr); gap: 16px; }
+:root[data-ui="compact"] .header-inner { padding-top: 12px; padding-bottom: 12px; }
+:root[data-ui="compact"] main { padding-top: 22px; }
+:root[data-ui="compact"] h1 { font-size: 29px; }
+:root[data-ui="compact"] .input-panel { padding: 16px 16px 0; }
+:root[data-ui="compact"] .report { padding: 20px; }
+:root[data-ui="compact"] .editor-note, :root[data-ui="compact"] .intro p { font-size: 13px; }
+:root[data-ui="compact"] .field { padding: 7px 8px; font-size: 14px; }
+:root[data-ui="compact"] .group > summary { padding: 9px 2px; font-size: 14px; }
+:root[data-ui="compact"] .criterion { padding: 11px 2px; }
+:root[data-ui="compact"] .insight { padding-top: 12px; padding-bottom: 12px; }
+:root[data-ui="compact"] .insight-title strong { font-size: 15px; }
+:root[data-ui="compact"] .market-stat { padding: 10px 12px; }
+:root[data-ui="compact"] .tabs { margin-top: 18px; margin-bottom: 18px; }
+:root[data-ui="compact"] .section { margin: 20px 0; }
+:root[data-ui="focus"] .workspace { grid-template-columns: minmax(0, 1fr); max-width: 1180px; margin: auto; }
+:root[data-ui="focus"] .input-panel { position: static; }
+:root[data-ui="focus"] .editor-scroll { max-height: 440px; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 30px; }
+:root[data-ui="focus"] .research-fields #market-input { margin-top: 0; }
+:root[data-ui="focus"] .report { padding: 32px 38px; }
+:root[data-ui="focus"] .market-results { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+:root[data-ui="focus"] .market-stat { border-bottom: 0; border-right: 1px solid var(--line); }
+:root[data-ui="focus"] .market-stat:nth-child(3n) { border-right: 1px solid var(--line); }
+:root[data-ui="focus"] .market-stat:last-child { border-right: 0; }
+:root[data-ui="cards"] .panel { border-radius: 18px; }
+:root[data-ui="cards"] #findings, :root[data-ui="cards"] #strengths { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+:root[data-ui="cards"] .insight { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 18px; }
+:root[data-ui="cards"] .insight::before { left: 0; height: 28px; top: 18px; }
+:root[data-ui="cards"] .insight-title { flex-direction: column; gap: 7px; }
+:root[data-ui="cards"] #questions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+:root[data-ui="cards"] .question { border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+
+@media (max-width: 1100px) {
+  .header-tools { gap: 12px; }
+  .header-tools .local span { max-width: 180px; }
+  .ui-gallery { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  :root[data-ui="night"] .workspace { grid-template-columns: minmax(0, 1fr) 330px; }
+  :root[data-ui="focus"] .market-results { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  :root[data-ui="focus"] .market-stat { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  :root[data-ui="focus"] .market-stat:nth-child(3n) { border-right: 0; }
+  :root[data-ui="focus"] .market-stat:nth-last-child(-n+3) { border-bottom: 0; }
+  :root[data-ui="cards"] #findings, :root[data-ui="cards"] #strengths,
+  :root[data-ui="cards"] #questions { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 850px) {
+  .header-tools .local { display: none; }
+  :root[data-ui] .workspace { grid-template-columns: minmax(0, 1fr); }
+  :root[data-ui="night"] .input-panel, :root[data-ui="night"] .result-panel { grid-column: auto; grid-row: auto; }
+  :root[data-ui="focus"] .editor-scroll { grid-template-columns: minmax(0, 1fr); max-height: none; gap: 16px; }
+  :root[data-ui="paper"] .report, :root[data-ui="studio"] .report,
+  :root[data-ui="focus"] .report { padding: 24px; }
+  :root[data-ui="paper"] .project-name, :root[data-ui="studio"] .project-name { font-size: 27px; }
+  .theme-button { min-height: 42px; }
+}
+@media (max-width: 480px) {
+  .brand strong { font-size: 20px; }
+  .subbrand { font-size: 11px; max-width: 160px; }
+  .header-inner { gap: 8px; }
+  .header-tools { gap: 0; flex: none; }
+  .theme-button { padding: 8px 10px; font-size: 13px; }
+  .theme-button span { display: none; }
+  .ui-dialog { padding: 20px 16px; max-height: calc(100dvh - 24px); }
+  .ui-dialog h2 { font-size: 23px; }
+  .ui-gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .ui-choice { padding: 8px; }
+  .ui-choice-copy { font-size: 12px; }
+  .ui-thumb { height: 85px; padding: 5px; }
+  :root[data-ui="terminal"] .brand strong, :root[data-ui="paper"] .brand strong { font-size: 19px; }
+  :root[data-ui="terminal"] h1 { font-size: 25px; letter-spacing: -.8px; }
+  :root[data-ui="paper"] .report, :root[data-ui="studio"] .report,
+  :root[data-ui="focus"] .report { padding: 22px 18px; }
+  :root[data-ui="studio"] .metric-value { font-size: 28px; }
+  :root[data-ui="focus"] .market-results { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  :root[data-ui="focus"] .market-stat:nth-child(3n) { border-right: 1px solid var(--line); }
+  :root[data-ui="focus"] .market-stat:nth-child(2n) { border-right: 0; }
+  :root[data-ui="focus"] .market-stat:nth-last-child(-n+3) { border-bottom: 1px solid var(--line); }
+  :root[data-ui="focus"] .market-stat:nth-last-child(-n+2) { border-bottom: 0; }
+}
+
+</style>
+</head>
+<body>
+<header><div class="header-inner">
+  <div class="brand"><div class="logo"><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d="M14 4H4v10M26 4h10v10M36 26v10H26M14 36H4V26" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><rect x="12" y="12" width="16" height="16" rx="3" stroke="currentColor" stroke-width="2.5"/><circle cx="20" cy="20" r="3" fill="currentColor"/></svg></div><div><strong>Криптоскоп</strong><div class="subbrand">Исследование криптопроектов</div></div></div>
+  <div class="header-tools">
+  <div class="local"><svg width="16" height="18" viewBox="0 0 16 18" fill="none" aria-hidden="true"><rect x="2" y="7" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M5 7V4a3 3 0 0 1 6 0v3" stroke="currentColor" stroke-width="1.5"/></svg><span>Данные остаются на этом компьютере</span></div>
+  <button class="button theme-button" id="ui-trigger" type="button" aria-haspopup="dialog">Интерфейсы <span id="ui-name">Досье</span><svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="m2 4 4 4 4-4" stroke="currentColor" stroke-width="1.5"/></svg></button>
+  </div>
+</div></header>
+
+<dialog class="ui-dialog" id="ui-dialog" aria-labelledby="ui-title" aria-describedby="ui-description">
+  <div class="ui-dialog-header"><div><h2 id="ui-title">Выберите интерфейс</h2><p id="ui-description">Восемь тем и компоновок. Введённые факты и результат сохраняются при переключении.</p></div><button class="button ui-close" id="ui-close" type="button" aria-label="Закрыть выбор интерфейса">×</button></div>
+  <div class="ui-gallery" id="ui-gallery" role="group" aria-label="Варианты интерфейса"></div>
+  <p class="ui-footnote" id="ui-storage-note">Оформление сохраняется на этом компьютере. Сведения о проекте хранятся только в профилях, которые вы экспортируете.</p>
+</dialog>
+<main>
+  <div class="intro">
+    <div><h1>Досье криптопроекта</h1><p>Соберите сведения о продукте, токене и безопасности. Проверьте выводы и их основания.</p></div>
+    <div class="examples"><div class="examples-label">Учебные примеры</div><div class="example-buttons">
+      <button class="button" data-example="ready">Полный разбор</button>
+      <button class="button" data-example="risky">Неполная токеномика</button>
+      <button class="button" data-example="incomplete">Мало сведений</button>
+    </div></div>
+  </div>
+  <div class="workspace">
+    <section class="panel input-panel" aria-labelledby="input-title">
+      <div class="panel-title"><h2 id="input-title">Исходные данные</h2><button class="link-button" id="import-button" type="button">Открыть файл</button></div>
+      <p class="editor-note">Факты, источники и даты проверки.</p>
+      <input id="file-input" type="file" accept=".json,.md,.txt" hidden>
+      <form id="project-form"><div class="editor-scroll"><div class="identity-fields"><label class="label" for="name">Название</label><input class="field" id="name" maxlength="200" placeholder="Например, название протокола">
+<label class="label" for="type">Тип проекта</label><select class="field" id="type"><option value="crypto_project">Любой криптопроект</option><option value="defi">DeFi</option><option value="layer1">Блокчейн L1</option><option value="layer2">Решение L2</option><option value="infrastructure">Инфраструктура</option><option value="gaming">Игры и цифровые активы</option></select>
+<div class="row"><div style="flex:1"><label class="label" for="symbol">Тикер</label><input class="field" id="symbol" maxlength="250" placeholder="TOKEN"></div><div style="flex:2"><label class="label" for="network">Сеть</label><input class="field" id="network" maxlength="250" placeholder="Название сети"></div></div><label class="label" for="contract">Контракт / нативный актив</label><input class="field" id="contract" maxlength="250" placeholder="Адрес или описание актива"><label class="label" for="description">Описание и известные сведения</label><textarea class="field" id="description" maxlength="40000" placeholder="Что делает проект и откуда сведения? Например: продукт работает, vesting не раскрыт, аудит опубликован."></textarea><p class="hint">Явные фразы будут распознаны. Проверьте их в критериях; остальные сведения останутся неизвестными.</p>
+</div><div class="research-fields"><details class="group" id="market-input"><summary>Числа и разблокировки</summary><div class="market-input-body"><p class="hint">Числа вводятся вручную. Пустое поле означает неизвестное. Денежные значения — в USD.</p><div class="market-input-grid"><div><label class="label" for="price_usd">Цена, USD</label><input class="field" type="number" step="any" min="0" max="1e30" id="price_usd" placeholder="Неизвестно"></div><div><label class="label" for="circulating_supply">Circulating, токены</label><input class="field" type="number" step="any" min="0" max="1e30" id="circulating_supply" placeholder="Неизвестно"></div><div><label class="label" for="total_supply">Total supply, токены</label><input class="field" type="number" step="any" min="0" max="1e30" id="total_supply" placeholder="Неизвестно"></div><div><label class="label" for="max_supply">Max supply, токены</label><input class="field" type="number" step="any" min="0" max="1e30" id="max_supply" placeholder="Неизвестно"></div><div><label class="label" for="market_cap_usd">Капитализация, USD</label><input class="field" type="number" step="any" min="0" max="1e30" id="market_cap_usd" placeholder="Неизвестно"></div><div><label class="label" for="fdv_usd">FDV источника, USD</label><input class="field" type="number" step="any" min="0" max="1e30" id="fdv_usd" placeholder="Неизвестно"></div><div><label class="label" for="volume_24h_usd">Объём 24ч, USD</label><input class="field" type="number" step="any" min="0" max="1e30" id="volume_24h_usd" placeholder="Неизвестно"></div><div><label class="label" for="next_unlock_tokens">Ближайший unlock, токены</label><input class="field" type="number" step="any" min="0" max="1e30" id="next_unlock_tokens" placeholder="Неизвестно"></div></div><label class="label" for="fdv-basis">База для расчёта FDV</label><select class="field" id="fdv-basis"><option value="total">Total supply</option><option value="max">Max supply</option></select><div class="market-input-grid"><div><label class="label" for="as-of">Дата снимка</label><input class="field" id="as-of" type="date"></div><div><label class="label" for="unlock-date">Дата unlock</label><input class="field" id="unlock-date" type="date"></div></div><label class="label" for="market-source">Источник чисел</label><input class="field" id="market-source" maxlength="2000" placeholder="Ссылка или название источника"><p class="hint">Ссылки фиксируются в отчёте. Содержание источников автоматически не загружается.</p></div></details><div class="criteria-wrap"><div class="criteria-heading">Уточнить критерии <span id="criteria-count" class="hint"></span></div><div id="criteria-groups"></div></div>
+</div></div><div class="footer-form"><button class="button primary" type="submit" id="analyze-button">Проанализировать</button><button class="button" id="reset-button" type="button">Очистить</button></div></form>
+      <div class="error" id="error" role="alert" hidden></div>
+    </section>
+    <section class="panel result-panel" aria-label="Результат анализа">
+      <div class="empty" id="empty">
+        <div class="empty-scope"><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d="M14 4H4v10M26 4h10v10M36 26v10H26M14 36H4V26" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><rect x="12" y="12" width="16" height="16" rx="3" stroke="currentColor" stroke-width="2.5"/><circle cx="20" cy="20" r="3" fill="currentColor"/></svg></div>
+        <h2>Здесь появится разбор проекта</h2>
+        <p>Заполните профиль или откройте учебный пример. Помощник свяжет факты с выводами и подскажет, какие сведения ещё нужны.</p>
+        <div class="research-map">
+          <div class="research-row"><strong>Продукт</strong><span>Работающие функции, реальные пользователи и спрос.</span></div>
+          <div class="research-row"><strong>Токен</strong><span>Предложение, права держателя и разблокировки.</span></div>
+          <div class="research-row"><strong>Безопасность</strong><span>Код, аудит и полномочия администраторов.</span></div>
+        </div>
+        <div class="empty-tip">Неизвестные сведения останутся неизвестными. Источники и даты сохранятся в отчёте.</div>
+      </div>
+      <div class="report" id="report" hidden aria-live="polite">
+        <div class="report-top"><div><div class="report-identity" id="report-identity"></div><h2 class="project-name" id="report-name"></h2></div></div>
+        <div class="status-line"><span class="badge" id="status"></span></div>
+        <p class="summary" id="summary"></p>
+        <div class="metrics">
+          <div class="metric"><div class="metric-title">Проработанность анализа</div><div class="metric-value"><span id="score"></span><span class="metric-unit">из 100</span></div><div class="bar" aria-hidden="true"><div class="bar-range" id="bar-range"></div><div class="bar-known" id="bar-known"></div></div></div>
+          <div class="metric"><div class="metric-title">Полнота сведений</div><div class="metric-value" id="coverage"></div></div>
+          <div class="metric"><div class="metric-title">Замечания</div><div class="metric-value" id="risk-count"></div></div>
+        </div>
+        <div class="section" id="market-section" hidden>
+          <div class="section-heading"><h3>Снимок токеномики</h3><span class="unit-label">Денежные показатели в USD</span></div>
+          <p class="hint" id="market-meta"></p><div class="market-results" id="market-results"></div>
+          <p class="hint" id="market-thresholds"></p><div id="market-warnings"></div>
+        </div>
+        <div class="tabs" role="tablist" aria-label="Разделы анализа">
+          <button class="tab" id="tab-overview" role="tab" aria-controls="view-overview" aria-selected="true" data-tab="overview">Рекомендации</button>
+          <button class="tab" id="tab-evidence" role="tab" aria-controls="view-evidence" aria-selected="false" tabindex="-1" data-tab="evidence">Основания</button>
+          <button class="tab" id="tab-learning" role="tab" aria-controls="view-learning" aria-selected="false" tabindex="-1" data-tab="learning">Для защиты</button>
+        </div>
+        <div id="view-overview" role="tabpanel" aria-labelledby="tab-overview">
+          <div class="section"><h3>Следующие шаги</h3><ol class="action-list" id="actions"></ol></div>
+          <div class="section" id="findings-section"><h3>Что требует внимания</h3><div id="findings"></div></div>
+          <div class="section" id="strengths-section"><h3>На что можно опереться</h3><div id="strengths"></div></div>
+          <div class="section" id="questions-section"><h3>Что ещё выяснить</h3><p class="hint">Нажмите на вопрос, чтобы заполнить соответствующий критерий.</p><div id="questions"></div></div>
+        </div>
+        <div id="view-evidence" role="tabpanel" aria-labelledby="tab-evidence" hidden><div class="method" id="method"></div><div id="warnings"></div><div class="evidence-list" id="evidence-list"></div></div>
+        <div id="view-learning" role="tabpanel" aria-labelledby="tab-learning" hidden>
+          <h3>Логический и продукционный вывод</h3><p class="hint">AND требует всех посылок; OR — хотя бы одной; NOT отрицает известный факт. Неизвестное значение сохраняется.</p><pre id="trace"></pre>
+          <h3>Фрейм проекта и наследование</h3><div class="evidence-list" id="frame"></div>
+          <h3>Связи базы знаний</h3><p class="hint">Связанные объекты на расстоянии до двух рёбер.</p><div class="evidence-list" id="report-network"></div>
+        </div>
+        <div class="downloads"><button class="button" id="download-report">Сохранить отчёт .md</button><button class="button" id="download-profile">Сохранить профиль .json</button></div>
+        <p class="limit" id="limits"></p>
+      </div>
+    </section>
+  </div>
+</main>
+<footer><span>Учебная экспертная система на Python</span><span>Кораблев Максим Игоревич, Б-ИС 24/23 Р</span></footer>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);let schema,current=null;const controls=new Map();const numberFields=['price_usd', 'circulating_supply', 'total_supply', 'max_supply', 'market_cap_usd', 'fdv_usd', 'volume_24h_usd', 'next_unlock_tokens'];
+function element(tag,content,cls){const node=document.createElement(tag);if(content!==undefined)node.textContent=content;if(cls)node.className=cls;return node}
+function showError(message){$('error').textContent=message;$('error').hidden=!message}
+async function request(path,options){const response=await fetch(path,options);const data=await response.json();if(!response.ok)throw Error(data.error||'Не удалось выполнить запрос');return data}
+function buildCriteria(){const groups=new Map();for(const [key,item] of Object.entries(schema.criteria)){if(!groups.has(item.group)){const details=element('details',undefined,'group');const groupTitle=element('summary',item.group);groupTitle.append(element('span','','group-count'));details.append(groupTitle);$('criteria-groups').append(details);groups.set(item.group,details)}const row=element('div',undefined,'criterion');const head=element('div',undefined,'criterion-head');const label=element('label',item.label);label.htmlFor='fact-'+key;const select=element('select',undefined,'field');select.id='fact-'+key;for(const [value,title] of [['','Неизвестно'],['true','Да'],['false','Нет']]){const option=element('option',title);option.value=value;select.append(option)}const note=element('input',undefined,'field evidence');note.placeholder='Основание: что подтверждает ответ?';note.setAttribute('aria-label','Основание: '+item.label);note.maxLength=2000;const recognition=element('div','', 'recognition');const sourceInput=element('input',undefined,'field');sourceInput.placeholder='Источник / ссылка';sourceInput.maxLength=500;sourceInput.setAttribute('aria-label','Источник: '+item.label);const dateInput=element('input',undefined,'field');dateInput.type='date';dateInput.setAttribute('aria-label','Дата: '+item.label);const sourceFields=element('div',undefined,'source-fields');sourceFields.append(sourceInput,dateInput);const control={select,note,recognition,group:groups.get(item.group),manual:false,source:sourceInput,date:dateInput};for(const field of [sourceInput,dateInput])field.addEventListener('input',()=>{control.manual=true});select.addEventListener('change',()=>{control.manual=true;control.recognition.textContent='Уточнено в анкете';updateCount()});note.addEventListener('input',()=>{control.manual=true});head.append(label,select);row.append(head,note,sourceFields,recognition);control.group.append(row);controls.set(key,control)}}
+function updateCount(){const count=[...controls.values()].filter(c=>c.select.value!=='').length;$('criteria-count').textContent='Заполнено '+count+' / '+controls.size;const groups=new Set([...controls.values()].map(c=>c.group));for(const group of groups){const entries=[...controls.values()].filter(c=>c.group===group);group.querySelector('.group-count').textContent=entries.filter(c=>c.select.value!=='').length+' / '+entries.length}}
+function collect(){const facts={};for(const [key,c] of controls){if(c.manual)facts[key]={value:c.select.value===''?null:c.select.value==='true',evidence:c.note.value,source:c.source.value||'Анкета пользователя',date:c.date.value}}const market={quote_currency:'USD',fdv_basis:$('fdv-basis').value,as_of:$('as-of').value,unlock_date:$('unlock-date').value,source:$('market-source').value};for(const key of numberFields)market[key]=$(key).value===''?null:Number($(key).value);return {name:$('name').value,description:$('description').value,type:$('type').value,symbol:$('symbol').value,network:$('network').value,contract:$('contract').value,facts,market}}
+function clearControls(){for(const c of controls.values()){c.select.value='';c.note.value='';c.recognition.textContent='';c.manual=false;c.source.value='';c.date.value=''}for(const group of new Set([...controls.values()].map(c=>c.group)))group.open=false;$('market-input').open=false;document.querySelector('.editor-scroll').scrollTop=0;updateCount()}
+function populate(profile){clearControls();$('name').value=profile.name||'';$('description').value=profile.description||'';$('type').value=Object.hasOwn(schema.frames,profile.type)?profile.type:'crypto_project';for(const [key,raw] of Object.entries(profile.facts||{})){if(!controls.has(key))continue;const item=typeof raw==='object'&&raw!==null?raw:{value:raw};const c=controls.get(key);c.select.value=item.value===true?'true':item.value===false?'false':'';c.note.value=item.evidence||'';c.source.value=item.source||'';c.date.value=item.date||'';c.manual=true;c.recognition.textContent=c.source.value||'Загружено из профиля'}for(const key of ['symbol','network','contract'])$(key).value=profile[key]||'';const market=profile.market||{};for(const key of numberFields)$(key).value=market[key]??'';$('fdv-basis').value=market.fdv_basis||'total';$('as-of').value=market.as_of||'';$('unlock-date').value=market.unlock_date||'';$('market-source').value=market.source||'';updateCount()}
+function labels(){const data={};for(const [key,item] of Object.entries(schema.criteria))data[key]=item.label;for(const rule of schema.rules)data[rule.then]=rule.label;Object.assign(data,schema.computed);return data}
+function proofText(proof,level=0){const value=proof.value===true?'ДА':proof.value===false?'НЕТ':'НЕИЗВЕСТНО';const names=labels();let output='  '.repeat(level)+(names[proof.fact]||proof.fact)+': '+value+' ['+(proof.rule||(proof.source==='calculation'?'расчёт по введённым числам':'введённое утверждение'))+']';for(const child of proof.children||[])output+='\n'+proofText(child,level+1);return output}
+function insight(item){const box=element('div',undefined,'insight '+(item.severity||'strength'));const title=element('div',undefined,'insight-title');title.append(element('strong',item.label));if(item.severity)title.append(element('span',{critical:'Препятствие',high:'Приоритет',medium:'Улучшение'}[item.severity],'badge '+item.severity));box.append(title);if(item.action)box.append(element('p',item.action));const details=element('details');details.append(element('summary','Показать объяснение ('+item.rule+')'),element('pre',proofText(item.proof)));box.append(details);return box}
+function selectTab(name){for(const tab of document.querySelectorAll('[data-tab]')){tab.setAttribute('aria-selected',String(tab.dataset.tab===name));tab.tabIndex=tab.dataset.tab===name?0:-1}for(const n of ['overview','evidence','learning'])$('view-'+n).hidden=n!==name}
+function render(result){current=result;$('empty').hidden=true;$('report').hidden=false;$('report-name').textContent=result.project.name;$('report-identity').textContent=[$('type').selectedOptions[0].textContent,result.project.symbol,result.project.network].filter(Boolean).join(', ');$('status').textContent=result.status_label;$('status').className='badge '+({blocked:'critical',revise:'high'}[result.status]||'');$('summary').textContent='Известны '+result.score.known+' из '+result.score.total+' применимых критериев. '+(result.findings.length?'Замечания основаны на введённых сведениях и расчётах.':'По известным фактам проблемные правила не сработали.');$('score').textContent=result.score.min===result.score.max?result.score.min:result.score.min+'–'+result.score.max;$('coverage').textContent=result.score.coverage+'%';$('risk-count').textContent=result.findings.length;$('bar-known').style.width=result.score.min+'%';$('bar-range').style.width=result.score.max+'%';$('limits').textContent=result.limits;$('actions').replaceChildren(...(result.next_actions.length?result.next_actions:['Сравните проект с аналогами на одну дату и сверьте основания с первичными источниками.']).map(action=>element('li',action)));for(const name of ['findings','strengths']){$(name).replaceChildren(...result[name].map(insight));$(name+'-section').hidden=!result[name].length}$('questions').replaceChildren(...result.questions.map(item=>{const button=element('button',item.question,'question');button.onclick=()=>{const c=controls.get(item.id);c.group.open=true;c.select.focus();c.select.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'center'})};return button}));$('questions-section').hidden=!result.questions.length;
+ $('method').textContent='Диапазон '+result.score.min+'–'+result.score.max+' отражает известные положительные критерии и неизвестные ответы. Веса заданы в базе знаний. Это учебная оценка готовности по заявленным данным. Применимых критериев: '+result.score.total+'. Токеномика исключается при явном отсутствии собственного токена.';$('warnings').replaceChildren(...result.warnings.map(message=>element('p',message,'error')));$('evidence-list').replaceChildren(...result.criteria.map(item=>{const row=element('div',undefined,'evidence-row');const title=element('div',undefined,'evidence-title');const value=!item.applicable?'Не применяется':item.value===true?'Да':item.value===false?'Нет':'Неизвестно';title.append(element('span',item.label),element('strong',value));row.append(title,element('div',item.evidence||'Основание не указано','evidence-note'));if(item.source||item.date)row.append(element('div',[item.source,item.date].filter(Boolean).join(' · '),'evidence-note'));return row}));$('trace').textContent=result.trace.length?result.trace.map(event=>event.rule+': '+event.condition+'\n  => '+(labels()[event.conclusion]||event.conclusion)).join('\n\n'):'Правила не сработали: исходные факты ещё не определены.';$('frame').replaceChildren(...Object.entries(result.frame.slots).map(([key,value])=>element('div',key+': '+value+' · '+(result.frame.origins[key]===result.frame.name?'собственное свойство':'унаследовано из '+result.frame.origins[key]),'evidence-row')));$('report-network').replaceChildren(...result.related.map(item=>element('div',item.label+' · расстояние '+item.distance,'evidence-row')));for(const item of result.criteria){const c=controls.get(item.id);if(!c.manual){c.select.value=item.value===true?'true':item.value===false?'false':'';c.note.value=item.evidence;c.recognition.textContent=item.origin==='description'?'Распознано из описания — проверьте':'';c.source.value=item.source;c.date.value=item.date}}const numbers=result.tokenomics;const values=numbers.values;const available=Object.values(values).some(v=>v!==null);$('market-section').hidden=!available;$('market-meta').textContent='Дата: '+(numbers.input.as_of||'не указана')+'. База FDV: '+numbers.input.fdv_basis+' supply. Источник: '+(numbers.input.source||'не указан');const definitions=[['market_cap_usd','Капитализация','USD'],['fdv_usd','FDV','USD'],['fdv_to_cap','FDV / капитализация','×'],['circulating_share_pct','Доля в обращении','%'],['unlock_share_pct','Unlock / обращение','%'],['volume_to_cap_pct','Объём 24ч / капитализация','%']];$('market-results').replaceChildren(...definitions.map(([key,label,unit])=>{const box=element('div',undefined,'market-stat');const value=values[key];box.append(element('div',label,'hint'),element('div',value===null?'Неизвестно':new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2,notation:value>=1e6?'compact':'standard'}).format(value)+' '+unit,'market-number'+(value===null?' unknown':'')));return box}));$('market-thresholds').textContent=numbers.thresholds;$('market-warnings').replaceChildren(...numbers.warnings.map(w=>element('p',w,'error')));updateCount();selectTab('overview')}
+async function analyze(){const button=$('analyze-button');button.disabled=true;button.textContent='Анализирую…';showError('');try{const result=await request('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(collect())});render(result);if(innerWidth<=850||document.documentElement.dataset.ui==='focus')$('report').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'})}catch(error){showError(error.message)}finally{button.disabled=false;button.textContent='Проанализировать'}}
+function download(filename,body,type){const url=URL.createObjectURL(new Blob([body],{type}));const anchor=document.createElement('a');anchor.href=url;anchor.download=filename;document.body.append(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+$('project-form').addEventListener('submit',event=>{event.preventDefault();analyze()});$('reset-button').onclick=()=>{$('project-form').reset();clearControls();current=null;$('report').hidden=true;$('empty').hidden=false;showError('')};$('import-button').onclick=()=>$('file-input').click();$('file-input').onchange=async()=>{const file=$('file-input').files[0];if(!file)return;try{if(file.size>262144)throw Error('Файл должен быть не больше 256 КБ');const raw=(await file.text()).replace(/^\uFEFF/,'');if(file.name.toLowerCase().endsWith('.json')){const profile=JSON.parse(raw);if(!profile||Array.isArray(profile)||typeof profile!=='object')throw Error('Профиль должен быть объектом JSON');const result=await request('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(profile)});populate(profile);render(result);showError('')}else{populate({name:file.name.replace(/\.[^.]+$/,''),description:raw});showError('');await analyze()}}catch(error){showError('Не удалось открыть файл: '+error.message)}finally{$('file-input').value=''}};for(const button of document.querySelectorAll('[data-example]'))button.onclick=async()=>{try{populate(await request('/api/examples/'+button.dataset.example));await analyze()}catch(error){showError(error.message)}};for(const button of document.querySelectorAll('[data-tab]'))button.onclick=()=>selectTab(button.dataset.tab);$('download-report').onclick=()=>{if(current)download('crypto-report.md',current.markdown,'text/markdown;charset=utf-8')};$('download-profile').onclick=()=>{if(current)download('crypto-profile.json',JSON.stringify(current.project,null,2),'application/json;charset=utf-8')};
+request('/api/schema').then(data=>{schema=data;buildCriteria();updateCount()}).catch(error=>{showError('База знаний не загрузилась: '+error.message);$('analyze-button').disabled=true});
+
+document.querySelector('[role="tablist"]').addEventListener('keydown',event=>{
+  if(!['ArrowRight','ArrowLeft','Home','End'].includes(event.key))return;
+  const tabs=[...document.querySelectorAll('[data-tab]')];
+  const currentIndex=tabs.indexOf(event.target);
+  if(currentIndex<0)return;
+  const next=event.key==='Home'?0:event.key==='End'?tabs.length-1:(currentIndex+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
+  event.preventDefault();selectTab(tabs[next].dataset.tab);tabs[next].focus();
+});
+const UI_DEFAULTS={
+  'on-accent':'#ffffff','surface':'#f8f9fc','accent-soft':'#f0edfc','range':'#d9d1f6',
+  'red':'#9b382e','critical-bg':'#fceee9','amber':'#81531b','high-bg':'#fff3dc',
+  'green':'#25604f','positive-bg':'#eaf4ef','medium':'#65506f','medium-bg':'#f0ebf4',
+  'display':'"Bahnschrift", "Segoe UI", Arial, sans-serif','body':'"Calibri"'
+};
+const UI_DARK={
+  'on-accent':'#17222b','red':'#ffb3a7','critical-bg':'#482e33','amber':'#edce9c','high-bg':'#433b2b',
+  'green':'#b3e2ce','positive-bg':'#263e36','medium':'#d6c1e3','medium-bg':'#3b3046'
+};
+const UI_DESIGNS={
+  dossier:{name:'Досье',copy:'Редактор слева, разбор справа. Светлая аналитическая среда.',tokens:{
+    bg:'#eef1f6',paper:'#ffffff',ink:'#1c2640',muted:'#5e6a80',line:'#d9deea',accent:'#5947c7'
+  }},
+  night:{name:'Ночной',copy:'Тёмная среда. Результат слева, исходные данные справа.',dark:true,tokens:{
+    bg:'#101b2b',paper:'#19283b',ink:'#eaf0f8',muted:'#b4c3d5',line:'#35465c',accent:'#8ecbcd',
+    surface:'#202f43','accent-soft':'#25384e',range:'#527b87',display:'"Segoe UI", Arial, sans-serif',body:'"Segoe UI"'
+  }},
+  terminal:{name:'Терминал',copy:'Графит, янтарь и моноширинный текст. Плотное представление.',dark:true,tokens:{
+    bg:'#21242a',paper:'#292d35',ink:'#f2ebdc',muted:'#c7c0b5',line:'#4f525b',accent:'#eac282',
+    surface:'#32363e','accent-soft':'#3c3732',range:'#796649',display:'"Consolas", monospace',body:'"Consolas"'
+  }},
+  paper:{name:'Бумага',copy:'Исследовательский лист. Книжная типографика и спокойные оттенки.',tokens:{
+    bg:'#eae7e2',paper:'#fffefa',ink:'#343129',muted:'#696256',line:'#d3cec2',accent:'#775c36',
+    surface:'#f5f2ec','accent-soft':'#eee7dc',range:'#d8c7ae',display:'"Georgia", serif'
+  }},
+  studio:{name:'Студия',copy:'Синий рабочий стол. Крупные заголовки и выразительные контуры.',tokens:{
+    bg:'#e7eeff',paper:'#ffffff',ink:'#1d2e55',muted:'#536684',line:'#bdcbe6',accent:'#2049ac',
+    surface:'#f2f6ff','accent-soft':'#e8efff',range:'#b8c9ef'
+  }},
+  compact:{name:'Компактный',copy:'Больше данных в одном окне. Узкий редактор и короткие строки.',tokens:{
+    bg:'#f1f3f4',paper:'#ffffff',ink:'#253236',muted:'#59696e',line:'#d1d9dc',accent:'#235e69',
+    surface:'#f4f7f7','accent-soft':'#e9f0f1',range:'#bfd5d9',display:'"Arial Narrow", "Bahnschrift", Arial, sans-serif'
+  }},
+  focus:{name:'Фокус',copy:'Широкий профиль сверху. Разбор занимает всю ширину страницы.',tokens:{
+    bg:'#f0f1f8',paper:'#ffffff',ink:'#25283d',muted:'#63657b',line:'#d8d9e8',accent:'#5c4cac',
+    surface:'#f6f6fb','accent-soft':'#efedf8',range:'#d4cdee',display:'"Calibri", "Segoe UI", Arial, sans-serif'
+  }},
+  cards:{name:'Карточки',copy:'Замечания и вопросы отдельными плитками. Мягкие зелёные оттенки.',tokens:{
+    bg:'#e9f2ee',paper:'#ffffff',ink:'#223a32',muted:'#566f65',line:'#cbddd4',accent:'#26644c',
+    surface:'#f4f8f5','accent-soft':'#eaf3ec',range:'#b8d5c3',display:'"Segoe UI", Arial, sans-serif',body:'"Segoe UI"'
+  }}
+};
+function applyUI(key,remember=false){
+  const chosen=Object.hasOwn(UI_DESIGNS,key)?key:'dossier';
+  const design=UI_DESIGNS[chosen];
+  const tokens={...UI_DEFAULTS,...(design.dark?UI_DARK:{}),...design.tokens};
+  for(const [token,value] of Object.entries(tokens))document.documentElement.style.setProperty('--'+token,value);
+  document.documentElement.dataset.ui=chosen;
+  document.documentElement.style.colorScheme=design.dark?'dark':'light';
+  $('ui-name').textContent=design.name;
+  $('ui-trigger').setAttribute('aria-label','Выбрать интерфейс. Сейчас: '+design.name);
+  for(const button of document.querySelectorAll('[data-ui-choice]'))button.setAttribute('aria-pressed',String(button.dataset.uiChoice===chosen));
+  if(remember){
+    try{localStorage.setItem('cryptoscope-ui-v1',chosen)}
+    catch{$('ui-storage-note').textContent='Выбранный интерфейс действует в этом сеансе. Браузер не разрешил сохранить настройку.'}
+  }
+}
+function buildUIChoices(){
+  for(const [key,design] of Object.entries(UI_DESIGNS)){
+    const button=element('button',undefined,'ui-choice');
+    button.type='button';button.dataset.uiChoice=key;button.setAttribute('aria-pressed','false');
+    const thumb=element('div',undefined,'ui-thumb thumb-'+key);thumb.setAttribute('aria-hidden','true');
+    for(const token of ['bg','paper','ink','line','accent'])thumb.style.setProperty('--preview-'+token,design.tokens[token]);
+    const editor=element('div',undefined,'thumb-editor');
+    editor.append(element('div',undefined,'thumb-field'),element('div',undefined,'thumb-field'),element('div',undefined,'thumb-field'),element('div',undefined,'thumb-action'));
+    const report=element('div',undefined,'thumb-report');
+    const metrics=element('div',undefined,'thumb-metrics');metrics.append(element('i'),element('i'),element('i'));
+    report.append(element('div',undefined,'thumb-title'),metrics,element('div',undefined,'thumb-row'),element('div',undefined,'thumb-row'));
+    thumb.append(editor,report);
+    button.append(thumb,element('strong',design.name),element('span',design.copy,'ui-choice-copy'));
+    button.onclick=()=>{applyUI(key,true);$('ui-dialog').close()};
+    $('ui-gallery').append(button);
+  }
+}
+buildUIChoices();
+let savedUI='dossier';
+try{savedUI=localStorage.getItem('cryptoscope-ui-v1')||'dossier'}catch{}
+applyUI(savedUI);
+$('ui-trigger').onclick=()=>$('ui-dialog').showModal();
+$('ui-close').onclick=()=>$('ui-dialog').close();
+$('ui-dialog').addEventListener('click',event=>{if(event.target===$('ui-dialog')){const rect=$('ui-dialog').getBoundingClientRect();if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)$('ui-dialog').close()}});
+
+</script>
+</body>
+</html>

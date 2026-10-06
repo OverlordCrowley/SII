@@ -1,0 +1,750 @@
+{
+  "version": 2,
+  "criteria": {
+    "product_exists": {
+      "label": "Есть работающий продукт",
+      "group": "Продукт",
+      "weight": 6,
+      "question": "Что уже работает: mainnet, приложение или сервис?",
+      "positive": [
+        "продукт работает"
+      ],
+      "negative": [
+        "работающего продукта нет"
+      ]
+    },
+    "problem_defined": {
+      "label": "Описана решаемая проблема",
+      "group": "Продукт",
+      "weight": 4,
+      "question": "Какую проблему решает проект и для кого?",
+      "positive": [
+        "проблема описана"
+      ],
+      "negative": [
+        "проблема не описана"
+      ]
+    },
+    "users_active": {
+      "label": "Есть реальные пользователи",
+      "group": "Продукт",
+      "weight": 8,
+      "question": "Есть ли реальные пользователи, помимо участников раздач?",
+      "positive": [
+        "есть реальные пользователи"
+      ],
+      "negative": [
+        "реальных пользователей нет"
+      ]
+    },
+    "usage_evidence": {
+      "label": "Спрос подтверждён метриками",
+      "group": "Продукт",
+      "weight": 6,
+      "question": "Какими метриками и источниками подтверждается использование?",
+      "positive": [
+        "спрос подтверждён метриками"
+      ],
+      "negative": [
+        "спрос не подтверждён"
+      ]
+    },
+    "revenue_disclosed": {
+      "label": "Экономика продукта раскрыта",
+      "group": "Продукт",
+      "weight": 4,
+      "question": "Откуда доходы, что получает протокол и что достаётся держателю?",
+      "positive": [
+        "экономика продукта раскрыта"
+      ],
+      "negative": [
+        "экономика продукта не раскрыта"
+      ]
+    },
+    "competition_analyzed": {
+      "label": "Есть сравнение с конкурентами",
+      "group": "Продукт",
+      "weight": 4,
+      "question": "С какими проектами сравнивали и по каким одинаковым метрикам?",
+      "positive": [
+        "конкуренты разобраны"
+      ],
+      "negative": [
+        "конкуренты не разобраны"
+      ]
+    },
+    "team_identified": {
+      "label": "Команда и её история разобраны",
+      "group": "Команда",
+      "weight": 4,
+      "question": "Кто отвечает за проект и какие результаты команды проверены?",
+      "positive": [
+        "команда разобрана"
+      ],
+      "negative": [
+        "команда не разобрана"
+      ]
+    },
+    "roadmap_delivery": {
+      "label": "Выполнение roadmap проверено",
+      "group": "Команда",
+      "weight": 5,
+      "question": "Какие обещанные этапы уже выполнены и где это видно?",
+      "positive": [
+        "roadmap проверен"
+      ],
+      "negative": [
+        "roadmap не проверен"
+      ]
+    },
+    "has_token": {
+      "label": "У проекта есть или планируется токен",
+      "group": "Токеномика",
+      "weight": 0,
+      "question": "Есть ли собственный токен, включая планируемый выпуск?",
+      "positive": [
+        "у проекта есть токен"
+      ],
+      "negative": [
+        "у проекта нет токена"
+      ]
+    },
+    "token_role_defined": {
+      "label": "Роль токена описана",
+      "group": "Токеномика",
+      "weight": 6,
+      "question": "Для чего токен нужен в продукте: оплата, залог, управление?",
+      "positive": [
+        "роль токена описана"
+      ],
+      "negative": [
+        "роль токена не описана"
+      ],
+      "applies_if": "has_token"
+    },
+    "token_value_link": {
+      "label": "Связь продукта с ценностью токена разобрана",
+      "group": "Токеномика",
+      "weight": 6,
+      "question": "Как использование продукта связано со спросом на токен?",
+      "positive": [
+        "связь с ценностью токена разобрана"
+      ],
+      "negative": [
+        "связь с ценностью токена не разобрана"
+      ],
+      "applies_if": "has_token"
+    },
+    "holder_rights_clear": {
+      "label": "Права держателя описаны",
+      "group": "Токеномика",
+      "weight": 5,
+      "question": "Что именно получает держатель: права, выплаты или только голосование?",
+      "positive": [
+        "права держателя описаны"
+      ],
+      "negative": [
+        "права держателя не описаны"
+      ],
+      "applies_if": "has_token"
+    },
+    "supply_disclosed": {
+      "label": "Предложение токена раскрыто",
+      "group": "Токеномика",
+      "weight": 6,
+      "question": "Известны circulating, total и max supply и их определения?",
+      "positive": [
+        "предложение токена раскрыто"
+      ],
+      "negative": [
+        "предложение токена не раскрыто"
+      ],
+      "applies_if": "has_token"
+    },
+    "emission_disclosed": {
+      "label": "Эмиссия и сжигание разобраны",
+      "group": "Токеномика",
+      "weight": 5,
+      "question": "Кто может выпускать новые токены и как меняется предложение?",
+      "positive": [
+        "эмиссия разобрана"
+      ],
+      "negative": [
+        "эмиссия не разобрана"
+      ],
+      "applies_if": "has_token"
+    },
+    "vesting_disclosed": {
+      "label": "Распределение и vesting раскрыты",
+      "group": "Токеномика",
+      "weight": 6,
+      "question": "Как распределены токены команды, инвесторов и сообщества?",
+      "positive": [
+        "vesting раскрыт"
+      ],
+      "negative": [
+        "vesting не раскрыт"
+      ],
+      "applies_if": "has_token"
+    },
+    "unlock_schedule_known": {
+      "label": "График разблокировок известен",
+      "group": "Токеномика",
+      "weight": 6,
+      "question": "Какие объёмы и кому разблокируются по датам?",
+      "positive": [
+        "график разблокировок известен"
+      ],
+      "negative": [
+        "график разблокировок неизвестен"
+      ],
+      "applies_if": "has_token"
+    },
+    "concentration_known": {
+      "label": "Концентрация владения разобрана",
+      "group": "Токеномика",
+      "weight": 4,
+      "question": "Какая доля у крупных держателей и что за этими адресами?",
+      "positive": [
+        "концентрация владения разобрана"
+      ],
+      "negative": [
+        "концентрация владения не разобрана"
+      ],
+      "applies_if": "has_token"
+    },
+    "liquidity_known": {
+      "label": "Ликвидность исследована",
+      "group": "Рынок",
+      "weight": 4,
+      "question": "Известны глубина рынков, спреды и доступность площадок?",
+      "positive": [
+        "ликвидность исследована"
+      ],
+      "negative": [
+        "ликвидность не исследована"
+      ]
+    },
+    "valuation_comparable": {
+      "label": "Оценка сопоставлена с аналогами",
+      "group": "Рынок",
+      "weight": 5,
+      "question": "Сравнили капитализацию и FDV с аналогами на одну дату?",
+      "positive": [
+        "оценка сопоставлена с аналогами"
+      ],
+      "negative": [
+        "оценка не сопоставлена с аналогами"
+      ]
+    },
+    "code_public": {
+      "label": "Код доступен для изучения",
+      "group": "Безопасность",
+      "weight": 4,
+      "question": "Доступен ли код и соответствует ли он развёрнутой версии?",
+      "positive": [
+        "код опубликован"
+      ],
+      "negative": [
+        "код не опубликован"
+      ]
+    },
+    "audit_available": {
+      "label": "Аудит доступен для изучения",
+      "group": "Безопасность",
+      "weight": 6,
+      "question": "Есть ли отчёт аудита, его дата, область проверки и исправления?",
+      "positive": [
+        "аудит опубликован"
+      ],
+      "negative": [
+        "аудит не опубликован"
+      ]
+    },
+    "admin_controls_known": {
+      "label": "Права администраторов разобраны",
+      "group": "Безопасность",
+      "weight": 5,
+      "question": "Кто может менять контракты, выпускать токены или останавливать работу?",
+      "positive": [
+        "права администраторов разобраны"
+      ],
+      "negative": [
+        "права администраторов не разобраны"
+      ]
+    },
+    "incident_history_known": {
+      "label": "История инцидентов проверена",
+      "group": "Безопасность",
+      "weight": 3,
+      "question": "Какие инциденты были и как команда их объяснила и исправила?",
+      "positive": [
+        "история инцидентов проверена"
+      ],
+      "negative": [
+        "история инцидентов не проверена"
+      ]
+    },
+    "chain_asset_verified": {
+      "label": "Сеть и актив однозначно определены",
+      "group": "Безопасность",
+      "weight": 5,
+      "question": "Сверены ли сеть, контракт или нативный актив с первичным источником?",
+      "positive": [
+        "сеть и актив сверены"
+      ],
+      "negative": [
+        "сеть и актив не сверены"
+      ]
+    },
+    "sources_current": {
+      "label": "Источники актуальны",
+      "group": "Источники",
+      "weight": 4,
+      "question": "Какие первичные источники использованы и когда проверены?",
+      "positive": [
+        "источники актуальны"
+      ],
+      "negative": [
+        "источники устарели"
+      ]
+    },
+    "metrics_dated": {
+      "label": "Числа имеют даты и источники",
+      "group": "Источники",
+      "weight": 3,
+      "question": "На какую дату указаны цена, предложение и метрики продукта?",
+      "positive": [
+        "метрики датированы"
+      ],
+      "negative": [
+        "метрики не датированы"
+      ]
+    }
+  },
+  "computed": {
+    "fdv_gap_high": "FDV / капитализация не меньше 3",
+    "low_float": "В обращении меньше 25% выбранного предложения",
+    "large_unlock": "Заявленная разблокировка не меньше 10% обращения"
+  },
+  "rules": [
+    {
+      "id": "R01",
+      "if": "product_exists AND users_active AND usage_evidence",
+      "then": "product_evidence",
+      "label": "Есть сведения об использовании продукта",
+      "priority": 0
+    },
+    {
+      "id": "R02",
+      "if": "token_role_defined AND token_value_link AND holder_rights_clear",
+      "then": "token_case",
+      "label": "Роль токена и права держателя описаны",
+      "priority": 0
+    },
+    {
+      "id": "R03",
+      "if": "supply_disclosed AND emission_disclosed AND vesting_disclosed AND unlock_schedule_known AND concentration_known",
+      "then": "tokenomics_clear",
+      "label": "Основные условия предложения раскрыты",
+      "priority": 0
+    },
+    {
+      "id": "R04",
+      "if": "code_public AND audit_available AND admin_controls_known AND incident_history_known",
+      "then": "security_docs",
+      "label": "Есть материалы для проверки безопасности",
+      "priority": 0
+    },
+    {
+      "id": "R05",
+      "if": "sources_current AND metrics_dated AND chain_asset_verified",
+      "then": "evidence_ready",
+      "label": "Источники и идентификация актива описаны",
+      "priority": 0
+    },
+    {
+      "id": "R06",
+      "if": "product_evidence AND (NOT has_token OR (token_case AND tokenomics_clear)) AND security_docs AND evidence_ready AND liquidity_known AND valuation_comparable AND team_identified AND roadmap_delivery",
+      "then": "research_ready",
+      "label": "Есть основа для углублённого сравнения",
+      "priority": 0
+    },
+    {
+      "id": "R07",
+      "if": "NOT product_exists OR NOT users_active",
+      "then": "product_gap",
+      "label": "Работающий продукт или пользователи не подтверждены",
+      "priority": 2,
+      "severity": "high",
+      "action": "Отделите работающие функции от обещаний; проверьте реальные сценарии использования."
+    },
+    {
+      "id": "R08",
+      "if": "NOT usage_evidence",
+      "then": "demand_gap",
+      "label": "Нет подтверждения спроса метриками",
+      "priority": 2,
+      "severity": "high",
+      "action": "Найдите данные об использовании и проверьте, не объясняются ли они только стимулами и раздачами."
+    },
+    {
+      "id": "R09",
+      "if": "NOT problem_defined OR NOT competition_analyzed",
+      "then": "positioning_gap",
+      "label": "Проблема или конкуренты не разобраны",
+      "priority": 1,
+      "severity": "medium",
+      "action": "Опишите пользователя и сравните решение с аналогами по одинаковым критериям."
+    },
+    {
+      "id": "R10",
+      "if": "NOT chain_asset_verified",
+      "then": "asset_identification_gap",
+      "label": "Сеть и актив не сверены",
+      "priority": 3,
+      "severity": "critical",
+      "action": "Сверьте сеть и адрес контракта или нативный актив с первичным источником."
+    },
+    {
+      "id": "R11",
+      "if": "has_token AND NOT token_value_link",
+      "then": "token_value_gap",
+      "label": "Связь продукта с ценностью токена не разобрана",
+      "priority": 2,
+      "severity": "high",
+      "action": "Проверьте механизм спроса на токен, распределения доходов и прав; успех продукта сам по себе не задаёт доход держателя."
+    },
+    {
+      "id": "R12",
+      "if": "NOT team_identified AND NOT code_public",
+      "then": "transparency_gap",
+      "label": "Команда и код не доступны для проверки",
+      "priority": 3,
+      "severity": "critical",
+      "action": "Соберите проверяемые сведения о разработке и ответственности за проект."
+    },
+    {
+      "id": "R13",
+      "if": "has_token AND (NOT vesting_disclosed OR NOT unlock_schedule_known)",
+      "then": "unlock_opacity",
+      "label": "Распределение или график unlocks не раскрыты",
+      "priority": 2,
+      "severity": "high",
+      "action": "Найдите условия распределения, cliff, vesting, получателей и календарь разблокировок."
+    },
+    {
+      "id": "R14",
+      "if": "has_token AND (NOT supply_disclosed OR NOT emission_disclosed)",
+      "then": "emission_gap",
+      "label": "Предложение или эмиссия не разобраны",
+      "priority": 2,
+      "severity": "high",
+      "action": "Сверьте определения supply и полномочия выпуска новых токенов."
+    },
+    {
+      "id": "R15",
+      "if": "has_token AND NOT concentration_known",
+      "then": "concentration_gap",
+      "label": "Концентрация владения не разобрана",
+      "priority": 1,
+      "severity": "medium",
+      "action": "Проверьте крупнейшие адреса; отделите биржи, мосты и treasury от отдельных владельцев."
+    },
+    {
+      "id": "R16",
+      "if": "NOT audit_available AND NOT admin_controls_known",
+      "then": "security_gap",
+      "label": "Аудит и права администраторов не изучены",
+      "priority": 3,
+      "severity": "critical",
+      "action": "Найдите аудит развёрнутой версии и проверьте upgrade, pause, mint и управление ключами."
+    },
+    {
+      "id": "R17",
+      "if": "NOT sources_current OR NOT metrics_dated",
+      "then": "evidence_gap",
+      "label": "Источники устарели или числа не датированы",
+      "priority": 2,
+      "severity": "high",
+      "action": "Обновите первичные источники и подпишите даты и единицы измерения."
+    },
+    {
+      "id": "R18",
+      "if": "NOT liquidity_known",
+      "then": "liquidity_gap",
+      "label": "Ликвидность не исследована",
+      "priority": 1,
+      "severity": "medium",
+      "action": "Проверьте глубину и спреды; один торговый объём не описывает ликвидность."
+    },
+    {
+      "id": "R19",
+      "if": "NOT valuation_comparable",
+      "then": "comparison_gap",
+      "label": "Нет сопоставления с аналогами",
+      "priority": 1,
+      "severity": "medium",
+      "action": "Сравните проекты одного сегмента, используя одну дату, валюту и определения метрик."
+    },
+    {
+      "id": "R20",
+      "if": "NOT revenue_disclosed",
+      "then": "economics_gap",
+      "label": "Экономика продукта не раскрыта",
+      "priority": 1,
+      "severity": "medium",
+      "action": "Разделите fees, доход протокола, субсидии и выплаты держателям токена."
+    },
+    {
+      "id": "R21",
+      "if": "has_token AND NOT holder_rights_clear",
+      "then": "holder_rights_gap",
+      "label": "Права держателя не описаны",
+      "priority": 2,
+      "severity": "high",
+      "action": "Проверьте, какие права даёт токен и чем они закреплены."
+    },
+    {
+      "id": "R22",
+      "if": "fdv_gap_high",
+      "then": "fdv_gap",
+      "label": "FDV существенно выше текущей капитализации",
+      "priority": 1,
+      "severity": "medium",
+      "action": "Сверьте базу FDV и график изменения предложения; отношение само по себе не предсказывает цену."
+    },
+    {
+      "id": "R23",
+      "if": "low_float",
+      "then": "float_gap",
+      "label": "Небольшая доля предложения находится в обращении",
+      "priority": 1,
+      "severity": "medium",
+      "action": "Изучите нециркулирующие токены, распределение и условия их выхода в обращение."
+    },
+    {
+      "id": "R24",
+      "if": "large_unlock",
+      "then": "unlock_size",
+      "label": "Заявленный объём unlock значителен относительно обращения",
+      "priority": 2,
+      "severity": "high",
+      "action": "Сверьте дату, получателей и объём; разблокировка не означает автоматическую продажу."
+    },
+    {
+      "id": "R25",
+      "if": "NOT code_public",
+      "then": "code_gap",
+      "label": "Код не доступен для изучения",
+      "priority": 2,
+      "severity": "high",
+      "action": "Найдите репозиторий или верифицированный код развёрнутых контрактов."
+    },
+    {
+      "id": "R26",
+      "if": "NOT incident_history_known",
+      "then": "incident_gap",
+      "label": "История инцидентов не проверена",
+      "priority": 1,
+      "severity": "medium",
+      "action": "Проверьте отчёты об инцидентах и изменения после них."
+    },
+    {
+      "id": "R27",
+      "if": "NOT roadmap_delivery",
+      "then": "delivery_gap",
+      "label": "Выполнение roadmap не проверено",
+      "priority": 1,
+      "severity": "medium",
+      "action": "Сопоставьте обещанные этапы с выпущенными функциями и релизами."
+    },
+    {
+      "id": "R28",
+      "if": "has_token AND NOT token_role_defined",
+      "then": "utility_gap",
+      "label": "Назначение токена не описано",
+      "priority": 1,
+      "severity": "medium",
+      "action": "Опишите необходимую роль токена в продукте и доступные альтернативы."
+    }
+  ],
+  "frames": {
+    "crypto_project": {
+      "parent": null,
+      "slots": {
+        "research_method": "Факты, источники и правила",
+        "quote_currency": "USD",
+        "source_policy": "Источник и дата для каждого числа"
+      }
+    },
+    "defi": {
+      "parent": "crypto_project",
+      "slots": {
+        "focus": "Fees, доход, TVL и права токена",
+        "security_focus": "Контракты, оракулы и права администраторов"
+      }
+    },
+    "layer1": {
+      "parent": "crypto_project",
+      "slots": {
+        "focus": "Использование сети, комиссии и эмиссия",
+        "security_focus": "Консенсус и валидаторы"
+      }
+    },
+    "layer2": {
+      "parent": "crypto_project",
+      "slots": {
+        "focus": "Использование и условия выхода в L1",
+        "security_focus": "Секвенсор, доказательства и upgrade"
+      }
+    },
+    "infrastructure": {
+      "parent": "crypto_project",
+      "slots": {
+        "focus": "Спрос на сервис и платящие клиенты",
+        "security_focus": "Зависимости и привилегированные роли"
+      }
+    },
+    "gaming": {
+      "parent": "crypto_project",
+      "slots": {
+        "focus": "Игроки, удержание и экономика",
+        "security_focus": "Контракты активов и права владельцев"
+      }
+    }
+  },
+  "network": {
+    "nodes": {
+      "project": "Криптопроект",
+      "product": "Продукт",
+      "users": "Пользователи",
+      "demand": "Спрос",
+      "revenue": "Доходы",
+      "competitors": "Конкуренты",
+      "team": "Команда",
+      "roadmap": "Roadmap",
+      "token": "Токен",
+      "utility": "Назначение токена",
+      "rights": "Права держателя",
+      "supply": "Предложение",
+      "vesting": "Vesting",
+      "unlocks": "Разблокировки",
+      "holders": "Крупные держатели",
+      "valuation": "Капитализация и FDV",
+      "liquidity": "Ликвидность",
+      "security": "Безопасность",
+      "audit": "Аудит",
+      "admin": "Права администратора",
+      "sources": "Источники",
+      "dates": "Даты данных"
+    },
+    "edges": [
+      [
+        "project",
+        "has",
+        "product"
+      ],
+      [
+        "project",
+        "has",
+        "team"
+      ],
+      [
+        "project",
+        "has",
+        "roadmap"
+      ],
+      [
+        "project",
+        "has",
+        "token"
+      ],
+      [
+        "project",
+        "has",
+        "security"
+      ],
+      [
+        "project",
+        "has",
+        "sources"
+      ],
+      [
+        "product",
+        "used-by",
+        "users"
+      ],
+      [
+        "users",
+        "indicate",
+        "demand"
+      ],
+      [
+        "product",
+        "generates",
+        "revenue"
+      ],
+      [
+        "product",
+        "compared-with",
+        "competitors"
+      ],
+      [
+        "token",
+        "has",
+        "utility"
+      ],
+      [
+        "token",
+        "has",
+        "rights"
+      ],
+      [
+        "token",
+        "has",
+        "supply"
+      ],
+      [
+        "token",
+        "held-by",
+        "holders"
+      ],
+      [
+        "token",
+        "valued-by",
+        "valuation"
+      ],
+      [
+        "token",
+        "traded-with",
+        "liquidity"
+      ],
+      [
+        "supply",
+        "governed-by",
+        "vesting"
+      ],
+      [
+        "vesting",
+        "scheduled-by",
+        "unlocks"
+      ],
+      [
+        "security",
+        "reviewed-by",
+        "audit"
+      ],
+      [
+        "security",
+        "depends-on",
+        "admin"
+      ],
+      [
+        "sources",
+        "dated-by",
+        "dates"
+      ]
+    ]
+  }
+}

@@ -1,0 +1,70 @@
+ЛР 4. Недели 5–6. Анализ криптопроектов
+
+НЕДЕЛЯ 5: факты и правила
+R01: product_exists AND users_active AND usage_evidence => product_evidence
+R02: token_role_defined AND token_value_link AND holder_rights_clear => token_case
+R03: supply_disclosed AND emission_disclosed AND vesting_disclosed AND unlock_schedule_known AND concentration_known => tokenomics_clear
+R04: code_public AND audit_available AND admin_controls_known AND incident_history_known => security_docs
+R05: sources_current AND metrics_dated AND chain_asset_verified => evidence_ready
+R06: product_evidence AND (NOT has_token OR (token_case AND tokenomics_clear)) AND security_docs AND evidence_ready AND liquidity_known AND valuation_comparable AND team_identified AND roadmap_delivery => research_ready
+R07: NOT product_exists OR NOT users_active => product_gap
+R08: NOT usage_evidence => demand_gap
+R09: NOT problem_defined OR NOT competition_analyzed => positioning_gap
+R10: NOT chain_asset_verified => asset_identification_gap
+R11: has_token AND NOT token_value_link => token_value_gap
+R12: NOT team_identified AND NOT code_public => transparency_gap
+R13: has_token AND (NOT vesting_disclosed OR NOT unlock_schedule_known) => unlock_opacity
+R14: has_token AND (NOT supply_disclosed OR NOT emission_disclosed) => emission_gap
+R15: has_token AND NOT concentration_known => concentration_gap
+R16: NOT audit_available AND NOT admin_controls_known => security_gap
+R17: NOT sources_current OR NOT metrics_dated => evidence_gap
+R18: NOT liquidity_known => liquidity_gap
+R19: NOT valuation_comparable => comparison_gap
+R20: NOT revenue_disclosed => economics_gap
+R21: has_token AND NOT holder_rights_clear => holder_rights_gap
+R22: fdv_gap_high => fdv_gap
+R23: low_float => float_gap
+R24: large_unlock => unlock_size
+R25: NOT code_public => code_gap
+R26: NOT incident_history_known => incident_gap
+R27: NOT roadmap_delivery => delivery_gap
+R28: has_token AND NOT token_role_defined => utility_gap
+
+НЕДЕЛЯ 6: AND, OR, NOT
+a AND b {'a': True, 'b': False} => False
+a OR b {'a': False, 'b': True} => True
+NOT a {'a': False} => True
+NOT a {} => None
+
+Таблица a AND (b OR NOT c)
+{'a': False, 'b': False, 'c': False, 'result': False}
+{'a': False, 'b': False, 'c': True, 'result': False}
+{'a': False, 'b': True, 'c': False, 'result': False}
+{'a': False, 'b': True, 'c': True, 'result': False}
+{'a': True, 'b': False, 'c': False, 'result': True}
+{'a': True, 'b': False, 'c': True, 'result': False}
+{'a': True, 'b': True, 'c': False, 'result': True}
+{'a': True, 'b': True, 'c': True, 'result': True}
+
+«Example Protocol — полный разбор»: есть основа для углублённого сравнения. По известным фактам проблемные правила не сработали. Известны 26 из 26 применимых критериев.
+Есть сведения об использовании продукта: ДА [R01]
+  Есть работающий продукт: ДА [исходное утверждение]
+  Есть реальные пользователи: ДА [исходное утверждение]
+  Спрос подтверждён метриками: ДА [исходное утверждение]
+
+«Example Token — неполная токеномика»: сначала проверьте критичные сведения. Выявлено вопросов для доработки: 11. Известны 14 из 26 применимых критериев. Первый вопрос: Какую проблему решает проект и для кого?
+Сеть и актив не сверены: ДА [R10]
+  Сеть и актив однозначно определены: НЕТ [исходное утверждение]
+Аудит и права администраторов не изучены: ДА [R16]
+  Аудит доступен для изучения: НЕТ [исходное утверждение]
+  Права администраторов разобраны: НЕТ [исходное утверждение]
+Уточнение: Какую проблему решает проект и для кого?
+Уточнение: Для чего токен нужен в продукте: оплата, залог, управление?
+
+«Новый криптопроект»: нужно уточнить проект. По известным фактам проблемные правила не сработали. Известны 0 из 26 применимых критериев. Первый вопрос: Сверены ли сеть, контракт или нативный актив с первичным источником?
+Уточнение: Сверены ли сеть, контракт или нативный актив с первичным источником?
+Уточнение: Есть ли собственный токен, включая планируемый выпуск?
+
+Отсутствующие сведения не являются отрицанием: проверено.
+
+Три сценария и объяснения прошли проверку.

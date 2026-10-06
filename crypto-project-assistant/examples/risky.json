@@ -1,0 +1,35 @@
+{
+  "name": "Example Token — неполная токеномика",
+  "symbol": "RISK",
+  "type": "infrastructure",
+  "network": "Учебная сеть",
+  "description": "Вымышленный криптопроект для проверки правил и численных сигналов.",
+  "facts": {
+    "has_token": true,
+    "product_exists": false,
+    "users_active": false,
+    "usage_evidence": false,
+    "token_value_link": false,
+    "holder_rights_clear": false,
+    "vesting_disclosed": false,
+    "unlock_schedule_known": false,
+    "audit_available": false,
+    "admin_controls_known": false,
+    "chain_asset_verified": false,
+    "supply_disclosed": true,
+    "emission_disclosed": false,
+    "metrics_dated": true
+  },
+  "market": {
+    "quote_currency": "USD",
+    "price_usd": 1,
+    "circulating_supply": 10000000,
+    "total_supply": 100000000,
+    "max_supply": 100000000,
+    "fdv_basis": "total",
+    "next_unlock_tokens": 2000000,
+    "unlock_date": "2026-10-20",
+    "as_of": "2026-10-04",
+    "source": "Учебные числа; не рыночные котировки"
+  }
+}

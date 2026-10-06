@@ -6,6 +6,24 @@
 
 Репозиторий проекта: [OverlordCrowley/SII](https://github.com/OverlordCrowley/SII).
 
+## Криптоскоп: анализ криптопроектов
+
+В этом репозитории также находится отдельный проект
+[Криптоскоп](crypto-project-assistant/README.md): экспертная система на Python
+с базой знаний, логическим выводом, объяснениями и **восемью темами и компоновками**.
+Исходники, примеры, отчёты недель 5–6 и снимки интерфейса включены в папку
+[`crypto-project-assistant/`](crypto-project-assistant/).
+
+В Windows откройте `crypto-project-assistant/run.bat`. Либо выполните:
+
+```powershell
+cd crypto-project-assistant
+python -m project_assistant
+```
+
+Ниже описан проект диагностики компьютера, который запускается из корня
+репозитория.
+
 ## Быстрый запуск
 
 Для ближайшей проверки недель 5–6: `run.bat week56`.
