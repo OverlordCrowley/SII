@@ -77,7 +77,7 @@ def evaluate(model, rows):
         f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0
         per_class[name] = {"precision": precision, "recall": recall, "f1": f1, "support": support}
     return {"accuracy": sum(matrix[c][c] for c in range(len(CLASSES))) / len(rows),
-            "macro_f1": sum(item["f1"] for item in per_class.values()) / len(CLASSES),
+            "macro_f1": math.fsum(item["f1"] for item in per_class.values()) / len(CLASSES),
             "classes": CLASSES, "confusion_matrix": matrix, "per_class": per_class, "count": len(rows)}
 
 

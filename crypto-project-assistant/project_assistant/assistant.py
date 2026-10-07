@@ -13,9 +13,19 @@ from .tokenomics import NUMBERS, calculate
 
 def parse_profile(raw):
     try:
-        return json.loads(raw)
+        profile = json.loads(raw)
     except RecursionError as error:
         raise ValueError('JSON содержит слишком много вложенных объектов или массивов') from error
+    # A fixed limit also applies to Python decoders that accept deeper JSON.
+    pending = [(profile, 1)]
+    while pending:
+        value, depth = pending.pop()
+        if isinstance(value, (dict, list)):
+            if depth > 64:
+                raise ValueError('JSON содержит слишком много вложенных объектов или массивов')
+            children = value.values() if isinstance(value, dict) else value
+            pending.extend((child, depth + 1) for child in children)
+    return profile
 
 
 def text(value, name, limit):

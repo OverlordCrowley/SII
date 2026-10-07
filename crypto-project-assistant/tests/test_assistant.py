@@ -9,7 +9,7 @@ import unittest
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
-from project_assistant.assistant import ProjectAssistant, markdown_report
+from project_assistant.assistant import ProjectAssistant, markdown_report, parse_profile
 from project_assistant.knowledge import ROOT
 from project_assistant.logic import evaluate, truth_table
 from project_assistant.server import make_server
@@ -197,14 +197,20 @@ class TokenomicsTests(unittest.TestCase):
         self.assertNotIn('Traceback', process.stderr)
 
     def test_cli_reports_deep_json_without_traceback(self):
+        valid = '[' * 64 + '0' + ']' * 64
+        self.assertIsInstance(parse_profile(valid), list)
+        quoted = {'description': '[{\\"' * 1000}
+        self.assertEqual(parse_profile(json.dumps(quoted)), quoted)
         with tempfile.TemporaryDirectory() as directory:
             profile = Path(directory) / 'nested.json'
-            profile.write_text('[' * 50000 + '0' + ']' * 50000, encoding='utf-8')
-            process = subprocess.run([sys.executable, '-m', 'project_assistant', 'analyze', str(profile)],
-                                     cwd=ROOT, capture_output=True, encoding='utf-8', timeout=10)
-        self.assertEqual(process.returncode, 2)
-        self.assertIn('слишком много вложенных', process.stderr)
-        self.assertNotIn('Traceback', process.stderr)
+            for depth in (65, 50000):
+                with self.subTest(depth=depth):
+                    profile.write_text('[' * depth + '0' + ']' * depth, encoding='utf-8')
+                    process = subprocess.run([sys.executable, '-m', 'project_assistant', 'analyze', str(profile)],
+                                             cwd=ROOT, capture_output=True, encoding='utf-8', timeout=10)
+                    self.assertEqual(process.returncode, 2)
+                    self.assertIn('слишком много вложенных', process.stderr)
+                    self.assertNotIn('Traceback', process.stderr)
 
 
 class ServerTests(unittest.TestCase):
@@ -274,13 +280,15 @@ class ServerTests(unittest.TestCase):
             self.assertEqual(json.load(response)['status'], 'clarify')
 
     def test_deep_json_returns_400_and_server_keeps_working(self):
-        payload = ('[' * 50000 + '0' + ']' * 50000).encode()
-        with self.assertRaises(HTTPError) as error:
-            urlopen(Request(self.url+'/api/analyze', data=payload,
-                            headers={'Content-Type': 'application/json'}), timeout=5)
-        with error.exception as response:
-            self.assertEqual(response.code, 400)
-            self.assertIn('слишком много вложенных', json.load(response)['error'])
+        payloads = ['[' * 50000 + '0' + ']' * 50000,
+                    '{"extra":' * 65 + '0' + '}' * 65]
+        for payload in payloads:
+            with self.subTest(size=len(payload)), self.assertRaises(HTTPError) as error:
+                urlopen(Request(self.url+'/api/analyze', data=payload.encode(),
+                                headers={'Content-Type': 'application/json'}), timeout=5)
+            with error.exception as response:
+                self.assertEqual(response.code, 400)
+                self.assertIn('слишком много вложенных', json.load(response)['error'])
         with urlopen(Request(self.url+'/api/analyze', data=b'{}',
                             headers={'Content-Type': 'application/json'}), timeout=5) as response:
             self.assertEqual(json.load(response)['status'], 'clarify')
