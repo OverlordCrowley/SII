@@ -7,9 +7,10 @@ import webbrowser
 
 from .assistant import ProjectAssistant, markdown_report, parse_profile
 from .knowledge import ROOT
+from .local_ai import CONFIG_PATH, DEFAULTS, LocalAI, LocalAIError, load_config, save_config
 
 
-def make_server(port=8765):
+def make_server(port=8765, local_ai_path=CONFIG_PATH):
     if type(port) is not int or not 0 <= port <= 65535:
         raise ValueError('Порт должен быть целым числом от 0 до 65535')
     assistant = ProjectAssistant()
@@ -34,6 +35,11 @@ def make_server(port=8765):
             elif path == "/api/schema":
                 self.respond(200, {**assistant.knowledge, "frames": assistant.frames.frames,
                                    "network": {"nodes": assistant.network.nodes, "edges": assistant.network.edges}})
+            elif path == "/api/local-ai/config":
+                try:
+                    self.respond(200, {"config": load_config(local_ai_path), "error": ""})
+                except (ValueError, OSError) as error:
+                    self.respond(200, {"config": DEFAULTS, "error": str(error)})
             elif path.startswith("/api/examples/") and path.rsplit("/", 1)[-1] in {"ready", "risky", "incomplete"}:
                 name = path.rsplit("/", 1)[-1]
                 self.respond(200, json.loads((ROOT / f"examples/{name}.json").read_text(encoding="utf-8")))
@@ -41,7 +47,7 @@ def make_server(port=8765):
                 self.respond(404, {"error": "Страница не найдена"})
 
         def do_POST(self):
-            if self.path != "/api/analyze":
+            if self.path not in {"/api/analyze", "/api/local-ai/config", "/api/local-ai/check", "/api/local-ai/explain"}:
                 self.respond(404, {"error": "Неизвестная команда"})
                 return
             local_origins = {None, f"http://127.0.0.1:{self.server.server_port}", f"http://localhost:{self.server.server_port}"}
@@ -55,9 +61,27 @@ def make_server(port=8765):
                 if self.headers.get("Content-Type", "").split(";")[0] != "application/json":
                     raise ValueError("Требуется JSON")
                 data = parse_profile(self.rfile.read(length).decode("utf-8"))
+                if self.path == "/api/local-ai/config":
+                    self.respond(200, {"config": save_config(data, local_ai_path)})
+                    return
+                if self.path == "/api/local-ai/check":
+                    self.respond(200, LocalAI(data).check())
+                    return
+                if self.path == "/api/local-ai/explain":
+                    if not isinstance(data, dict) or set(data) - {"project", "question"}:
+                        raise ValueError("Ожидается проект и вопрос локальной ИИ")
+                    config = load_config(local_ai_path)
+                    if not config["enabled"]:
+                        raise ValueError("Включите локальную ИИ в настройках")
+                    result = assistant.analyze(data.get("project"))
+                    result["local_ai"] = LocalAI(config).explain(result, data.get("question", ""))
+                    self.respond(200, {**result, "markdown": markdown_report(result)})
+                    return
                 result = assistant.analyze(data)
                 self.respond(200, {**result, "markdown": markdown_report(result)})
-            except (ValueError, UnicodeError) as error:
+            except LocalAIError as error:
+                self.respond(503, {"error": str(error)})
+            except (ValueError, UnicodeError, OSError) as error:
                 self.respond(400, {"error": str(error)})
 
         def log_message(self, format, *args):

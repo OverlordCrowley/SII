@@ -42,6 +42,7 @@ python3 -m project_assistant week415
 - [Логическая модель: недели 5–6](crypto-project-assistant/docs/WEEKS_05_06.md).
 - [Шаблон исследования](crypto-project-assistant/docs/CRYPTO_RESEARCH_TEMPLATE.md).
 - [Проверка программы](crypto-project-assistant/docs/VALIDATION.md).
+- [Локальная ИИ: llama.cpp и лёгкая Qwen 2B](crypto-project-assistant/docs/LOCAL_AI.md).
 
 Баллы отражают полноту исследования по введённым сведениям.
 Сайты и котировки автоматически не загружаются.

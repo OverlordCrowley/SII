@@ -127,7 +127,11 @@ textarea.field { min-height: 120px; resize: vertical; line-height: 1.5; }
 .market-stat .hint { margin: 0; font-size: 12px; }
 .market-number { font: 500 23px/1.25 var(--display); font-variant-numeric: tabular-nums; margin-top: 8px; overflow-wrap: anywhere; }
 .market-number.unknown { font: 14px/1.5 "Calibri", "Segoe UI", sans-serif; color: var(--muted); }
-.tabs { display: flex; gap: 24px; border-bottom: 1px solid var(--line); margin-top: 28px; margin-bottom: 24px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 0 24px; border-bottom: 1px solid var(--line); margin-top: 28px; margin-bottom: 24px; }
+.ai-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+.ai-answer { white-space: pre-wrap; overflow-wrap: anywhere; margin-top: 16px; line-height: 1.65; }
+.ai-status { overflow-wrap: anywhere; }
+#ai-question { min-height: 85px; }
 .tab { font-size: 15px; padding: 12px 0; border: 0; border-bottom: 3px solid transparent; color: var(--muted); background: none; white-space: nowrap; }
 .tab[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
 .tab:hover { color: var(--ink); }
@@ -483,6 +487,7 @@ pre { border-left-color: var(--accent); }
           <button class="tab" id="tab-overview" role="tab" aria-controls="view-overview" aria-selected="true" data-tab="overview">Рекомендации</button>
           <button class="tab" id="tab-evidence" role="tab" aria-controls="view-evidence" aria-selected="false" tabindex="-1" data-tab="evidence">Основания</button>
           <button class="tab" id="tab-learning" role="tab" aria-controls="view-learning" aria-selected="false" tabindex="-1" data-tab="learning">Для защиты</button>
+          <button class="tab" id="tab-local-ai" role="tab" aria-controls="view-local-ai" aria-selected="false" tabindex="-1" data-tab="local-ai">Локальная ИИ</button>
         </div>
         <div id="view-overview" role="tabpanel" aria-labelledby="tab-overview">
           <div class="section"><h3>Следующие шаги</h3><ol class="action-list" id="actions"></ol></div>
@@ -497,6 +502,25 @@ pre { border-left-color: var(--accent); }
           <h3>Фрейм проекта и наследование</h3><div class="evidence-list" id="frame"></div>
           <h3>Связи базы знаний</h3><p class="hint">Связанные объекты на расстоянии до двух рёбер.</p><div class="evidence-list" id="report-network"></div>
         </div>
+        <div id="view-local-ai" role="tabpanel" aria-labelledby="tab-local-ai" hidden>
+          <h3>Вопрос по текущему разбору</h3>
+          <p class="hint">Подключите llama.cpp с моделью Qwen в настройках ниже. Модель получает введённые сведения и результат анализа на этом компьютере.</p>
+          <details class="group" id="ai-settings" open><summary>Подключение llama.cpp</summary>
+            <label class="label"><input type="checkbox" id="ai-enabled"> Включить локальную ИИ</label>
+            <label class="label" for="ai-url">Адрес llama-server</label><input class="field" id="ai-url" value="http://127.0.0.1:8080" maxlength="250" placeholder="http://127.0.0.1:8080">
+            <p class="hint">Сервер на этом компьютере: localhost, 127.0.0.1 или ::1. Допускается адрес с /v1.</p>
+            <label class="label" for="ai-model">Имя модели</label><input class="field" id="ai-model" maxlength="250" placeholder="Автоматически из llama.cpp">
+            <label class="label" for="ai-timeout">Таймаут генерации, секунды</label><input class="field" type="number" min="5" max="300" step="1" id="ai-timeout" value="120">
+            <div class="ai-actions"><button class="button" id="ai-save">Сохранить настройки</button><button class="button" id="ai-check">Проверить соединение</button></div>
+          </details>
+          <p class="hint ai-status" id="ai-status" role="status">Загрузка настроек…</p>
+          <label class="label" for="ai-question">Ваш вопрос</label><textarea class="field" id="ai-question" maxlength="1200" placeholder="Какие сведения нужно проверить в первую очередь?"></textarea>
+          <p class="hint">Пустой вопрос — краткое пояснение и приоритетные проверки. Настройки сохраняются при отправке.</p>
+          <div class="ai-actions"><button class="button primary" id="ai-ask">Спросить ИИ</button><button class="button" id="ai-cancel" hidden>Отменить запрос</button></div>
+          <div class="error" id="ai-error" role="alert" hidden></div>
+          <div id="ai-response" hidden><h3>Ответ модели</h3><p class="hint" id="ai-answer-meta"></p><p class="hint" id="ai-answer-question"></p><div class="ai-answer" id="ai-answer"></div><p class="hint" id="ai-truncated" hidden>Ответ достиг лимита длины. Задайте более узкий вопрос.</p></div>
+          <p class="limit">Ответ может содержать ошибки и попадёт в Markdown-отчёт. Балл и статус определяют экспертные правила. Модель не проверяет источники и котировки в интернете.</p>
+        </div>
         <div class="downloads"><button class="button" id="download-report">Сохранить отчёт .md</button><button class="button" id="download-profile">Сохранить профиль .json</button></div>
         <p class="limit" id="limits"></p>
       </div>
@@ -507,9 +531,10 @@ pre { border-left-color: var(--accent); }
 <script>
 'use strict';
 const $=id=>document.getElementById(id);let schema,current=null,formRevision=0,analyzedRevision=-1,activeOperation=null,inferredName=false,inferredSymbol=false;const controls=new Map();const numberFields=['price_usd', 'circulating_supply', 'total_supply', 'max_supply', 'market_cap_usd', 'fdv_usd', 'volume_24h_usd', 'next_unlock_tokens'];
+let aiReady=false,activeAI=null;
 function element(tag,content,cls){const node=document.createElement(tag);if(content!==undefined)node.textContent=content;if(cls)node.className=cls;return node}
 function showError(message){$('error').textContent=message;$('error').hidden=!message}
-function markStale(){formRevision++;$('analysis-stale').hidden=!current}
+function markStale(){formRevision++;$('analysis-stale').hidden=!current;cancelAI();renderAI(null)}
 function profileBody(profile){
   try{return JSON.stringify(profile,(key,value)=>{if(typeof value==='number'&&!Number.isFinite(value))throw Error(key+': требуется конечное неотрицательное число до 1e30 или null');return value})}
   catch(error){if(error instanceof RangeError)throw Error('JSON содержит слишком много вложенных объектов или массивов');throw error}
@@ -521,8 +546,10 @@ function updateButtons(){
   for(const id of ['download-report','download-profile'])$(id).disabled=!schema||Boolean(activeOperation);
   $('import-button').disabled=!schema;
   for(const button of document.querySelectorAll('[data-example]'))button.disabled=!schema;
+  updateAIButtons();
 }
 function beginOperation(){
+  cancelAI();
   if(activeOperation)activeOperation.abort();
   activeOperation=new AbortController();updateButtons();showError('');
   return activeOperation;
@@ -544,10 +571,10 @@ function populate(profile){inferredName=false;inferredSymbol=false;markStale();c
 function labels(){const data={};for(const [key,item] of Object.entries(schema.criteria))data[key]=item.label;for(const rule of schema.rules)data[rule.then]=rule.label;Object.assign(data,schema.computed);return data}
 function proofText(proof,level=0){const value=proof.value===true?'ДА':proof.value===false?'НЕТ':'НЕИЗВЕСТНО';const names=labels();let output='  '.repeat(level)+(names[proof.fact]||proof.fact)+': '+value+' ['+(proof.rule||(proof.source==='calculation'?'расчёт по введённым числам':'введённое утверждение'))+']';for(const child of proof.children||[])output+='\n'+proofText(child,level+1);return output}
 function insight(item){const box=element('div',undefined,'insight '+(item.severity||'strength'));const title=element('div',undefined,'insight-title');title.append(element('strong',item.label));if(item.severity)title.append(element('span',{critical:'Препятствие',high:'Приоритет',medium:'Улучшение'}[item.severity],'badge '+item.severity));box.append(title);if(item.action)box.append(element('p',item.action));const details=element('details');details.append(element('summary','Показать объяснение ('+item.rule+')'),element('pre',proofText(item.proof)));box.append(details);return box}
-function selectTab(name){for(const tab of document.querySelectorAll('[data-tab]')){tab.setAttribute('aria-selected',String(tab.dataset.tab===name));tab.tabIndex=tab.dataset.tab===name?0:-1}for(const n of ['overview','evidence','learning'])$('view-'+n).hidden=n!==name}
+function selectTab(name){for(const tab of document.querySelectorAll('[data-tab]')){tab.setAttribute('aria-selected',String(tab.dataset.tab===name));tab.tabIndex=tab.dataset.tab===name?0:-1}for(const n of ['overview','evidence','learning','local-ai'])$('view-'+n).hidden=n!==name}
 function renderRecognition(recognition){$('model-scope').textContent=recognition.scope;$('model-results').replaceChildren(...(recognition.available?recognition.predictions.map(item=>element('div',(item.model==='neural'?'Нейросеть':'Наивный Байес')+': '+item.label+'. Test accuracy: '+(item.test_accuracy*100).toFixed(1)+'%; macro-F1: '+item.test_macro_f1.toFixed(3)+'. '+(item.agrees_with_expert?'Совпадает с правилами.':'Расходится с правилами — проверьте объяснение.'),'evidence-row')):[element('p',recognition.reason,'hint')]))}
 function render(result,revision=formRevision){inferredName=inferredName||!$('name').value;inferredSymbol=inferredSymbol||!$('symbol').value;$('name').value=result.project.name;$('symbol').value=result.project.symbol;current=result;analyzedRevision=revision;$('analysis-stale').hidden=revision===formRevision;$('empty').hidden=true;$('report').hidden=false;$('report-name').textContent=result.project.name;$('report-identity').textContent=[$('type').querySelector('option[value="'+result.project.type+'"]').textContent,result.project.symbol,result.project.network].filter(Boolean).join(', ');$('status').textContent=result.status_label;$('status').className='badge '+({blocked:'critical',revise:'high'}[result.status]||'');$('summary').textContent='Известны '+result.score.known+' из '+result.score.total+' применимых критериев. '+(result.findings.length?'Замечания основаны на введённых сведениях и расчётах.':'По известным фактам проблемные правила не сработали.');$('score').textContent=result.score.min===result.score.max?result.score.min:result.score.min+'–'+result.score.max;$('coverage').textContent=result.score.coverage+'%';$('risk-count').textContent=result.findings.length;$('bar-known').style.width=result.score.min+'%';$('bar-range').style.width=result.score.max+'%';$('limits').textContent=result.limits;$('actions').replaceChildren(...(result.next_actions.length?result.next_actions:['Сравните проект с аналогами на одну дату и сверьте основания с первичными источниками.']).map(action=>element('li',action)));for(const name of ['findings','strengths']){$(name).replaceChildren(...result[name].map(insight));$(name+'-section').hidden=!result[name].length}$('questions').replaceChildren(...result.questions.map(item=>{const button=element('button',item.question,'question');button.onclick=()=>{const c=controls.get(item.id);c.group.open=true;c.select.focus();c.select.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'center'})};return button}));$('questions-section').hidden=!result.questions.length;
- $('method').textContent='Диапазон '+result.score.min+'–'+result.score.max+' отражает известные положительные критерии и неизвестные ответы. Веса заданы в базе знаний. Это учебная оценка готовности по заявленным данным. Применимых критериев: '+result.score.total+'. Токеномика исключается при явном отсутствии собственного токена.';$('warnings').replaceChildren(...result.warnings.map(message=>element('p',message,'error')));$('evidence-list').replaceChildren(...result.criteria.map(item=>{const row=element('div',undefined,'evidence-row');const title=element('div',undefined,'evidence-title');const value=!item.applicable?'Не применяется':item.value===true?'Да':item.value===false?'Нет':'Неизвестно';title.append(element('span',item.label),element('strong',value));row.append(title,element('div',item.evidence||'Основание не указано','evidence-note'));if(item.source||item.date)row.append(element('div',[item.source,item.date].filter(Boolean).join(' · '),'evidence-note'));return row}));$('trace').textContent=result.trace.length?result.trace.map(event=>event.rule+': '+event.condition+'\n  => '+(labels()[event.conclusion]||event.conclusion)).join('\n\n'):'Правила не сработали: исходные факты ещё не определены.';$('frame').replaceChildren(...Object.entries(result.frame.slots).map(([key,value])=>element('div',key+': '+value+' · '+(result.frame.origins[key]===result.frame.name?'собственное свойство':'унаследовано из '+result.frame.origins[key]),'evidence-row')));$('report-network').replaceChildren(...result.related.map(item=>element('div',item.label+' · расстояние '+item.distance,'evidence-row')));for(const item of result.criteria){const c=controls.get(item.id);if(!c.manual){c.select.value=item.value===true?'true':item.value===false?'false':'';c.note.value=item.evidence;c.recognition.textContent=item.origin==='description'?'Распознано из описания — проверьте':'';c.source.value=item.source;c.date.value=item.date}}renderRecognition(result.recognition);const numbers=result.tokenomics;const values=numbers.values;const available=Object.values(values).some(v=>v!==null);$('market-section').hidden=!available;$('market-meta').textContent='Дата: '+(numbers.input.as_of||'не указана')+'. База FDV: '+numbers.input.fdv_basis+' supply. Источник: '+(numbers.input.source||'не указан');const definitions=[['market_cap_usd','Капитализация','USD'],['fdv_usd','FDV','USD'],['fdv_to_cap','FDV / капитализация','×'],['circulating_share_pct','Доля в обращении','%'],['unlock_share_pct','Unlock / обращение','%'],['volume_to_cap_pct','Объём 24ч / капитализация','%']];$('market-results').replaceChildren(...definitions.map(([key,label,unit])=>{const box=element('div',undefined,'market-stat');const value=values[key];box.append(element('div',label,'hint'),element('div',value===null?'Неизвестно':new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2,notation:value>=1e15||(value>0&&value<0.01)?'scientific':value>=1e6?'compact':'standard'}).format(value)+' '+unit,'market-number'+(value===null?' unknown':'')));return box}));$('market-thresholds').textContent=numbers.thresholds;$('market-warnings').replaceChildren(...numbers.warnings.map(w=>element('p',w,'error')));updateCount();selectTab('overview')}
+ $('method').textContent='Диапазон '+result.score.min+'–'+result.score.max+' отражает известные положительные критерии и неизвестные ответы. Веса заданы в базе знаний. Это учебная оценка готовности по заявленным данным. Применимых критериев: '+result.score.total+'. Токеномика исключается при явном отсутствии собственного токена.';$('warnings').replaceChildren(...result.warnings.map(message=>element('p',message,'error')));$('evidence-list').replaceChildren(...result.criteria.map(item=>{const row=element('div',undefined,'evidence-row');const title=element('div',undefined,'evidence-title');const value=!item.applicable?'Не применяется':item.value===true?'Да':item.value===false?'Нет':'Неизвестно';title.append(element('span',item.label),element('strong',value));row.append(title,element('div',item.evidence||'Основание не указано','evidence-note'));if(item.source||item.date)row.append(element('div',[item.source,item.date].filter(Boolean).join(' · '),'evidence-note'));return row}));$('trace').textContent=result.trace.length?result.trace.map(event=>event.rule+': '+event.condition+'\n  => '+(labels()[event.conclusion]||event.conclusion)).join('\n\n'):'Правила не сработали: исходные факты ещё не определены.';$('frame').replaceChildren(...Object.entries(result.frame.slots).map(([key,value])=>element('div',key+': '+value+' · '+(result.frame.origins[key]===result.frame.name?'собственное свойство':'унаследовано из '+result.frame.origins[key]),'evidence-row')));$('report-network').replaceChildren(...result.related.map(item=>element('div',item.label+' · расстояние '+item.distance,'evidence-row')));for(const item of result.criteria){const c=controls.get(item.id);if(!c.manual){c.select.value=item.value===true?'true':item.value===false?'false':'';c.note.value=item.evidence;c.recognition.textContent=item.origin==='description'?'Распознано из описания — проверьте':'';c.source.value=item.source;c.date.value=item.date}}renderRecognition(result.recognition);const numbers=result.tokenomics;const values=numbers.values;const available=Object.values(values).some(v=>v!==null);$('market-section').hidden=!available;$('market-meta').textContent='Дата: '+(numbers.input.as_of||'не указана')+'. База FDV: '+numbers.input.fdv_basis+' supply. Источник: '+(numbers.input.source||'не указан');const definitions=[['market_cap_usd','Капитализация','USD'],['fdv_usd','FDV','USD'],['fdv_to_cap','FDV / капитализация','×'],['circulating_share_pct','Доля в обращении','%'],['unlock_share_pct','Unlock / обращение','%'],['volume_to_cap_pct','Объём 24ч / капитализация','%']];$('market-results').replaceChildren(...definitions.map(([key,label,unit])=>{const box=element('div',undefined,'market-stat');const value=values[key];box.append(element('div',label,'hint'),element('div',value===null?'Неизвестно':new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2,notation:value>=1e15||(value>0&&value<0.01)?'scientific':value>=1e6?'compact':'standard'}).format(value)+' '+unit,'market-number'+(value===null?' unknown':'')));return box}));$('market-thresholds').textContent=numbers.thresholds;$('market-warnings').replaceChildren(...numbers.warnings.map(w=>element('p',w,'error')));updateCount();renderAI(result.local_ai);selectTab('overview')}
 async function analyze(operation){
   if(!schema){showError('Дождитесь загрузки базы знаний.');return null}
   operation=operation||beginOperation();
@@ -613,6 +640,62 @@ async function save(kind){
 }
 $('download-report').onclick=()=>save('report');
 $('download-profile').onclick=()=>save('profile');
+function updateAIButtons(){
+  for(const id of ['ai-save','ai-check'])$(id).disabled=!aiReady||Boolean(activeAI);
+  $('ai-ask').disabled=!aiReady||!schema||!$('ai-enabled').checked||Boolean(activeAI)||Boolean(activeOperation);
+  $('ai-ask').textContent=activeAI?'Обрабатываю…':'Спросить ИИ';
+  $('ai-cancel').hidden=!activeAI;
+}
+function cancelAI(){
+  if(activeAI){activeAI.abort();activeAI=null;$('ai-status').textContent='Запрос отменён.'}
+  updateAIButtons();
+}
+function renderAI(answer){
+  $('ai-response').hidden=!answer;
+  $('ai-answer').textContent=answer?answer.content:'';
+  $('ai-answer-meta').textContent=answer?answer.model+' · '+answer.base_url+' · '+new Date(answer.generated_at).toLocaleString('ru-RU'):'';
+  $('ai-answer-question').textContent=answer?'Вопрос: '+answer.question:'';
+  $('ai-truncated').hidden=!answer||!answer.truncated;
+}
+function aiConfig(){
+  const timeout=Number($('ai-timeout').value);
+  if(!$('ai-timeout').value||!Number.isInteger(timeout)||timeout<5||timeout>300)throw Error('Таймаут должен быть целым числом от 5 до 300 секунд');
+  return {enabled:$('ai-enabled').checked,base_url:$('ai-url').value,model:$('ai-model').value,timeout};
+}
+function setAIConfig(config){
+  $('ai-enabled').checked=config.enabled;$('ai-url').value=config.base_url;
+  $('ai-model').value=config.model;$('ai-timeout').value=config.timeout;
+}
+async function runAI(action){
+  const operation=new AbortController(),revision=formRevision;activeAI=operation;updateAIButtons();
+  $('ai-error').hidden=true;$('ai-status').textContent=action==='ask'?'Модель готовит ответ…':action==='check'?'Проверяю llama.cpp…':'Сохраняю настройки…';
+  try{
+    const config=aiConfig();
+    const profile=action==='ask'?collect():null,question=$('ai-question').value;
+    const options=body=>({method:'POST',headers:{'Content-Type':'application/json'},body:profileBody(body),signal:operation.signal});
+    const valid=()=>activeAI===operation&&!operation.signal.aborted&&revision===formRevision;
+    if(action==='check'){
+      const result=await request('/api/local-ai/check',options(config));
+      if(valid())$('ai-status').textContent='Соединение работает. Модель: '+result.model+'.';
+    }else{
+      const saved=await request('/api/local-ai/config',options(config));
+      if(!valid())return;
+      setAIConfig(saved.config);
+      if(action==='ask'){
+        const result=await request('/api/local-ai/explain',options({project:profile,question}));
+        if(!valid())return;
+        render(result,revision);selectTab('local-ai');$('ai-status').textContent='Ответ получен. Его можно сохранить в отчёте.';
+      }else $('ai-status').textContent='Настройки сохранены. Локальная ИИ '+(config.enabled?'включена.':'выключена.');
+    }
+  }catch(error){if(activeAI===operation&&!operation.signal.aborted){$('ai-error').textContent=error.message;$('ai-error').hidden=false;$('ai-status').textContent='Запрос не выполнен.'}}
+  finally{if(activeAI===operation){activeAI=null;updateAIButtons()}}
+}
+for(const [id,action] of [['ai-save','save'],['ai-check','check'],['ai-ask','ask']])$(id).onclick=()=>runAI(action);
+$('ai-cancel').onclick=cancelAI;
+for(const id of ['ai-enabled','ai-url','ai-model','ai-timeout','ai-question']){
+  $(id).addEventListener('input',()=>{cancelAI();$('ai-error').hidden=true});
+}
+request('/api/local-ai/config').then(data=>{setAIConfig(data.config);aiReady=true;$('ai-status').textContent=data.error||'Настройки загружены. Локальная ИИ '+(data.config.enabled?'включена.':'выключена.');updateAIButtons()}).catch(error=>{$('ai-status').textContent='Не удалось загрузить настройки: '+error.message});
 updateButtons();
 request('/api/schema').then(data=>{schema=data;for(const name of Object.keys(data.frames)){if(![...$('type').options].some(option=>option.value===name)){const option=element('option',name);option.value=name;$('type').append(option)}}buildCriteria();updateCount();updateButtons()}).catch(error=>{showError('База знаний не загрузилась: '+error.message);$('analyze-button').disabled=true});
 

@@ -62,6 +62,18 @@ def main(argv=None):
     ask = sub.add_parser("ask", help="Анализ описания из командной строки")
     ask.add_argument("description")
     ask.add_argument("--name", default="", help="Название или тикер монеты")
+    from .local_ai import CONFIG_PATH
+    for command in (ask, analyze):
+        command.add_argument("--local-ai", action="store_true", help="Дополнить разбор ответом локальной модели llama.cpp")
+        command.add_argument("--ai-question", default="", help="Вопрос по разбору (до 1200 символов)")
+        command.add_argument("--ai-config", type=Path, default=CONFIG_PATH, help="Файл настроек llama.cpp")
+    local_ai = sub.add_parser("local-ai", help="Настройки и проверка llama.cpp")
+    local_ai.add_argument("action", choices=("show", "configure", "check"))
+    local_ai.add_argument("--config-file", type=Path, default=CONFIG_PATH)
+    local_ai.add_argument("--url", help="HTTP-адрес локального llama-server")
+    local_ai.add_argument("--model", help="Имя модели; пустое значение — выбор из /v1/models")
+    local_ai.add_argument("--timeout", type=int, help="Таймаут генерации, 5–300 секунд")
+    local_ai.add_argument("--enabled", action=argparse.BooleanOptionalAction, default=None, help="Включить или выключить локальную ИИ в интерфейсе")
     sub.add_parser("demo", help="Три проекта с проверкой результата")
     sub.add_parser("week56", help="Факты, AND/OR/NOT, вывод и объяснение")
     sub.add_parser("week48", help="Показ всех требований недель 4–8")
@@ -89,6 +101,20 @@ def main(argv=None):
             print("Создание датасета и обучение моделей...", flush=True)
             metrics = train_all(args.seed, args.epochs)
             print(json.dumps(metrics, ensure_ascii=False, indent=2, allow_nan=False))
+        elif args.command == "local-ai":
+            from .local_ai import LocalAI, load_config, save_config
+            if args.action == "configure":
+                config = load_config(args.config_file) if args.config_file.exists() else {}
+                config.update({key: value for key, value in {
+                    "base_url": args.url, "model": args.model, "timeout": args.timeout,
+                    "enabled": args.enabled}.items() if value is not None})
+                result = save_config(config, args.config_file)
+            else:
+                if any(value is not None for value in (args.url, args.model, args.timeout, args.enabled)):
+                    raise ValueError("Изменение настроек доступно через local-ai configure")
+                config = load_config(args.config_file)
+                result = LocalAI(config).check() if args.action == "check" else config
+            print(json.dumps(result, ensure_ascii=False, indent=2, allow_nan=False))
         elif args.command in ("frame", "network"):
             from .workbench import run
             run(args)
@@ -101,6 +127,12 @@ def main(argv=None):
             else:
                 profile = {"name": args.name, "description": args.description}
             result = ProjectAssistant().analyze(profile)
+            if args.ai_question and not args.local_ai:
+                raise ValueError("Для --ai-question укажите --local-ai")
+            if args.local_ai:
+                from .local_ai import LocalAI, load_config
+                config = {**load_config(args.ai_config), "enabled": True}
+                result["local_ai"] = LocalAI(config).explain(result, args.ai_question)
             report = markdown_report(result)
             if args.command == "analyze" and args.output:
                 with args.output.open("x", encoding="utf-8", newline="\n") as output:
