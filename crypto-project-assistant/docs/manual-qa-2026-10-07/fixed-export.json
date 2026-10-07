@@ -1,0 +1,207 @@
+{
+  "name": "QA — правки сохраняются автоматически",
+  "description": "Вымышленный DeFi-проект с заполненными сведениями для проверки программы.",
+  "type": "defi",
+  "facts": {
+    "product_exists": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "problem_defined": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "users_active": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "usage_evidence": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "revenue_disclosed": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "competition_analyzed": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "team_identified": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "roadmap_delivery": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "has_token": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "token_role_defined": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "token_value_link": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "holder_rights_clear": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "supply_disclosed": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "emission_disclosed": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "vesting_disclosed": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "unlock_schedule_known": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "concentration_known": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "liquidity_known": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "valuation_comparable": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "code_public": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "audit_available": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "admin_controls_known": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "incident_history_known": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "chain_asset_verified": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "sources_current": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    },
+    "metrics_dated": {
+      "value": true,
+      "evidence": "Условный факт для демонстрации; не сведения о реальном активе.",
+      "source": "Учебный профиль",
+      "date": "2026-10-04",
+      "origin": "input"
+    }
+  },
+  "symbol": "EXM",
+  "network": "Учебная сеть",
+  "contract": "Демонстрационный актив",
+  "market": {
+    "quote_currency": "USD",
+    "fdv_basis": "total",
+    "price_usd": 2,
+    "circulating_supply": 80000000,
+    "total_supply": 100000000,
+    "max_supply": 100000000,
+    "market_cap_usd": null,
+    "fdv_usd": null,
+    "volume_24h_usd": 5000000,
+    "next_unlock_tokens": 1000000,
+    "as_of": "2026-10-04",
+    "unlock_date": "2026-10-20",
+    "source": "Учебные числа; не рыночные котировки"
+  }
+}

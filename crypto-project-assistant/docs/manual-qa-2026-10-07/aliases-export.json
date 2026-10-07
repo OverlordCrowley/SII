@@ -1,0 +1,24 @@
+{
+  "name": "Bitcoin",
+  "description": "",
+  "type": "crypto_project",
+  "facts": {},
+  "symbol": "BTC",
+  "network": "",
+  "contract": "",
+  "market": {
+    "quote_currency": "USD",
+    "fdv_basis": "total",
+    "price_usd": null,
+    "circulating_supply": null,
+    "total_supply": null,
+    "max_supply": null,
+    "market_cap_usd": null,
+    "fdv_usd": null,
+    "volume_24h_usd": null,
+    "next_unlock_tokens": null,
+    "as_of": "",
+    "unlock_date": "",
+    "source": ""
+  }
+}

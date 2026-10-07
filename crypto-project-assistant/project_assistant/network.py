@@ -11,9 +11,16 @@ from .knowledge import save_json
 
 class SemanticNetwork:
     def __init__(self, data):
+        if not isinstance(data, dict) or not isinstance(data.get("nodes"), dict) or not isinstance(data.get("edges"), list):
+            raise ValueError("Сеть должна содержать словарь узлов и список связей")
+        if any(not isinstance(name, str) or not name.strip() or not isinstance(label, str) or not label.strip() for name, label in data["nodes"].items()):
+            raise ValueError("Имена и описания узлов должны быть непустыми строками")
         self.nodes = deepcopy(data["nodes"])
         self.edges = []
-        for source, relation, target in data["edges"]:
+        for edge in data["edges"]:
+            if not isinstance(edge, (list, tuple)) or len(edge) != 3 or any(not isinstance(part, str) for part in edge):
+                raise ValueError("Связь должна состоять из трёх строк")
+            source, relation, target = edge
             self.add_edge(source, relation, target)
 
     def add_node(self, name, label):
@@ -84,6 +91,6 @@ class SemanticNetwork:
         if not path.exists():
             return cls(defaults)
         data = json.loads(path.read_text(encoding="utf-8"))
-        if data.get("version") != 1:
+        if not isinstance(data, dict) or data.get("version") != 1:
             raise ValueError("Неизвестная версия сети")
         return cls(data)

@@ -1,7 +1,7 @@
 """Расчёты по введённым числам, с явной валютой, датой и базой FDV."""
 
 from datetime import date
-import math
+from math import isfinite
 import re
 
 NUMBERS = ('price_usd', 'circulating_supply', 'total_supply', 'max_supply',
@@ -29,7 +29,7 @@ def calculate(raw):
         raise ValueError('База FDV должна быть total или max')
     for key in NUMBERS:
         value = raw.get(key)
-        if value is not None and (type(value) not in (int,float) or not math.isfinite(value) or not 0 <= value <= 1e30):
+        if value is not None and (type(value) not in (int,float) or not 0 <= value <= 1e30):
             raise ValueError(f'{key}: требуется конечное неотрицательное число до 1e30 или null')
         market[key] = value
     market['as_of'] = iso_date(raw.get('as_of',''), 'Дата данных')
@@ -45,22 +45,29 @@ def calculate(raw):
         raise ValueError('Известное предложение не может превышать max supply')
     price = market['price_usd']
     basis = total if market['fdv_basis']=='total' else maximum
-    calculated_cap = None if price is None or circ is None else price*circ
-    calculated_fdv = None if price is None or basis is None else price*basis
+    warnings=[]
+
+    def finite_result(value, label, positive):
+        if not isfinite(value) or (positive and value == 0):
+            warnings.append(f'{label}: результат вне точности вычислений; показатель остаётся неизвестным.')
+            return None
+        return value
+
+    calculated_cap = None if price is None or circ is None else finite_result(price*circ, 'Капитализация', price>0 and circ>0)
+    calculated_fdv = None if price is None or basis is None else finite_result(price*basis, 'FDV', price>0 and basis>0)
     cap = market['market_cap_usd'] if market['market_cap_usd'] is not None else calculated_cap
     fdv = market['fdv_usd'] if market['fdv_usd'] is not None else calculated_fdv
-    warnings=[]
     conflict=False
     for label,stated,computed in [('Капитализация',market['market_cap_usd'],calculated_cap),('FDV',market['fdv_usd'],calculated_fdv)]:
-        if stated is not None and computed is not None and abs(stated-computed)>max(1,abs(computed)*0.01):
+        if stated is not None and computed is not None and not computed*0.99 <= stated <= computed*1.01:
             warnings.append(f'{label} отличается от расчёта более чем на 1%: проверьте дату и базу предложения.')
             conflict=True
-    ratio = fdv/cap if cap is not None and cap>0 and fdv is not None and not conflict else None
-    circulating_share = circ/basis*100 if circ is not None and basis is not None and basis>0 else None
+    ratio = finite_result(fdv/cap, 'FDV / капитализация', fdv>0) if cap is not None and cap>0 and fdv is not None and not conflict else None
+    circulating_share = finite_result(circ/basis*100, 'Доля обращения', circ>0) if circ is not None and basis is not None and basis>0 else None
     unlock = market['next_unlock_tokens']
-    unlock_share = unlock/circ*100 if unlock is not None and circ is not None and circ>0 else None
+    unlock_share = finite_result(unlock/circ*100, 'Unlock / обращение', unlock>0) if unlock is not None and circ is not None and circ>0 else None
     volume = market['volume_24h_usd']
-    volume_share = volume/cap*100 if volume is not None and cap is not None and cap>0 and not conflict else None
+    volume_share = finite_result(volume/cap*100, 'Объём / капитализация', volume>0) if volume is not None and cap is not None and cap>0 and not conflict else None
     has_numbers = any(market[key] is not None for key in NUMBERS)
     if has_numbers and not market['as_of']:
         warnings.append('Числа введены без даты. Уточните дату снимка перед сравнением.')

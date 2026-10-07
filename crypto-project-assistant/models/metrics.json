@@ -1,0 +1,390 @@
+{
+  "version": 1,
+  "scope": "Синтетические примеры с метками экспертных правил. Точность показывает воспроизведение этих правил, а не качество реальных монет. Решение и объяснение задаёт экспертная система.",
+  "dataset_sha256": "966e7749e6312089cfd9ccb1d7f36637c6962d1c79604f6d6742d939cebdc351",
+  "knowledge_sha256": "d5aa05c835572f29659c62b2d0acecf72998d7ecde63517305dfb472115ea96f",
+  "majority_class": "blocked",
+  "baseline_test_accuracy": 0.29850746268656714,
+  "bayes": {
+    "train": {
+      "accuracy": 0.7814498933901919,
+      "macro_f1": 0.794460872200165,
+      "classes": [
+        "research",
+        "revise",
+        "blocked",
+        "clarify"
+      ],
+      "confusion_matrix": [
+        [
+          80,
+          0,
+          0,
+          18
+        ],
+        [
+          8,
+          244,
+          1,
+          27
+        ],
+        [
+          1,
+          6,
+          204,
+          69
+        ],
+        [
+          1,
+          36,
+          38,
+          205
+        ]
+      ],
+      "per_class": {
+        "research": {
+          "precision": 0.8888888888888888,
+          "recall": 0.8163265306122449,
+          "f1": 0.851063829787234,
+          "support": 98
+        },
+        "revise": {
+          "precision": 0.8531468531468531,
+          "recall": 0.8714285714285714,
+          "f1": 0.8621908127208481,
+          "support": 280
+        },
+        "blocked": {
+          "precision": 0.8395061728395061,
+          "recall": 0.7285714285714285,
+          "f1": 0.780114722753346,
+          "support": 280
+        },
+        "clarify": {
+          "precision": 0.6426332288401254,
+          "recall": 0.7321428571428571,
+          "f1": 0.6844741235392321,
+          "support": 280
+        }
+      },
+      "count": 938
+    },
+    "validation": {
+      "accuracy": 0.7860696517412935,
+      "macro_f1": 0.7979459202190883,
+      "classes": [
+        "research",
+        "revise",
+        "blocked",
+        "clarify"
+      ],
+      "confusion_matrix": [
+        [
+          16,
+          0,
+          0,
+          5
+        ],
+        [
+          0,
+          53,
+          0,
+          7
+        ],
+        [
+          0,
+          0,
+          46,
+          14
+        ],
+        [
+          1,
+          9,
+          7,
+          43
+        ]
+      ],
+      "per_class": {
+        "research": {
+          "precision": 0.9411764705882353,
+          "recall": 0.7619047619047619,
+          "f1": 0.8421052631578947,
+          "support": 21
+        },
+        "revise": {
+          "precision": 0.8548387096774194,
+          "recall": 0.8833333333333333,
+          "f1": 0.8688524590163934,
+          "support": 60
+        },
+        "blocked": {
+          "precision": 0.8679245283018868,
+          "recall": 0.7666666666666667,
+          "f1": 0.8141592920353983,
+          "support": 60
+        },
+        "clarify": {
+          "precision": 0.6231884057971014,
+          "recall": 0.7166666666666667,
+          "f1": 0.6666666666666667,
+          "support": 60
+        }
+      },
+      "count": 201
+    },
+    "test": {
+      "accuracy": 0.8109452736318408,
+      "macro_f1": 0.8211745244003308,
+      "classes": [
+        "research",
+        "revise",
+        "blocked",
+        "clarify"
+      ],
+      "confusion_matrix": [
+        [
+          17,
+          0,
+          0,
+          4
+        ],
+        [
+          1,
+          56,
+          0,
+          3
+        ],
+        [
+          0,
+          1,
+          46,
+          13
+        ],
+        [
+          0,
+          7,
+          9,
+          44
+        ]
+      ],
+      "per_class": {
+        "research": {
+          "precision": 0.9444444444444444,
+          "recall": 0.8095238095238095,
+          "f1": 0.8717948717948718,
+          "support": 21
+        },
+        "revise": {
+          "precision": 0.875,
+          "recall": 0.9333333333333333,
+          "f1": 0.9032258064516129,
+          "support": 60
+        },
+        "blocked": {
+          "precision": 0.8363636363636363,
+          "recall": 0.7666666666666667,
+          "f1": 0.8,
+          "support": 60
+        },
+        "clarify": {
+          "precision": 0.6875,
+          "recall": 0.7333333333333333,
+          "f1": 0.7096774193548386,
+          "support": 60
+        }
+      },
+      "count": 201
+    }
+  },
+  "neural": {
+    "train": {
+      "accuracy": 1.0,
+      "macro_f1": 1.0,
+      "classes": [
+        "research",
+        "revise",
+        "blocked",
+        "clarify"
+      ],
+      "confusion_matrix": [
+        [
+          98,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          280,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          280,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          280
+        ]
+      ],
+      "per_class": {
+        "research": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 98
+        },
+        "revise": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 280
+        },
+        "blocked": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 280
+        },
+        "clarify": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 280
+        }
+      },
+      "count": 938
+    },
+    "validation": {
+      "accuracy": 0.9900497512437811,
+      "macro_f1": 0.9879185395088268,
+      "classes": [
+        "research",
+        "revise",
+        "blocked",
+        "clarify"
+      ],
+      "confusion_matrix": [
+        [
+          21,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          59,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          60,
+          0
+        ],
+        [
+          1,
+          0,
+          0,
+          59
+        ]
+      ],
+      "per_class": {
+        "research": {
+          "precision": 0.9545454545454546,
+          "recall": 1.0,
+          "f1": 0.9767441860465117,
+          "support": 21
+        },
+        "revise": {
+          "precision": 1.0,
+          "recall": 0.9833333333333333,
+          "f1": 0.9915966386554621,
+          "support": 60
+        },
+        "blocked": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 60
+        },
+        "clarify": {
+          "precision": 0.9833333333333333,
+          "recall": 0.9833333333333333,
+          "f1": 0.9833333333333333,
+          "support": 60
+        }
+      },
+      "count": 201
+    },
+    "test": {
+      "accuracy": 0.9900497512437811,
+      "macro_f1": 0.9879185395088268,
+      "classes": [
+        "research",
+        "revise",
+        "blocked",
+        "clarify"
+      ],
+      "confusion_matrix": [
+        [
+          21,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          59,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          60,
+          0
+        ],
+        [
+          1,
+          0,
+          0,
+          59
+        ]
+      ],
+      "per_class": {
+        "research": {
+          "precision": 0.9545454545454546,
+          "recall": 1.0,
+          "f1": 0.9767441860465117,
+          "support": 21
+        },
+        "revise": {
+          "precision": 1.0,
+          "recall": 0.9833333333333333,
+          "f1": 0.9915966386554621,
+          "support": 60
+        },
+        "blocked": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 60
+        },
+        "clarify": {
+          "precision": 0.9833333333333333,
+          "recall": 0.9833333333333333,
+          "f1": 0.9833333333333333,
+          "support": 60
+        }
+      },
+      "count": 201
+    }
+  }
+}

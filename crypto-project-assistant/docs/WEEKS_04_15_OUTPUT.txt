@@ -1,0 +1,87 @@
+НЕДЕЛЯ 4 — предметная область, база знаний и семантическая сеть
+Предметная область: анализ криптопроектов.
+Репозиторий: https://github.com/OverlordCrowley/SII
+Критериев: 26; правил: 28.
+Узлов: 22; связей: 21.
+  project —has→ token
+  token —has→ supply
+  supply —governed-by→ vesting
+  vesting —scheduled-by→ unlocks
+
+НЕДЕЛЯ 5 — факты, правила и обратный вывод
+Факты: {'audit_available': False, 'admin_controls_known': False}
+Цель security_gap доказана правилом R16
+
+НЕДЕЛЯ 6 — AND, OR, NOT и объяснение
+a AND b {'a': True, 'b': False} => False
+a OR b {'a': False, 'b': True} => True
+NOT a {'a': False} => True
+NOT a {} => None
+{'a': False, 'b': False, 'c': False, 'result': False}
+{'a': False, 'b': False, 'c': True, 'result': False}
+{'a': False, 'b': True, 'c': False, 'result': False}
+{'a': False, 'b': True, 'c': True, 'result': False}
+{'a': True, 'b': False, 'c': False, 'result': True}
+{'a': True, 'b': False, 'c': True, 'result': False}
+{'a': True, 'b': True, 'c': False, 'result': True}
+{'a': True, 'b': True, 'c': True, 'result': True}
+Аудит и права администраторов не изучены: ДА [R16]
+  Аудит доступен для изучения: НЕТ [исходное утверждение]
+  Права администраторов разобраны: НЕТ [исходное утверждение]
+
+НЕДЕЛЯ 7 — продукционные правила и прямой вывод
+Шаг 1: R01: product_exists AND users_active AND usage_evidence => product_evidence
+Шаг 2: R02: token_role_defined AND token_value_link AND holder_rights_clear => token_case
+Шаг 3: R03: supply_disclosed AND emission_disclosed AND vesting_disclosed AND unlock_schedule_known AND concentration_known => tokenomics_clear
+Шаг 4: R04: code_public AND audit_available AND admin_controls_known AND incident_history_known => security_docs
+Шаг 5: R05: sources_current AND metrics_dated AND chain_asset_verified => evidence_ready
+Шаг 6: R06: product_evidence AND (NOT has_token OR (token_case AND tokenomics_clear)) AND security_docs AND evidence_ready AND liquidity_known AND valuation_comparable AND team_identified AND roadmap_delivery => research_ready
+Итог: Есть основа для углублённого сравнения
+
+НЕДЕЛЯ 8 — фреймы, объекты, свойства, связи и наследование
+Типы фреймов: crypto_project, defi, layer1, layer2, infrastructure, gaming
+Связь наследования: crypto_project → defi → demo_protocol
+  research_method: Факты, источники и правила; источник: crypto_project
+  quote_currency: USD; источник: crypto_project
+  source_policy: Источник и дата для каждого числа; источник: crypto_project
+  focus: Fees, доход, TVL и права токена; источник: defi
+  security_focus: Контракты, оракулы и права администраторов; источник: defi
+  name: Учебный протокол; источник: demo_protocol
+  related_node: project; источник: demo_protocol
+Переопределение экземпляра: Локальный фокус исследования
+Родитель сохранил значение: Fees, доход, TVL и права токена
+
+Требования недель 4–8 прошли демонстрационную проверку.
+
+НЕДЕЛЯ 9: поиск и изменение свойств фреймов
+{"name": "demo_protocol", "parent": "defi", "slots": {"research_method": "Факты, источники и правила", "quote_currency": "USD", "source_policy": "Источник и дата для каждого числа", "focus": "Учебный протокол", "security_focus": "Контракты, оракулы и права администраторов"}, "origins": {"research_method": "crypto_project", "quote_currency": "crypto_project", "source_policy": "crypto_project", "focus": "demo_protocol", "security_focus": "defi"}}
+
+НЕДЕЛЯ 10: добавление узлов и связей, поиск BFS
+Путь: [['project', 'example', 'demo_protocol']]
+
+НЕДЕЛЯ 11: датасет и классификатор
+НЕДЕЛЯ 11: bayes
+Test: 201; accuracy=0.8109; macro-F1=0.8212
+Матрица ошибок: [[17, 0, 0, 4], [1, 56, 0, 3], [0, 1, 46, 13], [0, 7, 9, 44]]
+НЕДЕЛЯ 12: neural
+Test: 201; accuracy=0.9900; macro-F1=0.9879
+Матрица ошибок: [[21, 0, 0, 0], [0, 59, 0, 1], [0, 0, 60, 0], [1, 0, 0, 59]]
+
+НЕДЕЛЯ 13: интегрированная экспертная система
+«Bitcoin»: сначала проверьте критичные сведения. Выявлено вопросов для доработки: 1. Известны 1 из 26 применимых критериев. Первый вопрос: Есть ли собственный токен, включая планируемый выпуск?
+
+НЕДЕЛЯ 14: запрос → анализ → поиск решения → ответ
+
+
+1. Сверьте сеть и адрес контракта или нативный актив с первичным источником.
+2. Есть ли собственный токен, включая планируемый выпуск?
+3. Что уже работает: mainnet, приложение или сервис?
+4. Какую проблему решает проект и для кого?
+
+
+
+НЕДЕЛЯ 15: единый запуск, README, материалы защиты
+Презентация: presentation/Cryptoscope_Weeks_04_15.pptx
+Реальная защита: студент проводит её с преподавателем; программа не подтверждает её проведение.
+
+Исполняемые требования недель 4–14 проверены. Материалы недели 15 перечислены отдельно.

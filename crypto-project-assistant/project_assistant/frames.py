@@ -10,6 +10,11 @@ from .knowledge import save_json
 
 class FrameStore:
     def __init__(self, frames):
+        if not isinstance(frames, dict) or any(not isinstance(name, str) or not isinstance(frame, dict)
+                                             or not isinstance(frame.get("slots"), dict)
+                                             or frame.get("parent") is not None and not isinstance(frame["parent"], str)
+                                             for name, frame in frames.items()):
+            raise ValueError("Фреймы должны содержать объекты со словарём слотов")
         self.frames = deepcopy(frames)
         for name in self.frames:
             self.describe(name)
@@ -85,6 +90,6 @@ class FrameStore:
         if not path.exists():
             return cls(defaults)
         data = json.loads(path.read_text(encoding="utf-8"))
-        if data.get("version") != 1:
+        if not isinstance(data, dict) or data.get("version") != 1 or "frames" not in data:
             raise ValueError("Неизвестная версия сохранённых фреймов")
         return cls(data["frames"])

@@ -5,11 +5,13 @@ import json
 from urllib.parse import urlsplit
 import webbrowser
 
-from .assistant import ProjectAssistant, markdown_report
+from .assistant import ProjectAssistant, markdown_report, parse_profile
 from .knowledge import ROOT
 
 
 def make_server(port=8765):
+    if type(port) is not int or not 0 <= port <= 65535:
+        raise ValueError('Порт должен быть целым числом от 0 до 65535')
     assistant = ProjectAssistant()
 
     class Handler(BaseHTTPRequestHandler):
@@ -30,7 +32,8 @@ def make_server(port=8765):
             if path == "/":
                 self.respond(200, (ROOT / "web/index.html").read_bytes(), "text/html; charset=utf-8")
             elif path == "/api/schema":
-                self.respond(200, assistant.knowledge)
+                self.respond(200, {**assistant.knowledge, "frames": assistant.frames.frames,
+                                   "network": {"nodes": assistant.network.nodes, "edges": assistant.network.edges}})
             elif path.startswith("/api/examples/") and path.rsplit("/", 1)[-1] in {"ready", "risky", "incomplete"}:
                 name = path.rsplit("/", 1)[-1]
                 self.respond(200, json.loads((ROOT / f"examples/{name}.json").read_text(encoding="utf-8")))
@@ -41,8 +44,8 @@ def make_server(port=8765):
             if self.path != "/api/analyze":
                 self.respond(404, {"error": "Неизвестная команда"})
                 return
-            expected = f"http://127.0.0.1:{self.server.server_port}"
-            if self.headers.get("Origin") not in (None, expected):
+            local_origins = {None, f"http://127.0.0.1:{self.server.server_port}", f"http://localhost:{self.server.server_port}"}
+            if self.headers.get("Origin") not in local_origins:
                 self.respond(403, {"error": "Запрос должен исходить из локального интерфейса"})
                 return
             try:
@@ -51,7 +54,7 @@ def make_server(port=8765):
                     raise ValueError("Размер запроса должен быть от 1 байта до 256 КБ")
                 if self.headers.get("Content-Type", "").split(";")[0] != "application/json":
                     raise ValueError("Требуется JSON")
-                data = json.loads(self.rfile.read(length).decode("utf-8"))
+                data = parse_profile(self.rfile.read(length).decode("utf-8"))
                 result = assistant.analyze(data)
                 self.respond(200, {**result, "markdown": markdown_report(result)})
             except (ValueError, UnicodeError) as error:

@@ -1,0 +1,12 @@
+{
+  "name": "QA — крайние числа",
+  "market": {
+    "market_cap_usd": 1e-300,
+    "fdv_usd": 1e+30,
+    "circulating_supply": 1e-300,
+    "next_unlock_tokens": 1e+30,
+    "as_of": "2026-10-07",
+    "unlock_date": "2026-11-07",
+    "source": "Ручная проверка"
+  }
+}

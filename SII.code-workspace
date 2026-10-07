@@ -1,0 +1,63 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+    "python.testing.unittestEnabled": true,
+    "python.testing.pytestEnabled": false,
+    "python.testing.unittestArgs": [
+      "-v",
+      "-s",
+      "tests"
+    ],
+    "python.testing.cwd": "${workspaceFolder}/crypto-project-assistant"
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Криптоскоп: интерфейс",
+        "type": "debugpy",
+        "request": "launch",
+        "module": "project_assistant",
+        "cwd": "${workspaceFolder}/crypto-project-assistant",
+        "python": "${workspaceFolder}/.venv/bin/python",
+        "args": [
+          "serve",
+          "--port",
+          "8766"
+        ],
+        "console": "integratedTerminal"
+      }
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Тесты: Криптоскоп",
+        "type": "process",
+        "command": "${workspaceFolder}/.venv/bin/python",
+        "args": [
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-v"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}/crypto-project-assistant"
+        },
+        "problemMatcher": [],
+        "group": {
+          "kind": "test",
+          "isDefault": true
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "QA — формулы",
+  "market": {
+    "quote_currency": "USD",
+    "price_usd": 0.01,
+    "circulating_supply": 10,
+    "total_supply": 100,
+    "max_supply": 100,
+    "market_cap_usd": 0.2,
+    "fdv_basis": "max",
+    "as_of": "2026-10-07",
+    "source": "Ручной тест"
+  }
+}

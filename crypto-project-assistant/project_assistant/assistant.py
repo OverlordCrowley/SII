@@ -1,14 +1,21 @@
 """Анализ описания, объяснимый вывод и вопросы при неполных данных."""
 
 from datetime import datetime, timezone
+import json
 import re
 
-from .frames import FrameStore
-from .knowledge import load_knowledge
-from .logic import LogicalEngine
-from .network import SemanticNetwork
-from .production import ProductionEngine
-from .tokenomics import calculate
+from .assets import load_aliases, resolve_identity
+from .expert import ExpertSystem
+from .knowledge import ROOT
+from .ml import ModelStore
+from .tokenomics import NUMBERS, calculate
+
+
+def parse_profile(raw):
+    try:
+        return json.loads(raw)
+    except RecursionError as error:
+        raise ValueError('JSON содержит слишком много вложенных объектов или массивов') from error
 
 
 def text(value, name, limit):
@@ -39,18 +46,21 @@ def extract_claims(description, criteria):
 
 
 class ProjectAssistant:
-    def __init__(self):
-        self.knowledge = load_knowledge()
+    def __init__(self, state_dir=ROOT / ".state", models=True):
+        self.expert = ExpertSystem(state_dir)
+        self.knowledge = self.expert.knowledge
+        self.asset_aliases = load_aliases()
         self.criteria = self.knowledge["criteria"]
-        self.logical = LogicalEngine(self.knowledge["rules"])
-        self.production = ProductionEngine(self.knowledge["rules"])
-        self.frames = FrameStore(self.knowledge["frames"])
-        self.network = SemanticNetwork(self.knowledge["network"])
+        self.logical = self.expert.logical
+        self.production = self.expert.production
+        self.frames = self.expert.frames
+        self.network = self.expert.network
+        self.models = ModelStore(self.knowledge) if models else None
 
     def profile(self, data):
         if not isinstance(data, dict):
             raise ValueError("Описание проекта должно быть объектом JSON")
-        name = text(data.get("name", "Проект без названия"), "Название", 200) or "Проект без названия"
+        name = text(data.get("name", ""), "Название", 200)
         description = text(data.get("description", ""), "Описание", 40000)
         kind = text(data.get("type", "crypto_project"), "Тип", 64)
         self.frames.describe(kind)
@@ -76,22 +86,27 @@ class ProjectAssistant:
                            "source": text(item.get("source", ""), "Источник", 500), "date": date, "origin": "input"}
         warnings = [f"Противоречивые фразы: «{self.criteria[key]['label']}». Уточните значение." for key in conflicts if key not in explicit]
         identity = {key: text(data.get(key, ""), key, 250) for key in ("symbol", "network", "contract")}
+        name, identity['symbol'] = resolve_identity(name, identity['symbol'], description, self.asset_aliases)
         tokenomics = calculate(data.get("market", {}))
         return {"name": name, "description": description, "type": kind, "facts": claims, **identity, "market": tokenomics["input"]}, warnings
 
     def analyze(self, data):
         profile, warnings = self.profile(data)
         facts = {key: item["value"] for key, item in profile["facts"].items() if item["value"] is not None}
+        facts = {key: value for key, value in facts.items() if facts.get(self.criteria[key].get('applies_if')) is not False}
         tokenomics = calculate(profile["market"])
         warnings.extend(tokenomics["warnings"])
-        facts.update(tokenomics["facts"])
-        result = self.production.run(facts)
+        if facts.get('has_token') is not False:
+            facts.update(tokenomics["facts"])
+        elif any(profile['market'][key] is not None for key in NUMBERS):
+            warnings.append('Указано отсутствие собственного токена: токеномика сохранена в профиле, но не участвует в выводах.')
+        result = self.expert.infer(facts)
         findings, strengths = [], []
         for rule in self.knowledge["rules"]:
             goal = rule["then"]
             if result["facts"].get(goal) is not True:
                 continue
-            proof = self.logical.explain(goal, facts)
+            proof = result["proofs"][goal]
             def mark_calculations(node):
                 if node["fact"] in tokenomics["facts"]:
                     node["source"] = "calculation"
@@ -121,14 +136,9 @@ class ProjectAssistant:
         score = {"min": round(positive / total * 100), "max": round((positive + unknown) / total * 100),
                  "coverage": round(known_count / active_count * 100), "known": known_count, "total": active_count}
         # ponytail: веса — прозрачная учебная эвристика; эмпирическая калибровка требует реальных исходов проектов.
-        if any(item["severity"] == "critical" for item in findings):
-            status, label = "blocked", "Сначала проверьте критичные сведения"
-        elif any(item["severity"] == "high" for item in findings):
-            status, label = "revise", "Исследование требует дополнения"
-        elif result["facts"].get("research_ready"):
-            status, label = "research", "Есть основа для углублённого сравнения"
-        else:
-            status, label = "clarify", "Нужно уточнить проект"
+        status = result["status"]
+        label = {"blocked": "Сначала проверьте критичные сведения", "revise": "Исследование требует дополнения",
+                 "research": "Есть основа для углублённого сравнения", "clarify": "Нужно уточнить проект"}[status]
         missing = [item for item in assessments if item["applicable"] and item["value"] is None
                    and (not item.get("applies_if") or facts.get(item["applies_if"]) is not None)]
         priorities = {"chain_asset_verified": 100, "has_token": 90, "product_exists": 80, "problem_defined": 70, "users_active": 65}
@@ -139,11 +149,12 @@ class ProjectAssistant:
         summary = f"«{profile['name']}»: {label.lower()}. {risk_text}Известны {known_count} из {active_count} применимых критериев."
         if questions:
             summary += " Первый вопрос: " + questions[0]["question"]
+        recognition = self.models.recognize(result["initial"], status) if self.models else {"available": False, "predictions": [], "scope": "", "reason": "Модели отключены для проверки правил."}
         return {"project": profile, "generated_at": datetime.now(timezone.utc).isoformat(), "status": status, "status_label": label,
                 "summary": summary, "score": score, "findings": findings, "strengths": strengths, "questions": questions,
                 "next_actions": actions, "criteria": assessments, "warnings": warnings, "trace": result["trace"],
                 "frame": self.frames.describe(profile["type"]), "related": self.network.related("project", depth=2), "tokenomics": tokenomics,
-                "computed_labels": self.knowledge["computed"],
+                "computed_labels": self.knowledge["computed"], "recognition": recognition,
                 "limits": "Анализ основан на введённых сведениях и учебных правилах. Источники не проверялись автоматически. Балл отражает проработанность анализа; он не оценивает доходность и не предсказывает цену токена."}
 
 
@@ -191,6 +202,13 @@ def markdown_report(result):
     for item in result["criteria"]:
         value = "Не применяется" if not item["applicable"] else {True: "Да", False: "Нет", None: "Неизвестно"}[item["value"]]
         lines.append("| " + " | ".join(clean(v) for v in (item["label"], value, item["evidence"], item["source"], item["date"])) + " |")
+    recognition = result["recognition"]
+    lines.extend(["", "## Обученные модели", "", recognition["scope"], ""])
+    if not recognition["available"]:
+        lines.append(recognition["reason"])
+    for item in recognition["predictions"]:
+        agreement = "совпадает с экспертным выводом" if item["agrees_with_expert"] else "расходится с экспертным выводом; используйте объяснение правил"
+        lines.append(f"- {item['model']}: {item['label']} ({agreement}). Точность на синтетической тестовой выборке: {item['test_accuracy']:.1%}, macro-F1: {item['test_macro_f1']:.3f}.")
     lines.extend(["", "## Метод оценки", "", "У каждого применимого критерия есть фиксированный вес в базе знаний. Нижняя граница = сумма весов известных положительных критериев / сумма применимых весов. Верхняя граница допускает положительные ответы по неизвестным критериям. Токеномика исключается из оценки при явном ответе, что собственного токена нет. Численные пороги учебные, независимо от балла показываются отдельные сигналы.", ""])
     if result["warnings"]:
         lines.extend(["## Уточнения входных данных", "", *result["warnings"], ""])

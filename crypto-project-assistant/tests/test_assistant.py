@@ -1,4 +1,9 @@
 import json
+from datetime import date
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
 import threading
 import unittest
 from urllib.error import HTTPError
@@ -31,6 +36,17 @@ class AssistantTests(unittest.TestCase):
         self.assertFalse(next(c for c in result['criteria'] if c['id']=='vesting_disclosed')['applicable'])
         self.assertFalse(any(q['id']=='vesting_disclosed' for q in result['questions']))
         self.assertEqual(result['score']['total'],18)
+
+    def test_tokenless_project_ignores_saved_token_facts_and_signals(self):
+        profile = self.example('ready')
+        profile['facts']['has_token'] = False
+        profile['market'] = self.example('risky')['market']
+        result = self.assistant.analyze(profile)
+        conclusions = {item['id'] for item in result['strengths'] + result['findings']}
+        self.assertFalse(conclusions & {'token_case', 'tokenomics_clear', 'fdv_gap', 'float_gap', 'unlock_size'})
+        self.assertEqual(result['status'], 'research')
+        self.assertTrue(result['project']['facts']['vesting_disclosed']['value'])
+        self.assertTrue(any('не участвует в выводах' in warning for warning in result['warnings']))
 
     def test_minimal_or_proof_with_negative_fact(self):
         result=self.assistant.analyze({'facts':{'product_exists':False}})
@@ -127,6 +143,69 @@ class TokenomicsTests(unittest.TestCase):
         self.assertNotIn('large_unlock',result['facts'])
         self.assertTrue(calculate({'price_usd':1,'as_of':'2000-01-01'})['warnings'])
 
+    def test_fractional_snapshot_conflicts_and_one_percent_boundary(self):
+        raw = {'price_usd': 0.01, 'circulating_supply': 10, 'total_supply': 100,
+               'as_of': date.today().isoformat(), 'source': 'Regression test'}
+        for field, value in (('market_cap_usd', 0.2), ('fdv_usd', 1.1)):
+            with self.subTest(field=field):
+                result = calculate({**raw, field: value})
+                self.assertTrue(result['warnings'])
+                self.assertIsNone(result['values']['fdv_to_cap'])
+                self.assertNotIn('fdv_gap_high', result['facts'])
+        for stated in (0.099, 0.1, 0.101):
+            with self.subTest(stated=stated):
+                result = calculate({**raw, 'market_cap_usd': stated})
+                self.assertEqual(result['warnings'], [])
+                self.assertIsNotNone(result['values']['fdv_to_cap'])
+        zero = calculate({**raw, 'price_usd': 0, 'market_cap_usd': 0.001})
+        self.assertTrue(zero['warnings'])
+
+    def test_numbers_outside_range_raise_validation_errors(self):
+        for value in (10**400, -(10**400), float('inf'), float('-inf'), float('nan')):
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, 'price_usd'):
+                calculate({'price_usd': value})
+
+    def test_extreme_ratios_remain_unknown_and_json_serializable(self):
+        result = calculate({'market_cap_usd': 1e-300, 'fdv_usd': 1e30,
+                            'volume_24h_usd': 1e30, 'circulating_supply': 1e-300,
+                            'next_unlock_tokens': 1e30, 'as_of': date.today().isoformat(),
+                            'unlock_date': '9999-12-31', 'source': 'Regression test'})
+        self.assertIsNone(result['values']['fdv_to_cap'])
+        self.assertIsNone(result['values']['unlock_share_pct'])
+        self.assertIsNone(result['values']['volume_to_cap_pct'])
+        self.assertEqual(result['facts'], {})
+        self.assertEqual(len(result['warnings']), 3)
+        json.dumps(result, allow_nan=False)
+
+    def test_underflow_does_not_turn_a_positive_capitalization_into_zero(self):
+        result = calculate({'price_usd': 1e-200, 'circulating_supply': 1e-200,
+                            'total_supply': 1e-100})
+        self.assertIsNone(result['values']['market_cap_usd'])
+        self.assertEqual(result['values']['fdv_usd'], 1e-300)
+        self.assertTrue(any('вне точности' in warning for warning in result['warnings']))
+        zero = calculate({'price_usd': 0, 'circulating_supply': 1e-200})
+        self.assertEqual(zero['values']['market_cap_usd'], 0)
+
+    def test_cli_reports_oversized_number_without_traceback(self):
+        with tempfile.TemporaryDirectory() as directory:
+            profile = Path(directory) / 'huge.json'
+            profile.write_text(json.dumps({'market': {'price_usd': 10**400}}), encoding='utf-8')
+            process = subprocess.run([sys.executable, '-m', 'project_assistant', 'analyze', str(profile)],
+                                     cwd=ROOT, capture_output=True, encoding='utf-8', timeout=10)
+        self.assertEqual(process.returncode, 2)
+        self.assertIn('price_usd', process.stderr)
+        self.assertNotIn('Traceback', process.stderr)
+
+    def test_cli_reports_deep_json_without_traceback(self):
+        with tempfile.TemporaryDirectory() as directory:
+            profile = Path(directory) / 'nested.json'
+            profile.write_text('[' * 50000 + '0' + ']' * 50000, encoding='utf-8')
+            process = subprocess.run([sys.executable, '-m', 'project_assistant', 'analyze', str(profile)],
+                                     cwd=ROOT, capture_output=True, encoding='utf-8', timeout=10)
+        self.assertEqual(process.returncode, 2)
+        self.assertIn('слишком много вложенных', process.stderr)
+        self.assertNotIn('Traceback', process.stderr)
+
 
 class ServerTests(unittest.TestCase):
     @classmethod
@@ -147,12 +226,73 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(result['status'],'blocked')
         self.assertIn('Сеть и актив не сверены',result['markdown'])
 
+    def test_aliases_are_resolved_by_the_analysis_api(self):
+        for profile in ({'name': 'btc'}, {'name': 'Биткоин'}, {'symbol': 'Bitcoin'}):
+            with self.subTest(profile=profile):
+                payload = json.dumps(profile).encode()
+                with urlopen(Request(self.url+'/api/analyze', data=payload,
+                                    headers={'Content-Type': 'application/json'}), timeout=5) as response:
+                    result = json.load(response)
+                self.assertEqual((result['project']['name'], result['project']['symbol']), ('Bitcoin', 'BTC'))
+
+    def test_invalid_port_has_a_clear_cli_error(self):
+        for port in (-1, 65536):
+            with self.subTest(port=port):
+                process = subprocess.run([sys.executable, '-m', 'project_assistant', 'serve',
+                                          '--port', str(port), '--no-browser'],
+                                         cwd=ROOT, capture_output=True, encoding='utf-8', timeout=10)
+                self.assertEqual(process.returncode, 2)
+                self.assertIn('Порт должен', process.stderr)
+                self.assertNotIn('Traceback', process.stderr)
+
     def test_invalid_input_origin_and_paths(self):
         for path,body,headers,expected in [('/api/analyze',b'{"facts":{"code_public":1}}',{'Content-Type':'application/json'},400),
                                          ('/api/analyze',b'{}',{'Content-Type':'application/json','Origin':'https://example.org'},403),
                                          ('/../README.md',None,{},404)]:
             with self.subTest(path=path),self.assertRaises(HTTPError) as error:urlopen(Request(self.url+path,data=body,headers=headers),timeout=5)
             self.assertEqual(error.exception.code,expected)
+            error.exception.close()
+
+    def test_both_local_browser_addresses_can_analyze(self):
+        for host in ('127.0.0.1', 'localhost'):
+            with self.subTest(host=host):
+                origin = f'http://{host}:{self.server.server_port}'
+                with urlopen(Request(self.url+'/api/analyze', data=b'{}',
+                                    headers={'Content-Type': 'application/json', 'Origin': origin}), timeout=5) as response:
+                    self.assertEqual(json.load(response)['status'], 'clarify')
+
+    def test_oversized_integer_returns_400_and_server_keeps_working(self):
+        payload = json.dumps({'market': {'price_usd': 10**400}}).encode()
+        with self.assertRaises(HTTPError) as error:
+            urlopen(Request(self.url+'/api/analyze', data=payload,
+                            headers={'Content-Type': 'application/json'}), timeout=5)
+        with error.exception as response:
+            self.assertEqual(response.code, 400)
+            self.assertIn('price_usd', json.load(response)['error'])
+        with urlopen(Request(self.url+'/api/analyze', data=b'{}',
+                            headers={'Content-Type': 'application/json'}), timeout=5) as response:
+            self.assertEqual(json.load(response)['status'], 'clarify')
+
+    def test_deep_json_returns_400_and_server_keeps_working(self):
+        payload = ('[' * 50000 + '0' + ']' * 50000).encode()
+        with self.assertRaises(HTTPError) as error:
+            urlopen(Request(self.url+'/api/analyze', data=payload,
+                            headers={'Content-Type': 'application/json'}), timeout=5)
+        with error.exception as response:
+            self.assertEqual(response.code, 400)
+            self.assertIn('слишком много вложенных', json.load(response)['error'])
+        with urlopen(Request(self.url+'/api/analyze', data=b'{}',
+                            headers={'Content-Type': 'application/json'}), timeout=5) as response:
+            self.assertEqual(json.load(response)['status'], 'clarify')
+
+    def test_extreme_valid_numbers_return_a_finite_report(self):
+        payload = json.dumps({'market': {'market_cap_usd': 1e-300, 'fdv_usd': 1e30}}).encode()
+        with urlopen(Request(self.url+'/api/analyze', data=payload,
+                            headers={'Content-Type': 'application/json'}), timeout=5) as response:
+            result = json.load(response)
+        self.assertIsNone(result['tokenomics']['values']['fdv_to_cap'])
+        self.assertIn('вне точности', result['markdown'])
+        self.assertNotIn('Infinity', result['markdown'])
 
 
 if __name__=='__main__':unittest.main()
