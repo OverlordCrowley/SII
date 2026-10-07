@@ -219,7 +219,7 @@ python -m unittest discover -s tests -v
 
 ## Полный план недель 4–15
 
-[Требования и доказательства](docs/WEEKS_04_15.md), [результаты обучения](docs/MODEL_RESULTS.md), [сценарий защиты](docs/DEFENSE.md), [презентация](presentation/Cryptoscope_Weeks_04_15.pptx).
+[Требования и доказательства](docs/WEEKS_04_15.md), [результаты обучения](docs/MODEL_RESULTS.md), [сценарий защиты](docs/DEFENSE.md), [презентация](presentation/Cryptoscope_Weeks_04_15_Local_AI.pptx).
 
 Из папки приложения:
 

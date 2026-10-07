@@ -58,9 +58,12 @@ def demonstrate():
         assert result["project"]["name"] == "Bitcoin" and result["project"]["symbol"] == "BTC"
         assert "R10" in markdown_report(result) and result["next_actions"]
         print(markdown_report(result).split("## Рекомендации")[1].split("## Числа")[0])
+        print("Дополнительно: локальная Qwen через llama.cpp — local-ai check и ask BTC --local-ai.")
+        print("Этот показ не требует запуска языковой модели; её фактическая проверка описана в docs/LOCAL_AI_QA_2026_10_07.md.")
     print("\nНЕДЕЛЯ 15: единый запуск, README, материалы защиты")
-    for relative in ("README.md", "docs/WEEKS_04_15.md", "docs/DEFENSE.md", "presentation/Cryptoscope_Weeks_04_15.pptx"):
+    for relative in ("README.md", "docs/WEEKS_04_15.md", "docs/DEFENSE.md", "docs/LOCAL_AI.md",
+                     "docs/LOCAL_AI_QA_2026_10_07.md", "presentation/Cryptoscope_Weeks_04_15_Local_AI.pptx"):
         assert (ROOT / relative).is_file(), relative
-    print("Презентация: presentation/Cryptoscope_Weeks_04_15.pptx")
+    print("Презентация: presentation/Cryptoscope_Weeks_04_15_Local_AI.pptx")
     print("Реальная защита: студент проводит её с преподавателем; программа не подтверждает её проведение.")
     print("\nИсполняемые требования недель 4–14 проверены. Материалы недели 15 перечислены отдельно.")

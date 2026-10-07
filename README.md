@@ -55,7 +55,7 @@ python3 -m project_assistant week415
 
 ## Полный план недель 4–15
 
-[Требования и доказательства](crypto-project-assistant/docs/WEEKS_04_15.md), [результаты обучения](crypto-project-assistant/docs/MODEL_RESULTS.md), [сценарий защиты](crypto-project-assistant/docs/DEFENSE.md), [презентация](crypto-project-assistant/presentation/Cryptoscope_Weeks_04_15.pptx).
+[Требования и доказательства](crypto-project-assistant/docs/WEEKS_04_15.md), [результаты обучения](crypto-project-assistant/docs/MODEL_RESULTS.md), [сценарий защиты](crypto-project-assistant/docs/DEFENSE.md), [презентация](crypto-project-assistant/presentation/Cryptoscope_Weeks_04_15_Local_AI.pptx).
 
 Из папки приложения:
 
