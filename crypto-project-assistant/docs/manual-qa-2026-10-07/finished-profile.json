@@ -1,0 +1,39 @@
+{
+  "name": "<script>alert(1)</script>",
+  "description": "Продукт работает. Аудит не опубликован.\n# Пользовательская строка\n![внешняя картинка](https://example.org/pixel.png)\n<img src=\"https://example.org/pixel.png\">",
+  "type": "crypto_project",
+  "facts": {
+    "product_exists": {
+      "value": true,
+      "evidence": "<b>Демо</b> & текст",
+      "source": "https://example.org/?a=1&b=2",
+      "date": "2026-10-07",
+      "origin": "input"
+    },
+    "audit_available": {
+      "value": false,
+      "evidence": "Аудит не опубликован",
+      "source": "Распознано из описания",
+      "date": "",
+      "origin": "description"
+    }
+  },
+  "symbol": "",
+  "network": "",
+  "contract": "",
+  "market": {
+    "quote_currency": "USD",
+    "fdv_basis": "total",
+    "price_usd": null,
+    "circulating_supply": null,
+    "total_supply": null,
+    "max_supply": null,
+    "market_cap_usd": null,
+    "fdv_usd": null,
+    "volume_24h_usd": null,
+    "next_unlock_tokens": null,
+    "as_of": "",
+    "unlock_date": "",
+    "source": ""
+  }
+}

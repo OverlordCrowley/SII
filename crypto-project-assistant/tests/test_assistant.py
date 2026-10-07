@@ -83,12 +83,32 @@ class AssistantTests(unittest.TestCase):
         for profile in ({'facts':{'code_public':1}},{'facts':{'code_public':'false'}},{'facts':{'unknown':True}},
                         {'type':'other'},{'facts':{'code_public':{'value':True,'date':'2026-02-31'}}}):
             with self.subTest(profile=profile),self.assertRaises(ValueError):self.assistant.analyze(profile)
+        for raw in ('{"extra":NaN}', '{"extra":Infinity}', '{"extra":-Infinity}', '{"extra":1e309}'):
+            with self.subTest(raw=raw), self.assertRaisesRegex(ValueError, 'недопустимое число'):
+                parse_profile(raw)
+        for key in self.assistant.criteria:
+            for value in (True, False, None):
+                with self.subTest(criterion=key, value=value):
+                    measured = self.assistant.analyze({'facts': {key: value}})
+                    self.assertLessEqual(0, measured['score']['min'])
+                    self.assertLessEqual(measured['score']['min'], measured['score']['max'])
+                    self.assertLessEqual(measured['score']['max'], 100)
+                    self.assertTrue(all(item['proof']['value'] is True for item in measured['findings'] + measured['strengths']))
+                    json.dumps(measured, allow_nan=False)
         result=self.assistant.analyze({'name':'Тест | отчёта','facts':{'chain_asset_verified':{'value':False,'source':'Документация','date':'2026-10-04'}}})
         report=markdown_report(result)
         self.assertIn('R10',report)
         self.assertIn('Документация',report)
         self.assertIn('2026-10-04',report)
         self.assertIn('Тест \\| отчёта',report)
+        literal = self.assistant.analyze({'name':'<script>alert(1)</script>',
+            'description':'## Пользовательский заголовок\n![image](https://example.org/image.png)\n<img src=x>',
+            'market':{'source':'<b>Источник</b>'}})
+        escaped = markdown_report(literal)
+        self.assertNotIn('<script>', escaped)
+        self.assertNotRegex(escaped, r'(?<!\\)<img\b')
+        self.assertIn('> ## Пользовательский заголовок', escaped)
+        self.assertIn('!\\[image\\]', escaped)
 
     def test_frames_and_graph(self):
         frames=self.assistant.frames

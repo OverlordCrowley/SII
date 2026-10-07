@@ -1,0 +1,362 @@
+[
+  {
+    "width": 320,
+    "actualWidth": 320,
+    "theme": "dossier",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 320,
+    "actualWidth": 320,
+    "theme": "night",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 320,
+    "actualWidth": 320,
+    "theme": "terminal",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 320,
+    "actualWidth": 320,
+    "theme": "paper",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 320,
+    "actualWidth": 320,
+    "theme": "studio",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 320,
+    "actualWidth": 320,
+    "theme": "compact",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 320,
+    "actualWidth": 320,
+    "theme": "focus",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 320,
+    "actualWidth": 320,
+    "theme": "cards",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 390,
+    "actualWidth": 390,
+    "theme": "dossier",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 390,
+    "actualWidth": 390,
+    "theme": "night",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 390,
+    "actualWidth": 390,
+    "theme": "terminal",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 390,
+    "actualWidth": 390,
+    "theme": "paper",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 390,
+    "actualWidth": 390,
+    "theme": "studio",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 390,
+    "actualWidth": 390,
+    "theme": "compact",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 390,
+    "actualWidth": 390,
+    "theme": "focus",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 390,
+    "actualWidth": 390,
+    "theme": "cards",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 768,
+    "actualWidth": 768,
+    "theme": "dossier",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 768,
+    "actualWidth": 768,
+    "theme": "night",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 768,
+    "actualWidth": 768,
+    "theme": "terminal",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 768,
+    "actualWidth": 768,
+    "theme": "paper",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 768,
+    "actualWidth": 768,
+    "theme": "studio",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 768,
+    "actualWidth": 768,
+    "theme": "compact",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 768,
+    "actualWidth": 768,
+    "theme": "focus",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 768,
+    "actualWidth": 768,
+    "theme": "cards",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 1280,
+    "actualWidth": 1280,
+    "theme": "dossier",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": true
+  },
+  {
+    "width": 1280,
+    "actualWidth": 1280,
+    "theme": "night",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": true
+  },
+  {
+    "width": 1280,
+    "actualWidth": 1280,
+    "theme": "terminal",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": true
+  },
+  {
+    "width": 1280,
+    "actualWidth": 1280,
+    "theme": "paper",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 1280,
+    "actualWidth": 1280,
+    "theme": "studio",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": true
+  },
+  {
+    "width": 1280,
+    "actualWidth": 1280,
+    "theme": "compact",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": true
+  },
+  {
+    "width": 1280,
+    "actualWidth": 1280,
+    "theme": "focus",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": true
+  },
+  {
+    "width": 1280,
+    "actualWidth": 1280,
+    "theme": "cards",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": true
+  },
+  {
+    "width": 1600,
+    "actualWidth": 1600,
+    "theme": "dossier",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": true
+  },
+  {
+    "width": 1600,
+    "actualWidth": 1600,
+    "theme": "night",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": true
+  },
+  {
+    "width": 1600,
+    "actualWidth": 1600,
+    "theme": "terminal",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": true
+  },
+  {
+    "width": 1600,
+    "actualWidth": 1600,
+    "theme": "paper",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": false
+  },
+  {
+    "width": 1600,
+    "actualWidth": 1600,
+    "theme": "studio",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": true
+  },
+  {
+    "width": 1600,
+    "actualWidth": 1600,
+    "theme": "compact",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": true
+  },
+  {
+    "width": 1600,
+    "actualWidth": 1600,
+    "theme": "focus",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": true
+  },
+  {
+    "width": 1600,
+    "actualWidth": 1600,
+    "theme": "cards",
+    "overflow": false,
+    "preserved": true,
+    "selected": 1,
+    "footerVisible": true
+  }
+]

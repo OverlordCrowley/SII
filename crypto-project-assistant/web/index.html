@@ -21,7 +21,7 @@
 body { margin: 0; color: var(--ink); background: var(--bg); font: 16px/1.5 "Calibri", "Segoe UI", Arial, sans-serif; }
 button, input, select, textarea { font: inherit; }
 button, summary { cursor: pointer; }
-button:disabled { cursor: wait; opacity: .6; }
+button:disabled { cursor: not-allowed; opacity: .6; }
 button, a, input, select, textarea, summary { outline-offset: 3px; }
 :focus-visible { outline: 3px solid var(--accent); }
 [hidden] { display: none !important; }
@@ -50,8 +50,10 @@ main { max-width: 1600px; margin: auto; padding: 30px 32px 40px; }
 .input-panel { position: sticky; top: 24px; padding: 20px 22px 0; }
 .panel-title { display: flex; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 5px; }
 .editor-note { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+.draft-note { font-size: 12px; color: var(--muted); padding: 9px 0; margin-bottom: 8px; border-top: 1px solid var(--line); }
+.field[aria-invalid="true"] { border-color: var(--red); }
 .link-button { background: none; border: 0; padding: 3px 0; color: var(--accent); font-size: 14px; text-decoration: underline; text-underline-offset: 3px; }
-.editor-scroll { max-height: calc(100vh - 410px); min-height: 180px; overflow: auto; padding-right: 8px; padding-bottom: 12px; scrollbar-width: thin; scrollbar-color: #b4bccc transparent; }
+.editor-scroll { max-height: calc(100vh - 480px); min-height: 180px; overflow: auto; padding-right: 8px; padding-bottom: 12px; scrollbar-width: thin; scrollbar-color: #b4bccc transparent; }
 .label { display: block; font-size: 14px; font-weight: 600; margin: 14px 0 5px; }
 .editor-scroll > .label:first-child { margin-top: 0; }
 .field { width: 100%; min-width: 0; border: 1px solid #cbd2e1; border-radius: 5px; background: #fff; padding: 9px 10px; color: var(--ink); font-size: 15px; }
@@ -105,6 +107,7 @@ textarea.field { min-height: 120px; resize: vertical; line-height: 1.5; }
 .badge.high { color: var(--amber); background: #fff3dc; }
 .badge.critical { color: var(--red); background: #fceee9; }
 .badge.medium { color: #65506f; background: #f0ebf4; }
+.badge.neutral { color: var(--muted); background: var(--bg); }
 .summary { color: var(--muted); font-size: 15px; margin-top: 16px; max-width: 78ch; }
 .metrics { display: grid; grid-template-columns: 1.35fr 1fr 1fr; margin: 22px 0 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .metric { padding: 17px 18px; border-left: 1px solid var(--line); min-width: 0; }
@@ -171,7 +174,7 @@ footer { max-width: 1600px; margin: auto; padding: 0 32px 28px; color: var(--mut
   .examples-label { margin: 0; }
   .workspace { grid-template-columns: 330px minmax(0, 1fr); gap: 18px; }
   .report { padding: 24px; }
-  .editor-scroll { max-height: calc(100vh - 475px); }
+  .editor-scroll { max-height: calc(100vh - 545px); }
   .metric { padding: 14px 10px; }
   .metric-title { font-size: 12px; }
   .metric-value { font-size: 25px; }
@@ -432,7 +435,7 @@ pre { border-left-color: var(--accent); }
 <dialog class="ui-dialog" id="ui-dialog" aria-labelledby="ui-title" aria-describedby="ui-description">
   <div class="ui-dialog-header"><div><h2 id="ui-title">Выберите интерфейс</h2><p id="ui-description">Восемь тем и компоновок. Введённые факты и результат сохраняются при переключении.</p></div><button class="button ui-close" id="ui-close" type="button" aria-label="Закрыть выбор интерфейса">×</button></div>
   <div class="ui-gallery" id="ui-gallery" role="group" aria-label="Варианты интерфейса"></div>
-  <p class="ui-footnote" id="ui-storage-note">Оформление сохраняется на этом компьютере. Сведения о проекте хранятся только в профилях, которые вы экспортируете.</p>
+  <p class="ui-footnote" id="ui-storage-note">Оформление и текущий черновик сохраняются в этом браузере. «Очистить» удаляет черновик; экспорт сохраняет отдельный файл профиля.</p>
 </dialog>
 <main>
   <div class="intro">
@@ -446,15 +449,17 @@ pre { border-left-color: var(--accent); }
   <div class="workspace">
     <section class="panel input-panel" aria-labelledby="input-title">
       <div class="panel-title"><h2 id="input-title">Исходные данные</h2><button class="link-button" id="import-button" type="button">Открыть файл</button></div>
-      <p class="editor-note">Факты, источники и даты проверки.</p>
+      <p class="editor-note" id="schema-note">Загрузка базы знаний…</p>
+      <p class="draft-note" id="draft-status" role="status">Черновик сохраняется в этом браузере.</p>
       <input id="file-input" type="file" accept=".json,.md,.txt" hidden>
-      <form id="project-form"><div class="editor-scroll"><div class="identity-fields"><label class="label" for="name">Название</label><input class="field" id="name" maxlength="200" placeholder="Bitcoin или BTC, Ethereum или ETH" aria-describedby="asset-alias-hint">
+      <form id="project-form" novalidate><div class="editor-scroll"><div class="identity-fields"><label class="label" for="name">Название</label><input class="field" id="name" maxlength="200" placeholder="Bitcoin или BTC, Ethereum или ETH" aria-describedby="asset-alias-hint">
 <p class="hint" id="asset-alias-hint">Введите полное название или тикер: Bitcoin, BTC, биткоин. Регистр букв не важен.</p>
 <label class="label" for="type">Тип проекта</label><select class="field" id="type"><option value="crypto_project">Любой криптопроект</option><option value="defi">DeFi</option><option value="layer1">Блокчейн L1</option><option value="layer2">Решение L2</option><option value="infrastructure">Инфраструктура</option><option value="gaming">Игры и цифровые активы</option></select>
 <div class="row"><div style="flex:1"><label class="label" for="symbol">Тикер</label><input class="field" id="symbol" maxlength="250" placeholder="BTC или Bitcoin"></div><div style="flex:2"><label class="label" for="network">Сеть</label><input class="field" id="network" maxlength="250" placeholder="Название сети"></div></div><label class="label" for="contract">Контракт / нативный актив</label><input class="field" id="contract" maxlength="250" placeholder="Адрес или описание актива"><label class="label" for="description">Описание и известные сведения</label><textarea class="field" id="description" maxlength="40000" placeholder="Что делает проект и откуда сведения? Например: продукт работает, vesting не раскрыт, аудит опубликован."></textarea><p class="hint">Явные фразы будут распознаны. Проверьте их в критериях; остальные сведения останутся неизвестными.</p>
 </div><div class="research-fields"><details class="group" id="market-input"><summary>Числа и разблокировки</summary><div class="market-input-body"><p class="hint">Числа вводятся вручную. Пустое поле означает неизвестное. Денежные значения — в USD.</p><div class="market-input-grid"><div><label class="label" for="price_usd">Цена, USD</label><input class="field" type="number" step="any" min="0" max="1e30" id="price_usd" placeholder="Неизвестно"></div><div><label class="label" for="circulating_supply">Circulating, токены</label><input class="field" type="number" step="any" min="0" max="1e30" id="circulating_supply" placeholder="Неизвестно"></div><div><label class="label" for="total_supply">Total supply, токены</label><input class="field" type="number" step="any" min="0" max="1e30" id="total_supply" placeholder="Неизвестно"></div><div><label class="label" for="max_supply">Max supply, токены</label><input class="field" type="number" step="any" min="0" max="1e30" id="max_supply" placeholder="Неизвестно"></div><div><label class="label" for="market_cap_usd">Капитализация, USD</label><input class="field" type="number" step="any" min="0" max="1e30" id="market_cap_usd" placeholder="Неизвестно"></div><div><label class="label" for="fdv_usd">FDV источника, USD</label><input class="field" type="number" step="any" min="0" max="1e30" id="fdv_usd" placeholder="Неизвестно"></div><div><label class="label" for="volume_24h_usd">Объём 24ч, USD</label><input class="field" type="number" step="any" min="0" max="1e30" id="volume_24h_usd" placeholder="Неизвестно"></div><div><label class="label" for="next_unlock_tokens">Ближайший unlock, токены</label><input class="field" type="number" step="any" min="0" max="1e30" id="next_unlock_tokens" placeholder="Неизвестно"></div></div><label class="label" for="fdv-basis">База для расчёта FDV</label><select class="field" id="fdv-basis"><option value="total">Total supply</option><option value="max">Max supply</option></select><div class="market-input-grid"><div><label class="label" for="as-of">Дата снимка</label><input class="field" id="as-of" type="date"></div><div><label class="label" for="unlock-date">Дата unlock</label><input class="field" id="unlock-date" type="date"></div></div><label class="label" for="market-source">Источник чисел</label><input class="field" id="market-source" maxlength="2000" placeholder="Ссылка или название источника"><p class="hint">Ссылки фиксируются в отчёте. Содержание источников автоматически не загружается.</p></div></details><div class="criteria-wrap"><div class="criteria-heading">Уточнить критерии <span id="criteria-count" class="hint"></span></div><div id="criteria-groups"></div></div>
 </div></div><div class="footer-form"><button class="button primary" type="submit" id="analyze-button">Проанализировать</button><button class="button" id="reset-button" type="button">Очистить</button></div></form>
       <div class="error" id="error" role="alert" hidden></div>
+      <button class="link-button" id="retry-load" type="button" hidden>Повторить подключение</button>
     </section>
     <section class="panel result-panel" aria-label="Результат анализа">
       <div class="empty" id="empty">
@@ -531,15 +536,75 @@ pre { border-left-color: var(--accent); }
 <script>
 'use strict';
 const $=id=>document.getElementById(id);let schema,current=null,formRevision=0,analyzedRevision=-1,activeOperation=null,inferredName=false,inferredSymbol=false;const controls=new Map();const numberFields=['price_usd', 'circulating_supply', 'total_supply', 'max_supply', 'market_cap_usd', 'fdv_usd', 'volume_24h_usd', 'next_unlock_tokens'];
-let aiReady=false,activeAI=null;
+let aiReady=false,activeAI=null,schemaLoading=false,draftChecked=false,draftTimer=null,aiConfigDirty=false;
+const draftKey='cryptoscope-draft-v1';
+const draftFields=['name','description','type','symbol','network','contract',...numberFields,'fdv-basis','as-of','unlock-date','market-source'];
 function element(tag,content,cls){const node=document.createElement(tag);if(content!==undefined)node.textContent=content;if(cls)node.className=cls;return node}
 function showError(message){$('error').textContent=message;$('error').hidden=!message}
-function markStale(){formRevision++;$('analysis-stale').hidden=!current;cancelAI();renderAI(null)}
+function markStale(){formRevision++;$('analysis-stale').hidden=!current;cancelAI();renderAI(null);showError('');scheduleDraft()}
 function profileBody(profile){
   try{return JSON.stringify(profile,(key,value)=>{if(typeof value==='number'&&!Number.isFinite(value))throw Error(key+': требуется конечное неотрицательное число до 1e30 или null');return value})}
   catch(error){if(error instanceof RangeError)throw Error('JSON содержит слишком много вложенных объектов или массивов');throw error}
 }
-async function request(path,options){const response=await fetch(path,options);const data=await response.json();if(!response.ok)throw Error(data.error||'Не удалось выполнить запрос');return data}
+async function request(path,options={}){
+  const {timeout=15000,...settings}=options,controller=new AbortController();let expired=false;
+  const abort=()=>controller.abort();
+  if(settings.signal?.aborted)abort();else settings.signal?.addEventListener('abort',abort,{once:true});
+  const timer=setTimeout(()=>{expired=true;abort()},timeout);
+  try{
+    let response;
+    try{response=await fetch(path,{...settings,signal:controller.signal})}
+    catch(error){
+      if(settings.signal?.aborted)throw error;
+      if(expired)throw Error('Сервер приложения не ответил вовремя. Повторите запрос или перезапустите приложение.');
+      throw Error('Нет соединения с приложением. Проверьте, что локальный сервер запущен, и повторите запрос.');
+    }
+    let data;
+    try{data=await response.json()}
+    catch(error){if(expired)throw Error('Сервер приложения не ответил вовремя. Повторите запрос.');throw Error('Сервер вернул некорректный ответ. Перезапустите приложение и повторите запрос.')}
+    if(!data||typeof data!=='object'||Array.isArray(data))throw Error('Сервер вернул некорректный ответ. Повторите запрос.');
+    if(!response.ok)throw Error(data.error||'Не удалось выполнить запрос (HTTP '+response.status+').');
+    return data;
+  }finally{clearTimeout(timer);settings.signal?.removeEventListener('abort',abort)}
+}
+function scheduleDraft(){clearTimeout(draftTimer);draftTimer=schema?setTimeout(saveDraft,350):null}
+function saveDraft(){
+  draftTimer=null;
+  if(!schema)return;
+  const fields=Object.fromEntries(draftFields.map(id=>[id,$(id).value]));
+  const facts=Object.fromEntries([...controls].map(([key,c])=>[key,{value:c.select.value,evidence:c.note.value,source:c.source.value,date:c.date.value,manual:c.manual}]));
+  try{localStorage.setItem(draftKey,JSON.stringify({version:1,fields,facts,inferredName,inferredSymbol}));$('draft-status').textContent='Черновик сохранён в этом браузере. «Очистить» удаляет его.'}
+  catch(error){$('draft-status').textContent='Не удалось сохранить черновик в браузере. Сохраните профиль в файл.'}
+}
+function restoreDraft(){
+  draftChecked=true;
+  try{
+    const raw=localStorage.getItem(draftKey);if(!raw)return;
+    if(formRevision){scheduleDraft();return}
+    if(raw.length>1048576)throw Error('Слишком большой черновик');
+    const draft=JSON.parse(raw);
+    if(!draft||draft.version!==1||!draft.fields||typeof draft.fields!=='object'||Array.isArray(draft.fields)||!draft.facts||typeof draft.facts!=='object'||Array.isArray(draft.facts))throw Error('Неверный формат');
+    for(const id of draftFields){if(typeof draft.fields[id]!=='string'||draft.fields[id].length>40000)throw Error('Неверное поле')}
+    for(const [key,c] of controls){
+      const fact=draft.facts[key];if(!fact)continue;
+      if(!['','true','false'].includes(fact.value)||typeof fact.manual!=='boolean'||['evidence','source','date'].some(key=>typeof fact[key]!=='string'||fact[key].length>2000))throw Error('Неверный критерий');
+    }
+    for(const id of draftFields)$(id).value=draft.fields[id];
+    if(!Object.hasOwn(schema.frames,$('type').value))$('type').value='crypto_project';
+    if(!['total','max'].includes($('fdv-basis').value))$('fdv-basis').value='total';
+    for(const [key,c] of controls){const fact=draft.facts[key];if(!fact)continue;c.select.value=fact.value;c.note.value=fact.evidence;c.source.value=fact.source;c.date.value=fact.date;c.manual=fact.manual;c.recognition.textContent=fact.manual?'Восстановлено из черновика':''}
+    inferredName=draft.inferredName===true;inferredSymbol=draft.inferredSymbol===true;formRevision++;updateCount();
+    $('draft-status').textContent='Черновик восстановлен. Продолжите ввод или нажмите «Проанализировать».';
+  }catch(error){$('draft-status').textContent='Черновик недоступен или повреждён. Можно открыть сохранённый профиль или начать новый.'}
+}
+function validateForm(){
+  for(const field of $('project-form').querySelectorAll('[aria-invalid]'))field.removeAttribute('aria-invalid');
+  const field=$('project-form').querySelector('input:invalid, select:invalid, textarea:invalid');if(!field)return;
+  for(let group=field.closest('details');group;group=group.parentElement.closest('details'))group.open=true;
+  field.setAttribute('aria-invalid','true');field.focus();field.scrollIntoView({block:'center',behavior:'auto'});
+  const title=field.labels?.[0]?.textContent||field.getAttribute('aria-label')||'Поле';
+  throw Error(title+': '+(field.type==='number'?'введите конечное число от 0 до 1e30.':field.type==='date'?'укажите корректную календарную дату.':'проверьте значение и допустимую длину.'));
+}
 function updateButtons(){
   $('analyze-button').disabled=!schema||Boolean(activeOperation);
   $('analyze-button').textContent=activeOperation?'Анализирую…':'Проанализировать';
@@ -565,16 +630,16 @@ function acceptResponse(operation,revision){
 }
 function buildCriteria(){const groups=new Map();for(const [key,item] of Object.entries(schema.criteria)){if(!groups.has(item.group)){const details=element('details',undefined,'group');const groupTitle=element('summary',item.group);groupTitle.append(element('span','','group-count'));details.append(groupTitle);$('criteria-groups').append(details);groups.set(item.group,details)}const row=element('div',undefined,'criterion');const head=element('div',undefined,'criterion-head');const label=element('label',item.label);label.htmlFor='fact-'+key;const select=element('select',undefined,'field');select.id='fact-'+key;for(const [value,title] of [['','Неизвестно'],['true','Да'],['false','Нет']]){const option=element('option',title);option.value=value;select.append(option)}const note=element('input',undefined,'field evidence');note.placeholder='Основание: что подтверждает ответ?';note.setAttribute('aria-label','Основание: '+item.label);note.maxLength=2000;const recognition=element('div','', 'recognition');const sourceInput=element('input',undefined,'field');sourceInput.placeholder='Источник / ссылка';sourceInput.maxLength=500;sourceInput.setAttribute('aria-label','Источник: '+item.label);const dateInput=element('input',undefined,'field');dateInput.type='date';dateInput.setAttribute('aria-label','Дата: '+item.label);const sourceFields=element('div',undefined,'source-fields');sourceFields.append(sourceInput,dateInput);const control={select,note,recognition,group:groups.get(item.group),manual:false,source:sourceInput,date:dateInput};for(const field of [sourceInput,dateInput])field.addEventListener('input',()=>{control.manual=true});select.addEventListener('change',()=>{control.manual=true;control.recognition.textContent='Уточнено в анкете';updateCount()});note.addEventListener('input',()=>{control.manual=true});head.append(label,select);row.append(head,note,sourceFields,recognition);control.group.append(row);controls.set(key,control)}}
 function updateCount(){const count=[...controls.values()].filter(c=>c.select.value!=='').length;$('criteria-count').textContent='Заполнено '+count+' / '+controls.size;const groups=new Set([...controls.values()].map(c=>c.group));for(const group of groups){const entries=[...controls.values()].filter(c=>c.group===group);group.querySelector('.group-count').textContent=entries.filter(c=>c.select.value!=='').length+' / '+entries.length}}
-function collect(){const facts={};for(const [key,c] of controls){if(c.manual)facts[key]={value:c.select.value===''?null:c.select.value==='true',evidence:c.note.value,source:c.source.value||'Анкета пользователя',date:c.date.value}}const market={quote_currency:'USD',fdv_basis:$('fdv-basis').value,as_of:$('as-of').value,unlock_date:$('unlock-date').value,source:$('market-source').value};for(const key of numberFields){if($(key).validity.badInput)throw Error(key+': требуется конечное неотрицательное число до 1e30 или null');market[key]=$(key).value===''?null:Number($(key).value)}return {name:$('name').value,description:$('description').value,type:$('type').value,symbol:$('symbol').value,network:$('network').value,contract:$('contract').value,facts,market}}
+function collect(){validateForm();const facts={};for(const [key,c] of controls){if(c.manual)facts[key]={value:c.select.value===''?null:c.select.value==='true',evidence:c.note.value,source:c.source.value||'Анкета пользователя',date:c.date.value}}const market={quote_currency:'USD',fdv_basis:$('fdv-basis').value,as_of:$('as-of').value,unlock_date:$('unlock-date').value,source:$('market-source').value};for(const key of numberFields){if($(key).validity.badInput)throw Error(key+': требуется конечное неотрицательное число до 1e30 или null');market[key]=$(key).value===''?null:Number($(key).value)}return {name:$('name').value,description:$('description').value,type:$('type').value,symbol:$('symbol').value,network:$('network').value,contract:$('contract').value,facts,market}}
 function clearControls(){for(const c of controls.values()){c.select.value='';c.note.value='';c.recognition.textContent='';c.manual=false;c.source.value='';c.date.value=''}for(const group of new Set([...controls.values()].map(c=>c.group)))group.open=false;$('market-input').open=false;document.querySelector('.editor-scroll').scrollTop=0;updateCount()}
 function populate(profile){inferredName=false;inferredSymbol=false;markStale();clearControls();$('name').value=profile.name||'';$('description').value=profile.description||'';$('type').value=Object.hasOwn(schema.frames,profile.type)?profile.type:'crypto_project';for(const [key,raw] of Object.entries(profile.facts||{})){if(!controls.has(key))continue;const item=typeof raw==='object'&&raw!==null?raw:{value:raw};const c=controls.get(key);c.select.value=item.value===true?'true':item.value===false?'false':'';c.note.value=item.evidence||'';c.source.value=item.source||'';c.date.value=item.date||'';c.manual=true;c.recognition.textContent=c.source.value||'Загружено из профиля'}for(const key of ['symbol','network','contract'])$(key).value=profile[key]||'';const market=profile.market||{};for(const key of numberFields)$(key).value=market[key]??'';$('fdv-basis').value=market.fdv_basis||'total';$('as-of').value=market.as_of||'';$('unlock-date').value=market.unlock_date||'';$('market-source').value=market.source||'';updateCount()}
 function labels(){const data={};for(const [key,item] of Object.entries(schema.criteria))data[key]=item.label;for(const rule of schema.rules)data[rule.then]=rule.label;Object.assign(data,schema.computed);return data}
 function proofText(proof,level=0){const value=proof.value===true?'ДА':proof.value===false?'НЕТ':'НЕИЗВЕСТНО';const names=labels();let output='  '.repeat(level)+(names[proof.fact]||proof.fact)+': '+value+' ['+(proof.rule||(proof.source==='calculation'?'расчёт по введённым числам':'введённое утверждение'))+']';for(const child of proof.children||[])output+='\n'+proofText(child,level+1);return output}
 function insight(item){const box=element('div',undefined,'insight '+(item.severity||'strength'));const title=element('div',undefined,'insight-title');title.append(element('strong',item.label));if(item.severity)title.append(element('span',{critical:'Препятствие',high:'Приоритет',medium:'Улучшение'}[item.severity],'badge '+item.severity));box.append(title);if(item.action)box.append(element('p',item.action));const details=element('details');details.append(element('summary','Показать объяснение ('+item.rule+')'),element('pre',proofText(item.proof)));box.append(details);return box}
 function selectTab(name){for(const tab of document.querySelectorAll('[data-tab]')){tab.setAttribute('aria-selected',String(tab.dataset.tab===name));tab.tabIndex=tab.dataset.tab===name?0:-1}for(const n of ['overview','evidence','learning','local-ai'])$('view-'+n).hidden=n!==name}
-function renderRecognition(recognition){$('model-scope').textContent=recognition.scope;$('model-results').replaceChildren(...(recognition.available?recognition.predictions.map(item=>element('div',(item.model==='neural'?'Нейросеть':'Наивный Байес')+': '+item.label+'. Test accuracy: '+(item.test_accuracy*100).toFixed(1)+'%; macro-F1: '+item.test_macro_f1.toFixed(3)+'. '+(item.agrees_with_expert?'Совпадает с правилами.':'Расходится с правилами — проверьте объяснение.'),'evidence-row')):[element('p',recognition.reason,'hint')]))}
-function render(result,revision=formRevision){inferredName=inferredName||!$('name').value;inferredSymbol=inferredSymbol||!$('symbol').value;$('name').value=result.project.name;$('symbol').value=result.project.symbol;current=result;analyzedRevision=revision;$('analysis-stale').hidden=revision===formRevision;$('empty').hidden=true;$('report').hidden=false;$('report-name').textContent=result.project.name;$('report-identity').textContent=[$('type').querySelector('option[value="'+result.project.type+'"]').textContent,result.project.symbol,result.project.network].filter(Boolean).join(', ');$('status').textContent=result.status_label;$('status').className='badge '+({blocked:'critical',revise:'high'}[result.status]||'');$('summary').textContent='Известны '+result.score.known+' из '+result.score.total+' применимых критериев. '+(result.findings.length?'Замечания основаны на введённых сведениях и расчётах.':'По известным фактам проблемные правила не сработали.');$('score').textContent=result.score.min===result.score.max?result.score.min:result.score.min+'–'+result.score.max;$('coverage').textContent=result.score.coverage+'%';$('risk-count').textContent=result.findings.length;$('bar-known').style.width=result.score.min+'%';$('bar-range').style.width=result.score.max+'%';$('limits').textContent=result.limits;$('actions').replaceChildren(...(result.next_actions.length?result.next_actions:['Сравните проект с аналогами на одну дату и сверьте основания с первичными источниками.']).map(action=>element('li',action)));for(const name of ['findings','strengths']){$(name).replaceChildren(...result[name].map(insight));$(name+'-section').hidden=!result[name].length}$('questions').replaceChildren(...result.questions.map(item=>{const button=element('button',item.question,'question');button.onclick=()=>{const c=controls.get(item.id);c.group.open=true;c.select.focus();c.select.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'center'})};return button}));$('questions-section').hidden=!result.questions.length;
- $('method').textContent='Диапазон '+result.score.min+'–'+result.score.max+' отражает известные положительные критерии и неизвестные ответы. Веса заданы в базе знаний. Это учебная оценка готовности по заявленным данным. Применимых критериев: '+result.score.total+'. Токеномика исключается при явном отсутствии собственного токена.';$('warnings').replaceChildren(...result.warnings.map(message=>element('p',message,'error')));$('evidence-list').replaceChildren(...result.criteria.map(item=>{const row=element('div',undefined,'evidence-row');const title=element('div',undefined,'evidence-title');const value=!item.applicable?'Не применяется':item.value===true?'Да':item.value===false?'Нет':'Неизвестно';title.append(element('span',item.label),element('strong',value));row.append(title,element('div',item.evidence||'Основание не указано','evidence-note'));if(item.source||item.date)row.append(element('div',[item.source,item.date].filter(Boolean).join(' · '),'evidence-note'));return row}));$('trace').textContent=result.trace.length?result.trace.map(event=>event.rule+': '+event.condition+'\n  => '+(labels()[event.conclusion]||event.conclusion)).join('\n\n'):'Правила не сработали: исходные факты ещё не определены.';$('frame').replaceChildren(...Object.entries(result.frame.slots).map(([key,value])=>element('div',key+': '+value+' · '+(result.frame.origins[key]===result.frame.name?'собственное свойство':'унаследовано из '+result.frame.origins[key]),'evidence-row')));$('report-network').replaceChildren(...result.related.map(item=>element('div',item.label+' · расстояние '+item.distance,'evidence-row')));for(const item of result.criteria){const c=controls.get(item.id);if(!c.manual){c.select.value=item.value===true?'true':item.value===false?'false':'';c.note.value=item.evidence;c.recognition.textContent=item.origin==='description'?'Распознано из описания — проверьте':'';c.source.value=item.source;c.date.value=item.date}}renderRecognition(result.recognition);const numbers=result.tokenomics;const values=numbers.values;const available=Object.values(values).some(v=>v!==null);$('market-section').hidden=!available;$('market-meta').textContent='Дата: '+(numbers.input.as_of||'не указана')+'. База FDV: '+numbers.input.fdv_basis+' supply. Источник: '+(numbers.input.source||'не указан');const definitions=[['market_cap_usd','Капитализация','USD'],['fdv_usd','FDV','USD'],['fdv_to_cap','FDV / капитализация','×'],['circulating_share_pct','Доля в обращении','%'],['unlock_share_pct','Unlock / обращение','%'],['volume_to_cap_pct','Объём 24ч / капитализация','%']];$('market-results').replaceChildren(...definitions.map(([key,label,unit])=>{const box=element('div',undefined,'market-stat');const value=values[key];box.append(element('div',label,'hint'),element('div',value===null?'Неизвестно':new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2,notation:value>=1e15||(value>0&&value<0.01)?'scientific':value>=1e6?'compact':'standard'}).format(value)+' '+unit,'market-number'+(value===null?' unknown':'')));return box}));$('market-thresholds').textContent=numbers.thresholds;$('market-warnings').replaceChildren(...numbers.warnings.map(w=>element('p',w,'error')));updateCount();renderAI(result.local_ai);selectTab('overview')}
+function renderRecognition(recognition){$('model-scope').textContent=recognition.scope;$('model-results').replaceChildren(...(recognition.available?recognition.predictions.map(item=>element('div',(item.model==='neural'?'Нейросеть':'Наивный Байес')+': '+item.label+'. Точность на тестовой выборке: '+(item.test_accuracy*100).toFixed(1)+'%; macro-F1: '+item.test_macro_f1.toFixed(3)+'. '+(item.agrees_with_expert?'Совпадает с правилами.':'Расходится с правилами — проверьте объяснение.'),'evidence-row')):[element('p',recognition.reason,'hint')]))}
+function render(result,revision=formRevision){inferredName=inferredName||!$('name').value;inferredSymbol=inferredSymbol||!$('symbol').value;$('name').value=result.project.name;$('symbol').value=result.project.symbol;current=result;analyzedRevision=revision;$('analysis-stale').hidden=revision===formRevision;$('empty').hidden=true;$('report').hidden=false;$('report-name').textContent=result.project.name;$('report-identity').textContent=[$('type').querySelector('option[value="'+result.project.type+'"]').textContent,result.project.symbol,result.project.network].filter(Boolean).join(', ');$('status').textContent=result.status_label;$('status').className='badge '+({blocked:'critical',revise:'high',clarify:'neutral'}[result.status]||'');$('summary').textContent='Известны '+result.score.known+' из '+result.score.total+' применимых критериев. '+(result.findings.length?'Замечания основаны на введённых сведениях и расчётах.':'По известным фактам проблемные правила не сработали.');$('score').textContent=result.score.min===result.score.max?result.score.min:result.score.min+'–'+result.score.max;$('coverage').textContent=result.score.coverage+'%';$('risk-count').textContent=result.findings.length;$('bar-known').style.width=result.score.min+'%';$('bar-range').style.width=result.score.max+'%';$('limits').textContent=result.limits;$('actions').replaceChildren(...(result.next_actions.length?result.next_actions:['Сравните проект с аналогами на одну дату и сверьте основания с первичными источниками.']).map(action=>element('li',action)));for(const name of ['findings','strengths']){$(name).replaceChildren(...result[name].map(insight));$(name+'-section').hidden=!result[name].length}$('questions').replaceChildren(...result.questions.map(item=>{const button=element('button',item.question,'question');button.onclick=()=>{const c=controls.get(item.id);c.group.open=true;c.select.focus();c.select.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'})};return button}));$('questions-section').hidden=!result.questions.length;
+ $('method').textContent='Диапазон '+result.score.min+'–'+result.score.max+' отражает известные положительные критерии и неизвестные ответы. Веса заданы в базе знаний. Это учебная оценка готовности по заявленным данным. Применимых критериев: '+result.score.total+'. Токеномика исключается при явном отсутствии собственного токена.';$('warnings').replaceChildren(...result.warnings.map(message=>element('p',message,'error')));$('evidence-list').replaceChildren(...result.criteria.map(item=>{const row=element('div',undefined,'evidence-row');const title=element('div',undefined,'evidence-title');const value=!item.applicable?'Не применяется':item.value===true?'Да':item.value===false?'Нет':'Неизвестно';title.append(element('span',item.label),element('strong',value));row.append(title,element('div',item.evidence||'Основание не указано','evidence-note'));if(item.source||item.date)row.append(element('div',[item.source,item.date].filter(Boolean).join(' · '),'evidence-note'));return row}));$('trace').textContent=result.trace.length?result.trace.map(event=>event.rule+': '+event.condition+'\n  => '+(labels()[event.conclusion]||event.conclusion)).join('\n\n'):'Правила не сработали: исходные факты ещё не определены.';$('frame').replaceChildren(...Object.entries(result.frame.slots).map(([key,value])=>element('div',key+': '+value+' · '+(result.frame.origins[key]===result.frame.name?'собственное свойство':'унаследовано из '+result.frame.origins[key]),'evidence-row')));$('report-network').replaceChildren(...result.related.map(item=>element('div',item.label+' · расстояние '+item.distance,'evidence-row')));for(const item of result.criteria){const c=controls.get(item.id);if(!c.manual){c.select.value=item.value===true?'true':item.value===false?'false':'';c.note.value=item.evidence;c.recognition.textContent=item.origin==='description'?'Распознано из описания — проверьте':'';c.source.value=item.source;c.date.value=item.date}}renderRecognition(result.recognition);const numbers=result.tokenomics;const values=numbers.values;const available=Object.values(values).some(v=>v!==null);$('market-section').hidden=!available;$('market-meta').textContent='Дата: '+(numbers.input.as_of||'не указана')+'. База FDV: '+numbers.input.fdv_basis+' supply. Источник: '+(numbers.input.source||'не указан');const definitions=[['market_cap_usd','Капитализация','USD'],['fdv_usd','FDV','USD'],['fdv_to_cap','FDV / капитализация','×'],['circulating_share_pct','Доля в обращении','%'],['unlock_share_pct','Unlock / обращение','%'],['volume_to_cap_pct','Объём 24ч / капитализация','%']];$('market-results').replaceChildren(...definitions.map(([key,label,unit])=>{const box=element('div',undefined,'market-stat');const value=values[key];box.append(element('div',label,'hint'),element('div',value===null?'Неизвестно':new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2,notation:value>=1e15||(value>0&&value<0.01)?'scientific':value>=1e6?'compact':'standard'}).format(value)+' '+unit,'market-number'+(value===null?' unknown':'')));return box}));$('market-thresholds').textContent=numbers.thresholds;$('market-warnings').replaceChildren(...numbers.warnings.map(w=>element('p',w,'error')));updateCount();renderAI(result.local_ai);selectTab('overview');scheduleDraft()}
 async function analyze(operation){
   if(!schema){showError('Дождитесь загрузки базы знаний.');return null}
   operation=operation||beginOperation();
@@ -583,7 +648,7 @@ async function analyze(operation){
     const result=await request('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:profileBody(collect()),signal:operation.signal});
     if(!acceptResponse(operation,revision))return null;
     render(result,revision);
-    if(innerWidth<=850||document.documentElement.dataset.ui==='focus')$('report').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
+    if(innerWidth<=850||document.documentElement.dataset.ui==='focus')$('report').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
     return result;
   }catch(error){if(activeOperation===operation&&!operation.signal.aborted)showError(error.message);return null}
   finally{finishOperation(operation)}
@@ -597,12 +662,14 @@ $('symbol').addEventListener('input',()=>{
   inferredSymbol=false;
   if(inferredName){$('name').value='';inferredName=false}
 });
-for(const event of ['input','change'])$('project-form').addEventListener(event,markStale);
+for(const event of ['input','change'])$('project-form').addEventListener(event,ev=>{ev.target.removeAttribute('aria-invalid');markStale()});
 $('project-form').addEventListener('submit',event=>{event.preventDefault();analyze()});
 $('reset-button').onclick=()=>{
   if(activeOperation){activeOperation.abort();finishOperation(activeOperation)}
   markStale();$('project-form').reset();clearControls();inferredName=false;inferredSymbol=false;current=null;analyzedRevision=-1;
   $('analysis-stale').hidden=true;$('report').hidden=true;$('empty').hidden=false;showError('');
+  clearTimeout(draftTimer);draftTimer=null;try{localStorage.removeItem(draftKey);$('draft-status').textContent='Черновик очищен. Новые сведения будут сохраняться в этом браузере.'}catch(error){$('draft-status').textContent='Браузер не разрешает удаление черновика.'}
+  for(const field of $('project-form').querySelectorAll('[aria-invalid]'))field.removeAttribute('aria-invalid');
 };
 $('import-button').onclick=()=>$('file-input').click();
 $('file-input').onchange=async()=>{
@@ -610,10 +677,15 @@ $('file-input').onchange=async()=>{
   const operation=beginOperation(),revision=formRevision;
   try{
     if(file.size>262144)throw Error('Файл должен быть не больше 256 КБ');
-    const raw=(await file.text()).replace(/^\uFEFF/,'');
+    if(!/\.(json|md|txt)$/i.test(file.name))throw Error('Выберите профиль .json или текст .md / .txt.');
+    let raw;
+    try{raw=new TextDecoder('utf-8',{fatal:true}).decode(await file.arrayBuffer()).replace(/^\uFEFF/,'')}
+    catch(error){throw Error('Сохраните файл в кодировке UTF-8 и откройте его снова.')}
+    if(!raw.trim())throw Error('Файл пуст. Добавьте описание проекта или откройте другой файл.');
     if(!acceptResponse(operation,revision))return;
     if(file.name.toLowerCase().endsWith('.json')){
-      const profile=JSON.parse(raw);
+      let profile;
+      try{profile=JSON.parse(raw)}catch(error){throw Error('JSON повреждён. Проверьте кавычки, запятые и закрывающие скобки.')}
       if(!profile||Array.isArray(profile)||typeof profile!=='object')throw Error('Профиль должен быть объектом JSON');
       const result=await request('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:profileBody(profile),signal:operation.signal});
       if(!acceptResponse(operation,revision))return;
@@ -681,8 +753,9 @@ async function runAI(action){
       const saved=await request('/api/local-ai/config',options(config));
       if(!valid())return;
       setAIConfig(saved.config);
+      aiConfigDirty=false;
       if(action==='ask'){
-        const result=await request('/api/local-ai/explain',options({project:profile,question}));
+        const result=await request('/api/local-ai/explain',{...options({project:profile,question}),timeout:(config.timeout+15)*1000});
         if(!valid())return;
         render(result,revision);selectTab('local-ai');$('ai-status').textContent='Ответ получен. Его можно сохранить в отчёте.';
       }else $('ai-status').textContent='Настройки сохранены. Локальная ИИ '+(config.enabled?'включена.':'выключена.');
@@ -693,11 +766,26 @@ async function runAI(action){
 for(const [id,action] of [['ai-save','save'],['ai-check','check'],['ai-ask','ask']])$(id).onclick=()=>runAI(action);
 $('ai-cancel').onclick=cancelAI;
 for(const id of ['ai-enabled','ai-url','ai-model','ai-timeout','ai-question']){
-  $(id).addEventListener('input',()=>{cancelAI();$('ai-error').hidden=true});
+  $(id).addEventListener('input',()=>{cancelAI();$('ai-error').hidden=true;if(id!=='ai-question')aiConfigDirty=true});
 }
-request('/api/local-ai/config').then(data=>{setAIConfig(data.config);aiReady=true;$('ai-status').textContent=data.error||'Настройки загружены. Локальная ИИ '+(data.config.enabled?'включена.':'выключена.');updateAIButtons()}).catch(error=>{$('ai-status').textContent='Не удалось загрузить настройки: '+error.message});
+request('/api/local-ai/config').then(data=>{if(!aiConfigDirty)setAIConfig(data.config);aiReady=true;$('ai-status').textContent=data.error||(aiConfigDirty?'Изменённые настройки сохранены в форме. Нажмите «Сохранить настройки».':'Настройки загружены. Локальная ИИ '+(data.config.enabled?'включена.':'выключена.'));updateAIButtons()}).catch(error=>{aiReady=true;$('ai-status').textContent='Не удалось загрузить настройки. Проверьте соединение и сохраните настройки заново: '+error.message;updateAIButtons()});
 updateButtons();
-request('/api/schema').then(data=>{schema=data;for(const name of Object.keys(data.frames)){if(![...$('type').options].some(option=>option.value===name)){const option=element('option',name);option.value=name;$('type').append(option)}}buildCriteria();updateCount();updateButtons()}).catch(error=>{showError('База знаний не загрузилась: '+error.message);$('analyze-button').disabled=true});
+async function loadSchema(){
+  if(schemaLoading)return;
+  schemaLoading=true;$('retry-load').hidden=true;$('schema-note').textContent='Загрузка базы знаний…';
+  try{
+    const data=await request('/api/schema');
+    if(!data.frames||!data.criteria||!Array.isArray(data.rules)||!data.computed)throw Error('База знаний имеет неверный формат. Перезапустите приложение.');
+    schema=data;
+    for(const name of Object.keys(data.frames)){if(![...$('type').options].some(option=>option.value===name)){const option=element('option',name);option.value=name;$('type').append(option)}}
+    if(!controls.size)buildCriteria();updateCount();if(!draftChecked)restoreDraft();
+    $('schema-note').textContent='Факты, источники и даты проверки.';showError('');
+  }catch(error){showError('База знаний не загрузилась: '+error.message);$('schema-note').textContent='Соединение с приложением прервано.';$('retry-load').hidden=false}
+  finally{schemaLoading=false;updateButtons()}
+}
+$('retry-load').onclick=loadSchema;
+window.addEventListener('pagehide',()=>{if(draftTimer!==null)saveDraft()});
+loadSchema();
 
 document.querySelector('[role="tablist"]').addEventListener('keydown',event=>{
   if(!['ArrowRight','ArrowLeft','Home','End'].includes(event.key))return;

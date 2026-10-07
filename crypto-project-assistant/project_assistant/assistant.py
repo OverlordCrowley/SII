@@ -2,6 +2,7 @@
 
 from datetime import datetime, timezone
 import json
+from math import isfinite
 import re
 
 from .assets import load_aliases, resolve_identity
@@ -12,14 +13,19 @@ from .tokenomics import NUMBERS, calculate
 
 
 def parse_profile(raw):
+    def invalid_number(value):
+        raise ValueError(f'JSON содержит недопустимое число {value}. Используйте конечное число или null.')
+
     try:
-        profile = json.loads(raw)
+        profile = json.loads(raw, parse_constant=invalid_number)
     except RecursionError as error:
         raise ValueError('JSON содержит слишком много вложенных объектов или массивов') from error
     # A fixed limit also applies to Python decoders that accept deeper JSON.
     pending = [(profile, 1)]
     while pending:
         value, depth = pending.pop()
+        if isinstance(value, float) and not isfinite(value):
+            invalid_number(value)
         if isinstance(value, (dict, list)):
             if depth > 64:
                 raise ValueError('JSON содержит слишком много вложенных объектов или массивов')
@@ -83,7 +89,7 @@ class ProjectAssistant:
                 item = {"value": item}
             value = item.get("value")
             if value is not None and type(value) is not bool:
-                raise ValueError(f"Критерий {key}: допустимы true, false или null")
+                raise ValueError(f"Критерий «{self.criteria[key]['label']}» ({key}): допустимы true, false или null")
             date = text(item.get("date", ""), "Дата сведений", 10)
             if date:
                 try:
@@ -95,7 +101,8 @@ class ProjectAssistant:
             claims[key] = {"value": value, "evidence": text(item.get("evidence", ""), "Основание", 2000),
                            "source": text(item.get("source", ""), "Источник", 500), "date": date, "origin": "input"}
         warnings = [f"Противоречивые фразы: «{self.criteria[key]['label']}». Уточните значение." for key in conflicts if key not in explicit]
-        identity = {key: text(data.get(key, ""), key, 250) for key in ("symbol", "network", "contract")}
+        identity = {key: text(data.get(key, ""), label, 250)
+                    for key, label in (("symbol", "Тикер"), ("network", "Сеть"), ("contract", "Контракт / нативный актив"))}
         name, identity['symbol'] = resolve_identity(name, identity['symbol'], description, self.asset_aliases)
         tokenomics = calculate(data.get("market", {}))
         return {"name": name, "description": description, "type": kind, "facts": claims, **identity, "market": tokenomics["input"]}, warnings
@@ -181,19 +188,23 @@ def markdown_report(result):
     labels = {item["id"]: item["label"] for item in result["criteria"]}
     labels.update({item["id"]: item["label"] for item in result["findings"] + result["strengths"]})
     labels.update(result["computed_labels"])
-    clean = lambda value: str(value).replace("|", "\\|").replace("\n", " ")
+    def clean(value):
+        return re.sub(r'([\\`*_\[\]<>|])', r'\\\1', ' '.join(str(value).splitlines()))
+
+    def quoted(value):
+        return '\n'.join('> ' + clean(line) for line in str(value).splitlines())
     score = result["score"]
     lines = [f"# Анализ проекта: {clean(result['project']['name'])}", "", f"Дата анализа (UTC): {result['generated_at']}", "",
-             result["summary"], "", f"Проработанность анализа: **{score['min']}–{score['max']} / 100**. Полнота сведений: **{score['coverage']}%**.", "",
+             clean(result["summary"]), "", f"Проработанность анализа: **{score['min']}–{score['max']} / 100**. Полнота сведений: **{score['coverage']}%**.", "",
              result["limits"], "", "## Идентификация проекта", "",
              f"Тип: {clean(result['project']['type'])}. Тикер: {clean(result['project']['symbol']) or 'не указан'}.",
              f"Сеть: {clean(result['project']['network']) or 'не указана'}. Контракт / нативный актив: {clean(result['project']['contract']) or 'не указан'}.",
-             "", "## Описание", "", result["project"]["description"] or "Описание не введено.", "", "## Рекомендации", ""]
+             "", "## Описание", "", quoted(result["project"]["description"]) or "Описание не введено.", "", "## Рекомендации", ""]
     lines.extend(f"{index}. {action}" for index, action in enumerate(result["next_actions"], 1))
     if not result["next_actions"]:
         lines.append("Сравните проект с аналогами на одну дату и проверьте введённые основания по первичным источникам.")
     numbers = result["tokenomics"]
-    lines.extend(["", "## Числа и токеномика", "", f"Валюта: USD. Дата снимка: {numbers['input']['as_of'] or 'не указана'}. Источник: {numbers['input']['source'] or 'не указан'}.", ""])
+    lines.extend(["", "## Числа и токеномика", "", f"Валюта: USD. Дата снимка: {numbers['input']['as_of'] or 'не указана'}. Источник: {clean(numbers['input']['source']) or 'не указан'}.", ""])
     metric_labels = {"market_cap_usd":"Капитализация USD", "fdv_usd":"FDV USD", "calculated_market_cap_usd":"Капитализация по формуле USD", "calculated_fdv_usd":"FDV по формуле USD", "fdv_to_cap":"FDV / капитализация", "circulating_share_pct":"Доля обращения %", "unlock_share_pct":"Unlock / обращение %", "volume_to_cap_pct":"Объём 24ч / капитализация %"}
     for key,value in numbers["values"].items():
         lines.append(f"- {metric_labels[key]}: {'неизвестно' if value is None else format(value, '.8g')}")
@@ -223,7 +234,7 @@ def markdown_report(result):
     if result.get("local_ai"):
         ai = result["local_ai"]
         lines.extend(["", "## Пояснение локальной ИИ", "", f"Модель: {clean(ai['model'])}. Сервер: {clean(ai['base_url'])}.",
-                      f"Вопрос: {clean(ai['question'])}", "", ai["content"], "",
+                      f"Вопрос: {clean(ai['question'])}", "", quoted(ai["content"]), "",
                       "Текст создан локальной языковой моделью и может содержать ошибки. Балл, статус и доказательства выше рассчитаны экспертными правилами."])
         if ai["truncated"]:
             lines.append("Ответ ограничен лимитом длины генерации.")

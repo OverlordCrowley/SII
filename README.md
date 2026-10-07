@@ -36,6 +36,9 @@ python3 -m project_assistant week56
 python3 -m project_assistant week415
 ```
 
+Для проверки браузерных вспомогательных функций: `node --test tests/frontend.test.cjs`
+(Node.js 22+, нужен только для разработки). [Итоговая ручная проверка и снимки](crypto-project-assistant/docs/FINISHED_QA_2026_10_07.md).
+
 ## Материалы
 
 - [Описание функций и сценариев](crypto-project-assistant/README.md).
@@ -43,6 +46,7 @@ python3 -m project_assistant week415
 - [Шаблон исследования](crypto-project-assistant/docs/CRYPTO_RESEARCH_TEMPLATE.md).
 - [Проверка программы](crypto-project-assistant/docs/VALIDATION.md).
 - [Локальная ИИ: llama.cpp и лёгкая Qwen 2B](crypto-project-assistant/docs/LOCAL_AI.md).
+- [Завершённый интерфейс, черновики и проверенные сценарии](crypto-project-assistant/docs/FINISHED_QA_2026_10_07.md).
 
 Баллы отражают полноту исследования по введённым сведениям.
 Сайты и котировки автоматически не загружаются.
