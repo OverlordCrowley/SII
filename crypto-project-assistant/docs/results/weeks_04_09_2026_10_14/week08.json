@@ -1,0 +1,64 @@
+{
+  "before_override": {
+    "name": "demo_protocol",
+    "parent": "defi",
+    "slots": {
+      "research_method": "Факты, источники и правила",
+      "quote_currency": "USD",
+      "source_policy": "Источник и дата для каждого числа",
+      "focus": "Fees, доход, TVL и права токена",
+      "security_focus": "Контракты, оракулы и права администраторов",
+      "name": "Учебный протокол",
+      "related_node": "project"
+    },
+    "origins": {
+      "research_method": "crypto_project",
+      "quote_currency": "crypto_project",
+      "source_policy": "crypto_project",
+      "focus": "defi",
+      "security_focus": "defi",
+      "name": "demo_protocol",
+      "related_node": "demo_protocol"
+    }
+  },
+  "after_override": {
+    "name": "demo_protocol",
+    "parent": "defi",
+    "slots": {
+      "research_method": "Факты, источники и правила",
+      "quote_currency": "USD",
+      "source_policy": "Источник и дата для каждого числа",
+      "focus": "Локальный фокус исследования",
+      "security_focus": "Контракты, оракулы и права администраторов",
+      "name": "Учебный протокол",
+      "related_node": "project"
+    },
+    "origins": {
+      "research_method": "crypto_project",
+      "quote_currency": "crypto_project",
+      "source_policy": "crypto_project",
+      "focus": "demo_protocol",
+      "security_focus": "defi",
+      "name": "demo_protocol",
+      "related_node": "demo_protocol"
+    }
+  },
+  "parent_unchanged": {
+    "name": "defi",
+    "parent": "crypto_project",
+    "slots": {
+      "research_method": "Факты, источники и правила",
+      "quote_currency": "USD",
+      "source_policy": "Источник и дата для каждого числа",
+      "focus": "Fees, доход, TVL и права токена",
+      "security_focus": "Контракты, оракулы и права администраторов"
+    },
+    "origins": {
+      "research_method": "crypto_project",
+      "quote_currency": "crypto_project",
+      "source_policy": "crypto_project",
+      "focus": "defi",
+      "security_focus": "defi"
+    }
+  }
+}

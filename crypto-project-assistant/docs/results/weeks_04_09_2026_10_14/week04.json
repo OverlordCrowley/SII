@@ -1,0 +1,31 @@
+{
+  "counts": {
+    "criteria": 26,
+    "rules": 28,
+    "frames": 6,
+    "nodes": 22,
+    "edges": 21
+  },
+  "path": [
+    [
+      "project",
+      "has",
+      "token"
+    ],
+    [
+      "token",
+      "has",
+      "supply"
+    ],
+    [
+      "supply",
+      "governed-by",
+      "vesting"
+    ],
+    [
+      "vesting",
+      "scheduled-by",
+      "unlocks"
+    ]
+  ]
+}

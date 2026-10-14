@@ -1,0 +1,5 @@
+$ python3 -m project_assistant frame --state docs/results/weeks_04_09_2026_10_14/week09.frames.json find reviewed true
+
+[
+  "my_protocol"
+]

@@ -1,0 +1,25 @@
+{
+  "input": {
+    "audit_available": false,
+    "admin_controls_known": false
+  },
+  "goal": "security_gap",
+  "proof": {
+    "fact": "security_gap",
+    "value": true,
+    "rule": "R16",
+    "condition": "NOT audit_available AND NOT admin_controls_known",
+    "children": [
+      {
+        "fact": "audit_available",
+        "value": false,
+        "source": "input"
+      },
+      {
+        "fact": "admin_controls_known",
+        "value": false,
+        "source": "input"
+      }
+    ]
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "frames": {
+    "crypto_project": {
+      "parent": null,
+      "slots": {
+        "research_method": "Факты, источники и правила",
+        "quote_currency": "USD",
+        "source_policy": "Источник и дата для каждого числа"
+      }
+    },
+    "defi": {
+      "parent": "crypto_project",
+      "slots": {
+        "focus": "Fees, доход, TVL и права токена",
+        "security_focus": "Контракты, оракулы и права администраторов"
+      }
+    },
+    "layer1": {
+      "parent": "crypto_project",
+      "slots": {
+        "focus": "Использование сети, комиссии и эмиссия",
+        "security_focus": "Консенсус и валидаторы"
+      }
+    },
+    "layer2": {
+      "parent": "crypto_project",
+      "slots": {
+        "focus": "Использование и условия выхода в L1",
+        "security_focus": "Секвенсор, доказательства и upgrade"
+      }
+    },
+    "infrastructure": {
+      "parent": "crypto_project",
+      "slots": {
+        "focus": "Спрос на сервис и платящие клиенты",
+        "security_focus": "Зависимости и привилегированные роли"
+      }
+    },
+    "gaming": {
+      "parent": "crypto_project",
+      "slots": {
+        "focus": "Игроки, удержание и экономика",
+        "security_focus": "Контракты активов и права владельцев"
+      }
+    },
+    "my_protocol": {
+      "parent": "defi",
+      "slots": {
+        "reviewed": true
+      }
+    }
+  }
+}

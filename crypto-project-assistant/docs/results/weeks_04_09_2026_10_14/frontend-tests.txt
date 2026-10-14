@@ -1,0 +1,85 @@
+TAP version 13
+# Subtest: /Users/Crowley/WebstormProjects/SII/crypto-project-assistant/tests/frontend.test.cjs
+    # Subtest: draft round trip preserves zero, explicit unknown, evidence and inferred identity
+    ok 1 - draft round trip preserves zero, explicit unknown, evidence and inferred identity
+      ---
+      duration_ms: 4.063708
+      ...
+    # Subtest: a corrupt or unsupported draft preserves the current form
+    ok 2 - a corrupt or unsupported draft preserves the current form
+      ---
+      duration_ms: 1.581542
+      ...
+    # Subtest: invalid facts cannot partially restore a draft
+    ok 3 - invalid facts cannot partially restore a draft
+      ---
+      duration_ms: 1.487
+      ...
+    # Subtest: storage denial and exhausted quota do not interrupt input
+    ok 4 - storage denial and exhausted quota do not interrupt input
+      ---
+      duration_ms: 0.614208
+      ...
+    # Subtest: typing before schema loading takes precedence over a saved draft
+    ok 5 - typing before schema loading takes precedence over a saved draft
+      ---
+      duration_ms: 0.735583
+      ...
+    # Subtest: disconnected application has an actionable Russian message
+    ok 6 - disconnected application has an actionable Russian message
+      ---
+      duration_ms: 0.868875
+      ...
+    # Subtest: malformed JSON and a wrong response shape are reported clearly
+    ok 7 - malformed JSON and a wrong response shape are reported clearly
+      ---
+      duration_ms: 1.417959
+      ...
+    # Subtest: HTTP validation errors retain the server explanation
+    ok 8 - HTTP validation errors retain the server explanation
+      ---
+      duration_ms: 0.721417
+      ...
+    # Subtest: request deadline stops waiting and explains retry
+    ok 9 - request deadline stops waiting and explains retry
+      ---
+      duration_ms: 6.726583
+      ...
+    # Subtest: user cancellation stays a cancellation rather than a connection error
+    ok 10 - user cancellation stays a cancellation rather than a connection error
+      ---
+      duration_ms: 0.498875
+      ...
+    # Subtest: a rejected text import preserves the existing form and report
+    ok 11 - a rejected text import preserves the existing form and report
+      ---
+      duration_ms: 2.018625
+      ...
+    # Subtest: a failed or superseded text import does not replace the form
+    ok 12 - a failed or superseded text import does not replace the form
+      ---
+      duration_ms: 1.092167
+      ...
+    # Subtest: JSON import uses normalized fields while retaining explicit fact ownership
+    ok 13 - JSON import uses normalized fields while retaining explicit fact ownership
+      ---
+      duration_ms: 0.748417
+      ...
+    # Subtest: successful text import sends the new description and keeps its recognized facts automatic
+    ok 14 - successful text import sends the new description and keeps its recognized facts automatic
+      ---
+      duration_ms: 0.425834
+      ...
+    1..14
+ok 1 - /Users/Crowley/WebstormProjects/SII/crypto-project-assistant/tests/frontend.test.cjs
+  ---
+  duration_ms: 64.307833
+  ...
+1..1
+# tests 1
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 66.342042

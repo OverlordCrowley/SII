@@ -1,0 +1,120 @@
+{
+  "cases": [
+    {
+      "expression": "a AND b",
+      "input": {
+        "a": true,
+        "b": false
+      },
+      "result": false
+    },
+    {
+      "expression": "a OR b",
+      "input": {
+        "a": false,
+        "b": true
+      },
+      "result": true
+    },
+    {
+      "expression": "NOT a",
+      "input": {
+        "a": false
+      },
+      "result": true
+    },
+    {
+      "expression": "NOT a",
+      "input": {},
+      "result": null
+    },
+    {
+      "expression": "a AND b",
+      "input": {
+        "a": false
+      },
+      "result": false
+    },
+    {
+      "expression": "a OR b",
+      "input": {
+        "a": true
+      },
+      "result": true
+    }
+  ],
+  "expression": "a AND (b OR NOT c)",
+  "truth_table": [
+    {
+      "a": false,
+      "b": false,
+      "c": false,
+      "result": false
+    },
+    {
+      "a": false,
+      "b": false,
+      "c": true,
+      "result": false
+    },
+    {
+      "a": false,
+      "b": true,
+      "c": false,
+      "result": false
+    },
+    {
+      "a": false,
+      "b": true,
+      "c": true,
+      "result": false
+    },
+    {
+      "a": true,
+      "b": false,
+      "c": false,
+      "result": true
+    },
+    {
+      "a": true,
+      "b": false,
+      "c": true,
+      "result": false
+    },
+    {
+      "a": true,
+      "b": true,
+      "c": false,
+      "result": true
+    },
+    {
+      "a": true,
+      "b": true,
+      "c": true,
+      "result": true
+    }
+  ],
+  "explanation_R16": [
+    "Аудит и права администраторов не изучены: ДА [R16]",
+    "  Аудит доступен для изучения: НЕТ [исходное утверждение]",
+    "  Права администраторов разобраны: НЕТ [исходное утверждение]"
+  ],
+  "proof_R13": {
+    "fact": "unlock_opacity",
+    "value": true,
+    "rule": "R13",
+    "condition": "has_token AND (NOT vesting_disclosed OR NOT unlock_schedule_known)",
+    "children": [
+      {
+        "fact": "has_token",
+        "value": true,
+        "source": "input"
+      },
+      {
+        "fact": "vesting_disclosed",
+        "value": false,
+        "source": "input"
+      }
+    ]
+  }
+}

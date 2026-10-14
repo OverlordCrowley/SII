@@ -1,0 +1,99 @@
+test_cli_accepts_a_coin_name_or_ticker (test_aliases.AssetAliasTests.test_cli_accepts_a_coin_name_or_ticker) ... ok
+test_conflicting_name_and_ticker_are_rejected (test_aliases.AssetAliasTests.test_conflicting_name_and_ticker_are_rejected) ... ok
+test_every_catalog_alias_resolves_in_both_input_fields (test_aliases.AssetAliasTests.test_every_catalog_alias_resolves_in_both_input_fields) ... ok
+test_name_ticker_and_russian_aliases_are_equivalent (test_aliases.AssetAliasTests.test_name_ticker_and_russian_aliases_are_equivalent) ... ok
+test_profile_roundtrip_and_report_keep_the_resolved_identity (test_aliases.AssetAliasTests.test_profile_roundtrip_and_report_keep_the_resolved_identity) ... ok
+test_similar_asset_names_are_not_confused (test_aliases.AssetAliasTests.test_similar_asset_names_are_not_confused) ... ok
+test_unknown_names_and_custom_project_labels_are_preserved (test_aliases.AssetAliasTests.test_unknown_names_and_custom_project_labels_are_preserved) ... ok
+test_complete_crypto_profile (test_assistant.AssistantTests.test_complete_crypto_profile) ... ok
+test_explicit_negation_and_sources (test_assistant.AssistantTests.test_explicit_negation_and_sources) ... ok
+test_frames_and_graph (test_assistant.AssistantTests.test_frames_and_graph) ... ok
+test_minimal_or_proof_with_negative_fact (test_assistant.AssistantTests.test_minimal_or_proof_with_negative_fact) ... ok
+test_numeric_findings_are_explained_as_calculations (test_assistant.AssistantTests.test_numeric_findings_are_explained_as_calculations) ... ok
+test_profile_validation_and_report (test_assistant.AssistantTests.test_profile_validation_and_report) ... ok
+test_text_conflict_and_override (test_assistant.AssistantTests.test_text_conflict_and_override) ... ok
+test_tokenless_project_excludes_tokenomics (test_assistant.AssistantTests.test_tokenless_project_excludes_tokenomics) ... ok
+test_tokenless_project_ignores_saved_token_facts_and_signals (test_assistant.AssistantTests.test_tokenless_project_ignores_saved_token_facts_and_signals) ... ok
+test_unknown_is_not_negative (test_assistant.AssistantTests.test_unknown_is_not_negative) ... ok
+test_aliases_are_resolved_by_the_analysis_api (test_assistant.ServerTests.test_aliases_are_resolved_by_the_analysis_api) ... ok
+test_both_local_browser_addresses_can_analyze (test_assistant.ServerTests.test_both_local_browser_addresses_can_analyze) ... ok
+test_deep_json_returns_400_and_server_keeps_working (test_assistant.ServerTests.test_deep_json_returns_400_and_server_keeps_working) ... ok
+test_extreme_valid_numbers_return_a_finite_report (test_assistant.ServerTests.test_extreme_valid_numbers_return_a_finite_report) ... ok
+test_html_and_analysis_api (test_assistant.ServerTests.test_html_and_analysis_api) ... ok
+test_invalid_input_origin_and_paths (test_assistant.ServerTests.test_invalid_input_origin_and_paths) ... ok
+test_invalid_port_has_a_clear_cli_error (test_assistant.ServerTests.test_invalid_port_has_a_clear_cli_error) ... ok
+test_oversized_integer_returns_400_and_server_keeps_working (test_assistant.ServerTests.test_oversized_integer_returns_400_and_server_keeps_working) ... ok
+test_cli_reports_deep_json_without_traceback (test_assistant.TokenomicsTests.test_cli_reports_deep_json_without_traceback) ... ok
+test_cli_reports_oversized_number_without_traceback (test_assistant.TokenomicsTests.test_cli_reports_oversized_number_without_traceback) ... ok
+test_conflicting_snapshot_and_past_unlock (test_assistant.TokenomicsTests.test_conflicting_snapshot_and_past_unlock) ... ok
+test_extreme_ratios_remain_unknown_and_json_serializable (test_assistant.TokenomicsTests.test_extreme_ratios_remain_unknown_and_json_serializable) ... ok
+test_formulas_and_basis (test_assistant.TokenomicsTests.test_formulas_and_basis) ... ok
+test_fractional_snapshot_conflicts_and_one_percent_boundary (test_assistant.TokenomicsTests.test_fractional_snapshot_conflicts_and_one_percent_boundary) ... ok
+test_missing_zero_and_invalid_numbers (test_assistant.TokenomicsTests.test_missing_zero_and_invalid_numbers) ... ok
+test_numbers_outside_range_raise_validation_errors (test_assistant.TokenomicsTests.test_numbers_outside_range_raise_validation_errors) ... ok
+test_underflow_does_not_turn_a_positive_capitalization_into_zero (test_assistant.TokenomicsTests.test_underflow_does_not_turn_a_positive_capitalization_into_zero) ... ok
+test_api_and_markdown_use_grounded_fallback_for_contradictory_model_text (test_local_ai.LocalAITests.test_api_and_markdown_use_grounded_fallback_for_contradictory_model_text) ... ok
+test_auto_model_and_v1_url (test_local_ai.LocalAITests.test_auto_model_and_v1_url) ... ok
+test_cli_can_configure_check_and_explain (test_local_ai.LocalAITests.test_cli_can_configure_check_and_explain) ... ok
+test_common_topic_terms_select_the_requested_fact (test_local_ai.LocalAITests.test_common_topic_terms_select_the_requested_fact) ... ok
+test_config_is_local_and_validates_types (test_local_ai.LocalAITests.test_config_is_local_and_validates_types) ... ok
+test_config_roundtrip_and_corruption_recovery (test_local_ai.LocalAITests.test_config_roundtrip_and_corruption_recovery) ... ok
+test_critical_rule_is_shown_even_when_model_selects_only_strengths (test_local_ai.LocalAITests.test_critical_rule_is_shown_even_when_model_selects_only_strengths) ... ok
+test_disabled_and_invalid_input_never_generate (test_local_ai.LocalAITests.test_disabled_and_invalid_input_never_generate) ... ok
+test_explanation_uses_exact_score_status_and_rule_proof (test_local_ai.LocalAITests.test_explanation_uses_exact_score_status_and_rule_proof) ... ok
+test_generation_receives_bounded_expert_context (test_local_ai.LocalAITests.test_generation_receives_bounded_expert_context) ... ok
+test_loading_and_redirects_fail_without_breaking_analysis (test_local_ai.LocalAITests.test_loading_and_redirects_fail_without_breaking_analysis) ... ok
+test_metric_display_does_not_round_across_rule_thresholds (test_local_ai.LocalAITests.test_metric_display_does_not_round_across_rule_thresholds) ... ok
+test_multiple_explicit_topics_are_not_cut_to_three (test_local_ai.LocalAITests.test_multiple_explicit_topics_are_not_cut_to_three) ... ok
+test_narrow_question_replaces_valid_but_irrelevant_selection (test_local_ai.LocalAITests.test_narrow_question_replaces_valid_but_irrelevant_selection) ... ok
+test_new_routes_keep_origin_and_configuration_validation (test_local_ai.LocalAITests.test_new_routes_keep_origin_and_configuration_validation) ... ok
+test_numeric_question_has_exact_unlock_formula_and_inputs (test_local_ai.LocalAITests.test_numeric_question_has_exact_unlock_formula_and_inputs) ... ok
+test_numeric_rule_references_show_formula_and_real_threshold (test_local_ai.LocalAITests.test_numeric_rule_references_show_formula_and_real_threshold) ... ok
+test_profile_provenance_and_score_question_do_not_invent_facts (test_local_ai.LocalAITests.test_profile_provenance_and_score_question_do_not_invent_facts) ... ok
+test_question_about_a_rule_that_did_not_fire_has_its_condition (test_local_ai.LocalAITests.test_question_about_a_rule_that_did_not_fire_has_its_condition) ... ok
+test_question_about_two_topics_keeps_both (test_local_ai.LocalAITests.test_question_about_two_topics_keeps_both) ... ok
+test_response_validation_and_thinking_cleanup (test_local_ai.LocalAITests.test_response_validation_and_thinking_cleanup) ... ok
+test_rule_relations_and_unresolved_derived_premises_are_explained (test_local_ai.LocalAITests.test_rule_relations_and_unresolved_derived_premises_are_explained) ... ok
+test_timeout_and_disconnected_socket_have_friendly_errors (test_local_ai.LocalAITests.test_timeout_and_disconnected_socket_have_friendly_errors) ... ok
+test_tokenless_vesting_question_stays_on_vesting (test_local_ai.LocalAITests.test_tokenless_vesting_question_stays_on_vesting) ... ok
+test_topic_collisions_do_not_add_unrelated_price_or_code (test_local_ai.LocalAITests.test_topic_collisions_do_not_add_unrelated_price_or_code) ... ok
+test_unknown_and_inapplicable_criteria_are_preserved (test_local_ai.LocalAITests.test_unknown_and_inapplicable_criteria_are_preserved) ... ok
+test_unknown_or_ambiguous_question_requests_clarification (test_local_ai.LocalAITests.test_unknown_or_ambiguous_question_requests_clarification) ... ok
+test_untrusted_or_invalid_reply_cannot_override_expert_result (test_local_ai.LocalAITests.test_untrusted_or_invalid_reply_cannot_override_expert_result) ... ok
+test_browser_and_web_server_wait_for_model_readiness (test_local_ai_runtime.LocalAIRuntimeTests.test_browser_and_web_server_wait_for_model_readiness) ... ИИ-помощник запущен: http://127.0.0.1:8765
+Для завершения нажмите Ctrl+C в этом окне.
+ok
+test_failed_or_cancelled_startup_stops_owned_child (test_local_ai_runtime.LocalAIRuntimeTests.test_failed_or_cancelled_startup_stops_owned_child) ... Запускаю Qwen. Ожидаю готовности локальной модели…
+Запускаю Qwen. Ожидаю готовности локальной модели…
+ok
+test_missing_weights_have_actionable_error_without_launch (test_local_ai_runtime.LocalAIRuntimeTests.test_missing_weights_have_actionable_error_without_launch) ... ok
+test_owned_model_is_ready_before_use_and_stops_on_exit (test_local_ai_runtime.LocalAIRuntimeTests.test_owned_model_is_ready_before_use_and_stops_on_exit) ... Запускаю Qwen. Ожидаю готовности локальной модели…
+Локальная ИИ готова: qwen-local · http://127.0.0.1:53088
+ok
+test_readiness_timeout_stops_owned_child (test_local_ai_runtime.LocalAIRuntimeTests.test_readiness_timeout_stops_owned_child) ... Запускаю Qwen. Ожидаю готовности локальной модели…
+ok
+test_ready_external_model_is_reused_and_not_terminated (test_local_ai_runtime.LocalAIRuntimeTests.test_ready_external_model_is_reused_and_not_terminated) ... Проверяю уже запущенную локальную модель…
+Локальная ИИ готова: qwen-local · http://127.0.0.1:53099
+Проверяю уже запущенную локальную модель…
+ok
+test_web_server_closes_if_model_startup_fails (test_local_ai_runtime.LocalAIRuntimeTests.test_web_server_closes_if_model_startup_fails) ... ok
+test_changed_knowledge_disables_stale_models (test_semester.SemesterTests.test_changed_knowledge_disables_stale_models) ... ok
+test_corrupt_model_metrics_do_not_interrupt_expert_analysis (test_semester.SemesterTests.test_corrupt_model_metrics_do_not_interrupt_expert_analysis) ... ok
+test_corrupt_state_has_a_clear_cli_error (test_semester.SemesterTests.test_corrupt_state_has_a_clear_cli_error) ... ok
+test_dataset_has_no_duplicates_and_all_labels_match_rules (test_semester.SemesterTests.test_dataset_has_no_duplicates_and_all_labels_match_rules) ... ok
+test_frame_cli_changes_persist_and_are_used_by_assistant (test_semester.SemesterTests.test_frame_cli_changes_persist_and_are_used_by_assistant) ... ok
+test_model_overflow_does_not_interrupt_expert_analysis (test_semester.SemesterTests.test_model_overflow_does_not_interrupt_expert_analysis) ... ok
+test_models_are_advisory_and_use_applicable_facts (test_semester.SemesterTests.test_models_are_advisory_and_use_applicable_facts) ... ok
+test_network_cli_roundtrip_and_integration (test_semester.SemesterTests.test_network_cli_roundtrip_and_integration) ... ok
+test_neural_training_learns_and_is_reproducible (test_semester.SemesterTests.test_neural_training_learns_and_is_reproducible) ... ok
+test_saved_models_reproduce_holdout_metrics (test_semester.SemesterTests.test_saved_models_reproduce_holdout_metrics) ... ok
+test_forward_and_backward_agree_on_all_examples (test_week48.Week48Tests.test_forward_and_backward_agree_on_all_examples) ... ok
+test_invalid_frame_hierarchy_is_rejected (test_week48.Week48Tests.test_invalid_frame_hierarchy_is_rejected) ... ok
+test_multilevel_inheritance_and_local_override (test_week48.Week48Tests.test_multilevel_inheritance_and_local_override) ... ok
+test_semantic_path_respects_direction (test_week48.Week48Tests.test_semantic_path_respects_direction) ... ok
+test_week48_cli (test_week48.Week48Tests.test_week48_cli) ... ok
+
+----------------------------------------------------------------------
+Ran 84 tests in 3.690s
+
+OK

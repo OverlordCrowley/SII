@@ -1,0 +1,22 @@
+$ python3 -m project_assistant frame --state docs/results/weeks_04_09_2026_10_14/week09.frames.json show my_protocol
+
+{
+  "name": "my_protocol",
+  "parent": "defi",
+  "slots": {
+    "research_method": "Факты, источники и правила",
+    "quote_currency": "USD",
+    "source_policy": "Источник и дата для каждого числа",
+    "focus": "Fees, доход, TVL и права токена",
+    "security_focus": "Контракты, оракулы и права администраторов",
+    "reviewed": true
+  },
+  "origins": {
+    "research_method": "crypto_project",
+    "quote_currency": "crypto_project",
+    "source_policy": "crypto_project",
+    "focus": "defi",
+    "security_focus": "defi",
+    "reviewed": "my_protocol"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "created": {
+    "name": "my_protocol",
+    "parent": "defi",
+    "slots": {
+      "research_method": "Факты, источники и правила",
+      "quote_currency": "USD",
+      "source_policy": "Источник и дата для каждого числа",
+      "focus": "Fees, доход, TVL и права токена",
+      "security_focus": "Контракты, оракулы и права администраторов"
+    },
+    "origins": {
+      "research_method": "crypto_project",
+      "quote_currency": "crypto_project",
+      "source_policy": "crypto_project",
+      "focus": "defi",
+      "security_focus": "defi"
+    }
+  },
+  "changed": {
+    "name": "my_protocol",
+    "parent": "defi",
+    "slots": {
+      "research_method": "Факты, источники и правила",
+      "quote_currency": "USD",
+      "source_policy": "Источник и дата для каждого числа",
+      "focus": "Fees, доход, TVL и права токена",
+      "security_focus": "Контракты, оракулы и права администраторов",
+      "reviewed": true
+    },
+    "origins": {
+      "research_method": "crypto_project",
+      "quote_currency": "crypto_project",
+      "source_policy": "crypto_project",
+      "focus": "defi",
+      "security_focus": "defi",
+      "reviewed": "my_protocol"
+    }
+  },
+  "found_reviewed": [
+    "my_protocol"
+  ],
+  "reloaded": {
+    "name": "my_protocol",
+    "parent": "defi",
+    "slots": {
+      "research_method": "Факты, источники и правила",
+      "quote_currency": "USD",
+      "source_policy": "Источник и дата для каждого числа",
+      "focus": "Fees, доход, TVL и права токена",
+      "security_focus": "Контракты, оракулы и права администраторов",
+      "reviewed": true
+    },
+    "origins": {
+      "research_method": "crypto_project",
+      "quote_currency": "crypto_project",
+      "source_policy": "crypto_project",
+      "focus": "defi",
+      "security_focus": "defi",
+      "reviewed": "my_protocol"
+    }
+  },
+  "found_inherited_USD": [
+    "crypto_project",
+    "defi",
+    "gaming",
+    "infrastructure",
+    "layer1",
+    "layer2",
+    "my_protocol"
+  ]
+}

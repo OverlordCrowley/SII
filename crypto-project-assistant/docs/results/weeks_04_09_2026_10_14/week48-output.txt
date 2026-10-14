@@ -1,0 +1,54 @@
+НЕДЕЛЯ 4 — предметная область, база знаний и семантическая сеть
+Предметная область: анализ криптопроектов.
+Репозиторий: https://github.com/OverlordCrowley/SII
+Критериев: 26; правил: 28.
+Узлов: 22; связей: 21.
+  project —has→ token
+  token —has→ supply
+  supply —governed-by→ vesting
+  vesting —scheduled-by→ unlocks
+
+НЕДЕЛЯ 5 — факты, правила и обратный вывод
+Факты: {'audit_available': False, 'admin_controls_known': False}
+Цель security_gap доказана правилом R16
+
+НЕДЕЛЯ 6 — AND, OR, NOT и объяснение
+a AND b {'a': True, 'b': False} => False
+a OR b {'a': False, 'b': True} => True
+NOT a {'a': False} => True
+NOT a {} => None
+{'a': False, 'b': False, 'c': False, 'result': False}
+{'a': False, 'b': False, 'c': True, 'result': False}
+{'a': False, 'b': True, 'c': False, 'result': False}
+{'a': False, 'b': True, 'c': True, 'result': False}
+{'a': True, 'b': False, 'c': False, 'result': True}
+{'a': True, 'b': False, 'c': True, 'result': False}
+{'a': True, 'b': True, 'c': False, 'result': True}
+{'a': True, 'b': True, 'c': True, 'result': True}
+Аудит и права администраторов не изучены: ДА [R16]
+  Аудит доступен для изучения: НЕТ [исходное утверждение]
+  Права администраторов разобраны: НЕТ [исходное утверждение]
+
+НЕДЕЛЯ 7 — продукционные правила и прямой вывод
+Шаг 1: R01: product_exists AND users_active AND usage_evidence => product_evidence
+Шаг 2: R02: token_role_defined AND token_value_link AND holder_rights_clear => token_case
+Шаг 3: R03: supply_disclosed AND emission_disclosed AND vesting_disclosed AND unlock_schedule_known AND concentration_known => tokenomics_clear
+Шаг 4: R04: code_public AND audit_available AND admin_controls_known AND incident_history_known => security_docs
+Шаг 5: R05: sources_current AND metrics_dated AND chain_asset_verified => evidence_ready
+Шаг 6: R06: product_evidence AND (NOT has_token OR (token_case AND tokenomics_clear)) AND security_docs AND evidence_ready AND liquidity_known AND valuation_comparable AND team_identified AND roadmap_delivery => research_ready
+Итог: Есть основа для углублённого сравнения
+
+НЕДЕЛЯ 8 — фреймы, объекты, свойства, связи и наследование
+Типы фреймов: crypto_project, defi, layer1, layer2, infrastructure, gaming
+Связь наследования: crypto_project → defi → demo_protocol
+  research_method: Факты, источники и правила; источник: crypto_project
+  quote_currency: USD; источник: crypto_project
+  source_policy: Источник и дата для каждого числа; источник: crypto_project
+  focus: Fees, доход, TVL и права токена; источник: defi
+  security_focus: Контракты, оракулы и права администраторов; источник: defi
+  name: Учебный протокол; источник: demo_protocol
+  related_node: project; источник: demo_protocol
+Переопределение экземпляра: Локальный фокус исследования
+Родитель сохранил значение: Fees, доход, TVL и права токена
+
+Требования недель 4–8 прошли демонстрационную проверку.

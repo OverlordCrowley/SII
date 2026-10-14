@@ -1,0 +1,11 @@
+$ python3 -m project_assistant frame --state docs/results/weeks_04_09_2026_10_14/week09.frames.json find quote_currency '"USD"'
+
+[
+  "crypto_project",
+  "defi",
+  "gaming",
+  "infrastructure",
+  "layer1",
+  "layer2",
+  "my_protocol"
+]

@@ -1,0 +1,80 @@
+{
+  "captured_date": "2026-10-14",
+  "weeks": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "base_git_commit": "45e8b7120479ec18488c9bde5ac36acbc7659259",
+  "source": "Локальная рабочая версия с незакоммиченными изменениями; GitHub-публикация не выполнялась.",
+  "python": "3.14.0",
+  "node": "v19.4.0",
+  "checks": [
+    {
+      "command": "python3 -m unittest discover -s tests -v",
+      "exit_code": 0,
+      "tests": 84,
+      "output": "python-tests.txt"
+    },
+    {
+      "command": "node --test tests/frontend.test.cjs",
+      "exit_code": 0,
+      "tests": 14,
+      "output": "frontend-tests.txt"
+    }
+  ],
+  "source_sha256": {
+    "data/knowledge.json": "066789c2416bd1fa1931892504db0befa9b22ca95f193088de761867dfa7bb12",
+    "examples/ready.json": "a1b39ad7c76864a34d4634241e57b80737d06ea173ac6ea7e9ec43e270a30dcf",
+    "project_assistant/__init__.py": "fbe3485dec935276e84e7c51500bc47377a447f33e7660afc769f786ed6459fc",
+    "project_assistant/__main__.py": "f04deb6163f57ac6470cd8b5bb03f7663693c4ab87bd63a1c6498a0cf0772534",
+    "project_assistant/assets.py": "98e066dbd152bddc941c5560aaad14e4ae5734fce81659b8dddd1979f4bfec6b",
+    "project_assistant/assistant.py": "50d6cf6cc7192d0aac5e03c6f6405e56f1208aba7554bec58c3cfa404239a56b",
+    "project_assistant/dataset.py": "0fade9a595eafcdba2d07daf4a206aaa5b43285d222d5494b96afc4f0ac8650b",
+    "project_assistant/expert.py": "0897239cb3c4d5ad59d213d2b457ee8876beeacc512ff69db4f471bf357361fa",
+    "project_assistant/explanations.py": "eec392ef0f6bf2bb812772a5269668283bbd0cab6218c8a5cc58de330f1b831f",
+    "project_assistant/frames.py": "8504dc07f826d421e25f56d06160d022018a31edbec23cf4153841b48b5d9900",
+    "project_assistant/knowledge.py": "f0fa837ed1c1171838b3c054cf41442eb348daa27647b3e4ec823dc953fb7d87",
+    "project_assistant/local_ai.py": "970ecb77d566ca3624f711d2fb6e1c87e44c8837bbaa97472746860557103fe9",
+    "project_assistant/local_ai_runtime.py": "47b647282b7b50253a100bd2afb83395f686ffd2865d27235b3ebbb286f3a4c8",
+    "project_assistant/logic.py": "d975fe88bce1a6dc2d98e9f121e7668e40720468a09c52adbd4483ddade24a38",
+    "project_assistant/ml.py": "0bb8d2522714b1f880a00cc66f58f2af4a78acccd49f77a388637d568d11fdad",
+    "project_assistant/network.py": "0485d360ac114b793eac69f92f9a021a7ae4a974e0f0ada86c3cf1407141fc91",
+    "project_assistant/production.py": "f44aa2fa192f858472b9fab666fdcddc2982b1b31f3511d9ab6ed8f1b1d074d0",
+    "project_assistant/server.py": "4188da034a5860af7c0b4b25433a3b6b46d27f866450fef3c9b28ea3bc3ac199",
+    "project_assistant/tokenomics.py": "0631354438b0497359ad0d667199826858a650d93d5628f8f0dd840c656b073a",
+    "project_assistant/week415.py": "9eccb0b46699ce192bc1ffa78e708ac6945da65f61b2ab041740e95f3cf7912b",
+    "project_assistant/week48.py": "36569522b31417cafb2edd33f698a5b93b8bbc6d90fe81cd794720f83ac7decf",
+    "project_assistant/workbench.py": "c71ca590165f8f4c1820cecfb787233a36cd7ad8385b049fc9f5116eb0631028",
+    "tests/frontend.test.cjs": "44292f6f8b750315cd31c727b1951286ddc017e08e91ab8da8aa9f5ff5430a02",
+    "tests/test_aliases.py": "1b7a0caedd56e8174ce48b5db6362adcf0ddd342419d85e8535b890e92049327",
+    "tests/test_assistant.py": "66639c6f6c54b7a7b7fd28959ab3a74ad149428aaf8995495aed584a60718aba",
+    "tests/test_local_ai.py": "5dac3626fd17549823d0b367ce7a57843bf963403d502d85e7880e2c628b50b3",
+    "tests/test_local_ai_runtime.py": "e7355218d386a050fd93102307d744fca80f29e96030dedfb03d17594c7e41e5",
+    "tests/test_semester.py": "f4bfbe612c7cd04c4b33c763813b9839512456a78103d1bddf15e662edb35dd9",
+    "tests/test_week48.py": "fdefb97259d654ce2654f3acdbd081c691ecf6bc52acc0725c4c5e624a899835"
+  },
+  "evidence_sha256": {
+    "frontend-tests.txt": "c8d34e6837a4f8da4cc02854ef850777ad7a8f1ec146863bed39c79acaadfd24",
+    "knowledge.snapshot.json": "066789c2416bd1fa1931892504db0befa9b22ca95f193088de761867dfa7bb12",
+    "python-tests.txt": "b69214af7ce02678730fc54fe29c42eb49bde40dff7a1c730549de7a0f591527",
+    "ready.snapshot.json": "a1b39ad7c76864a34d4634241e57b80737d06ea173ac6ea7e9ec43e270a30dcf",
+    "week04.json": "3856c0b9d72bdb304660c68a9b2a6bfdd57d5473309352039928a8f434172dbd",
+    "week05.json": "eb62f6eb4638594e157086d02e6f5c801285d702e8f377d68c2c14f9e695d71c",
+    "week06.json": "167fb2a8de93644190d6c05e28508a7302579685c0dcaeae2f41756329a71fb2",
+    "week07.json": "18c61ebc2851cd4448521278f1900ff50f535c4069ccaf84cec5778ca03ff764",
+    "week08.json": "8b9d7cdae45700bbe5ff928be74dff3a9d1e5d8cfaf66ea814724bfdd5ad01e7",
+    "week09-create.txt": "b647b9a5f54f018d4cc97d5577ec1ee92c05a9dba8938ddfaf246fa00d86a9d9",
+    "week09-find-inherited.txt": "3485b0b7cf9efea05466b617e90e2ef0a5b62b02851f8505f8aaf96f4dafd01d",
+    "week09-find.txt": "c0802fbe74cf4ad3d27d332e53769eff69d5cd84fe1263c0ff3ed9856a3d048a",
+    "week09-set.txt": "f4ee713657ebed9880c4b6c28c17dddb3719600916d8108a734825273ef3b8e7",
+    "week09-show.txt": "f33b0e854f48c0d8d09ab06194f9831cb9c0fc4d0cb8d74751295cb7e1cc0275",
+    "week09.frames.json": "03959931312a168f6abe656d72162e613a3913b9eba7feed79837c14bb165c89",
+    "week09.json": "89f3a9d8cca1237d13581bf55bd4df25e9f2d1a0bc3b7e8bc577e45f418d810d",
+    "week48-output.txt": "1f0af6d31515b13ae778c42894a50ad509705ef7533ce379c465171320579155",
+    "week56-output.txt": "c1e414ab6bffff5ab413df6c827e9e3db81812774752eaac714954c825370889"
+  }
+}
