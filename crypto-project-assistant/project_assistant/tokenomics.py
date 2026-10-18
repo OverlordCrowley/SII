@@ -78,7 +78,7 @@ def calculate(raw):
         if age<0: warnings.append('Дата рыночного снимка находится в будущем: проверьте её.')
         elif age>30: warnings.append('Рыночному снимку больше 30 дней. Для текущего сравнения соберите новый снимок.')
     dated_unlock = bool(market['as_of'] and market['unlock_date'] and market['unlock_date']>market['as_of'])
-    if unlock is not None and not dated_unlock:
+    if unlock is not None and unlock > 0 and not dated_unlock:
         warnings.append('Дата разблокировки отсутствует или не позже даты снимка; сигнал будущего unlock не выводится.')
     facts={}
     if ratio is not None: facts['fdv_gap_high']=ratio>=3

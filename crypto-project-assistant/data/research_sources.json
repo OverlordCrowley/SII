@@ -1,0 +1,53 @@
+{
+  "_note": "Проверенные отправные ссылки, не готовые ответы. Документы читаются заново; факты требуют цитат. Проверено 2026-10-19.",
+  "aave": [
+    {"url": "https://raw.githubusercontent.com/aave/aave-v3-core/master/README.md", "criteria": ["problem_defined"]},
+    {"url": "https://raw.githubusercontent.com/aave-dao/aave-v3-origin/main/README.md", "criteria": ["problem_defined", "code_public"]},
+    {"url": "https://raw.githubusercontent.com/aave-dao/aave-governance-v3/main/docs/overview.md", "criteria": ["admin_controls_known", "holder_rights_clear", "token_role_defined"]},
+    {"url": "https://governance.aave.com/t/bgd-aave-governance-v3/12367.json", "criteria": ["holder_rights_clear", "token_role_defined"]},
+    {"url": "https://governance.aave.com/t/al-development-update-august-2026/25579.json", "criteria": ["users_active", "roadmap_delivery", "product_exists", "usage_evidence"]},
+    {"url": "https://governance.aave.com/t/aave-dao-funding-insights/24192.json", "criteria": ["emission_disclosed", "token_value_link"]},
+    {"url": "https://governance.aave.com/t/arfc-deploy-aave-v3-on-bob/20267.json", "criteria": ["team_identified"]},
+    {"url": "https://governance.aave.com/t/aave-v2-v3-security-incident-04-11-2023/15335.json", "criteria": ["incident_history_known"]}
+  ],
+  "optimism": [
+    {"url": "https://gov.optimism.io/t/collective-year-4-budget-update-and-year-5-budget-outlook/10796.json", "criteria": ["users_active", "usage_evidence", "product_exists", "roadmap_delivery"]},
+    {"url": "https://docs.optimism.io/governance/gov-faq", "criteria": ["team_identified", "holder_rights_clear"]},
+    {"url": "https://gov.optimism.io/t/badgeholder-learning-materials/6936/2.json", "criteria": ["team_identified"]},
+    {"url": "https://docs.optimism.io/governance/protocol-upgrades", "criteria": ["admin_controls_known"]},
+    {"url": "https://docs.google.com/spreadsheets/d/1qVMhLmmch3s6XSbiBe8hgD4ntMkPIOhc1WrhsYsQc7M/export?format=csv", "criteria": ["emission_disclosed", "unlock_schedule_known", "vesting_disclosed"]},
+    {"url": "https://raw.githubusercontent.com/ethereum-optimism/optimism/develop/docs/postmortems/2022-02-02-inflation-vuln.md", "criteria": ["incident_history_known"]},
+    {"url": "https://status.optimism.io/clieqyc0x13645trowwikfepm3", "criteria": ["roadmap_delivery"]}
+  ],
+  "bitcoin": [
+    {"url": "https://ethereum.org/ethereum-vs-bitcoin/", "criteria": ["competition_analyzed"]},
+    {"url": "https://ostif.org/wp-content/uploads/2025/11/25-05-2133-REP-bitcoincore-security-assessment-V1.3.pdf", "criteria": ["audit_available"]}
+  ],
+  "chainlink": [
+    {"url": "https://chain.link/blog/oracle-platform-powering-institutional-tokenization", "criteria": ["product_exists", "usage_evidence", "users_active"]},
+    {"url": "https://chain.link/blog/chainlink-defi-announcements", "criteria": ["users_active", "product_exists"]},
+    {"url": "https://chain.link/economics/staking", "criteria": ["holder_rights_clear", "admin_controls_known"]},
+    {"url": "https://chain.link/circulating-supply", "criteria": ["emission_disclosed", "unlock_schedule_known"]},
+    {"url": "https://github.com/smartcontractkit/audits/blob/master/reports/SigmaPrime%20-%20Chainlink%20Smart%20Contract%20Security%20Review.pdf", "criteria": ["audit_available"]},
+    {"url": "https://chain.link/blog/improving-and-decentralizing-chainlinks-feature-release-and-network-upgrade-process", "criteria": ["incident_history_known"]}
+  ],
+  "solana": [
+    {"url": "https://solana.com/solutions/institutional-payments", "criteria": ["users_active"]},
+    {"url": "https://solana.com/news/02-06-24-solana-mainnet-beta-outage-report", "criteria": ["incident_history_known"]},
+    {"url": "https://github.com/solana-foundation/solana-improvement-documents/blob/main/proposals/0001-simd-process.md", "criteria": ["admin_controls_known"]},
+    {"url": "https://solana.com/news/solana-foundation-transparency-reports", "criteria": ["vesting_disclosed", "unlock_schedule_known", "chain_asset_verified", "concentration_known"]},
+    {"url": "https://solana.com/news/ai-solana-anatoly-yakovenko", "criteria": ["team_identified"]},
+    {"url": "https://github.com/anza-xyz/security-audits", "criteria": ["audit_available"]},
+    {"url": "https://governance.solana.com/", "criteria": ["admin_controls_known", "holder_rights_clear"]}
+  ],
+  "ethereum": [
+    {"url": "https://blog.ethereum.org/2014/07/22/launching-the-ether-sale", "criteria": ["vesting_disclosed", "unlock_schedule_known"]},
+    {"url": "https://ethereum.org/payments/", "criteria": ["users_active"]},
+    {"url": "https://ethereum.org/developers/docs/consensus-mechanisms/pos/rewards-and-penalties/", "criteria": ["emission_disclosed"]},
+    {"url": "https://ethereum.org/ethereum-history-founder-and-ownership/", "criteria": ["team_identified", "vesting_disclosed"]},
+    {"url": "https://ethereum.org/governance/", "criteria": ["admin_controls_known", "holder_rights_clear"]},
+    {"url": "https://ethereum.org/ethereum-vs-bitcoin/", "criteria": ["competition_analyzed", "supply_disclosed"]},
+    {"url": "https://github.com/ethereum/go-ethereum/security", "criteria": ["audit_available", "incident_history_known"]},
+    {"url": "https://blog.ethereum.org/en/2016/06/28/security-alert-dos-vulnerability-in-the-soft-fork", "criteria": ["incident_history_known"]}
+  ]
+}

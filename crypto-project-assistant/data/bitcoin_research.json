@@ -1,0 +1,104 @@
+{
+  "product_exists": {
+    "value": true,
+    "evidence": "Работает публичная платёжная сеть Bitcoin и доступен клиент Bitcoin Core. Проверен каталог выпущенных версий; версия узла конкретного пользователя не проверялась.",
+    "source": "https://bitcoincore.org/en/releases/",
+    "date": "2026-10-18"
+  },
+  "problem_defined": {
+    "value": true,
+    "evidence": "Передача электронных денег между участниками без доверенного центрального посредника; предотвращение двойного расходования через общую историю транзакций и Proof of Work.",
+    "source": "https://bitcoin.org/bitcoin.pdf",
+    "date": "2026-10-18"
+  },
+  "users_active": {
+    "value": true,
+    "evidence": "Bitcoin.org описывает использование сети частными лицами и организациями. Это качественное подтверждение; точное число уникальных людей по адресам установить нельзя.",
+    "source": "https://bitcoin.org/en/faq#is-bitcoin-really-used-by-people",
+    "date": "2026-10-18"
+  },
+  "revenue_disclosed": {
+    "value": true,
+    "evidence": "Майнер получает субсидию блока и комиссии включённых транзакций. Это доход майнеров; у держателя BTC нет автоматически начисляемой доли этих комиссий.",
+    "source": "https://developer.bitcoin.org/devguide/block_chain.html",
+    "date": "2026-10-18"
+  },
+  "team_identified": {
+    "value": true,
+    "evidence": "Создатель известен под псевдонимом Satoshi Nakamoto; личность не установлена. Развитие продолжают независимые участники. История проекта разобрана в объёме открытых источников, персональная проверка всех участников не проводилась.",
+    "source": "https://bitcoin.org/en/faq#who-created-bitcoin",
+    "date": "2026-10-18"
+  },
+  "roadmap_delivery": {
+    "value": true,
+    "evidence": "В каталоге Bitcoin Core опубликованы выпущенные версии, включая ветки 30.x и 31.x. У Bitcoin нет единого корпоративного roadmap; здесь проверена поставка ПО, а не исполнение обещаний компании.",
+    "source": "https://bitcoincore.org/en/releases/",
+    "date": "2026-10-18"
+  },
+  "has_token": {
+    "value": true,
+    "evidence": "BTC — собственный нативный актив Bitcoin. Поле «токен» в этой универсальной анкете трактуется как наличие собственного актива, а не ERC-20 контракта.",
+    "source": "https://bitcoin.org/en/faq#what-is-bitcoin",
+    "date": "2026-10-18"
+  },
+  "token_role_defined": {
+    "value": true,
+    "evidence": "BTC используется как единица перевода стоимости и для уплаты комиссий транзакций в сети Bitcoin.",
+    "source": "https://bitcoin.org/bitcoin.pdf",
+    "date": "2026-10-18"
+  },
+  "token_value_link": {
+    "value": true,
+    "evidence": "Полезность расчётов и готовность участников принимать BTC создают спрос на актив при ограниченном предложении. Это описание механизма, а не доказательство справедливой цены или обещание роста.",
+    "source": "https://bitcoin.org/en/faq#why-do-bitcoins-have-value",
+    "date": "2026-10-18"
+  },
+  "holder_rights_clear": {
+    "value": true,
+    "evidence": "Ключи позволяют авторизовать расходование соответствующих UTXO. Владение BTC само по себе не означает долю в Bitcoin Core, обязательные дивиденды или корпоративное голосование; это вывод из устройства протокола.",
+    "source": "https://bitcoin.org/bitcoin.pdf ; https://developer.bitcoin.org/devguide/block_chain.html",
+    "date": "2026-10-18"
+  },
+  "emission_disclosed": {
+    "value": true,
+    "evidence": "Субсидия составляет 3.125 BTC за блок после халвинга на высоте 840000. Она уменьшается вдвое каждые 210000 блоков; следующий порог — 1050000. Календарная дата зависит от скорости нахождения блоков. Плановый предел — 21 млн BTC.",
+    "source": "https://bitcoin.org/en/halving",
+    "date": "2026-10-18"
+  },
+  "vesting_disclosed": {
+    "value": true,
+    "evidence": "Разобран механизм первичного распределения: награда добытого блока поступает майнеру. Протокольный механизм отличается от командного/венчурного vesting; новые coinbase-выходы имеют срок созревания. Это не оценка текущей концентрации владельцев.",
+    "source": "https://developer.bitcoin.org/devguide/block_chain.html",
+    "date": "2026-10-18"
+  },
+  "unlock_schedule_known": {
+    "value": true,
+    "evidence": "Coinbase-выход можно потратить после созревания в 100 блоков. Это правило высоты цепи, а не календарный cliff инвесторов. Ближайшие объём и дата unlock оставлены пустыми: актуальная очередь coinbase отдельно не рассчитана.",
+    "source": "https://developer.bitcoin.org/devguide/block_chain.html",
+    "date": "2026-10-18"
+  },
+  "code_public": {
+    "value": true,
+    "evidence": "Исходный код Bitcoin Core открыт по лицензии MIT; проект описывает тестирование и review. Не утверждается, что все действующие узлы используют одну версию или что данный профиль выполнил независимый аудит кода.",
+    "source": "https://github.com/bitcoin/bitcoin",
+    "date": "2026-10-18"
+  },
+  "admin_controls_known": {
+    "value": true,
+    "evidence": "Центрального владельца сети нет; разработчики предлагают изменения, а пользователи выбирают ПО и правила. Это не исключает рисков концентрации майнинга, кастодианов и влияния крупных участников.",
+    "source": "https://bitcoin.org/en/faq#who-controls-the-bitcoin-network",
+    "date": "2026-10-18"
+  },
+  "incident_history_known": {
+    "value": true,
+    "evidence": "Проверен официальный реестр уязвимостей Bitcoin Core: в нём разобраны CVE-2018-17144 и сетевой раскол BIP50. История содержит серьёзные ошибки; наличие исправлений не гарантирует отсутствия новых. Полный аудит всех инцидентов не проводился.",
+    "source": "https://bitcoincore.org/en/security-advisories/",
+    "date": "2026-10-18"
+  },
+  "chain_asset_verified": {
+    "value": true,
+    "evidence": "Идентифицирован нативный BTC основной сети Bitcoin. Адрес контракта ERC-20 не применяется. Wrapped BTC и другие активы с названием Bitcoin в профиль не включены.",
+    "source": "https://bitcoin.org/en/faq#what-is-bitcoin",
+    "date": "2026-10-18"
+  }
+}

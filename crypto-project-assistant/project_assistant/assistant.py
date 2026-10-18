@@ -8,6 +8,7 @@ import re
 from .assets import load_aliases, resolve_identity
 from .expert import ExpertSystem
 from .knowledge import ROOT
+from .logic import atoms, evaluate_node
 from .ml import ModelStore
 from .tokenomics import NUMBERS, calculate
 
@@ -167,12 +168,30 @@ class ProjectAssistant:
         if questions:
             summary += " Первый вопрос: " + questions[0]["question"]
         recognition = self.models.recognize(result["initial"], status) if self.models else {"available": False, "predictions": [], "scope": "", "reason": "Модели отключены для проверки правил."}
+        labels = {key: item["label"] for key, item in self.criteria.items()}
+        labels.update(self.knowledge["computed"])
+        labels.update({rule["then"]: rule["label"] for rule in self.knowledge["rules"]})
+        conditions = {rule["then"]: node for rule, node in self.logical.rules}
+        def dependencies(node, visiting=frozenset()):
+            names = atoms(node)
+            for key in tuple(names - visiting):
+                if key in conditions:
+                    names |= dependencies(conditions[key], visiting | {key})
+            return names
+        rule_checks = [{"rule": rule["id"], "label": rule["label"], "condition": rule["if"],
+                        "conclusion": rule["then"], "dependencies": sorted(dependencies(node)),
+                        "value": evaluate_node(node, result["facts"].get),
+                        "premises": [{"id": key, "label": labels[key], "value": result["facts"].get(key),
+                                      "applicable": facts.get(self.criteria.get(key, {}).get("applies_if")) is not False}
+                                     for key in sorted(atoms(node))],
+                        "severity": rule.get("severity"), "action": rule.get("action", "")}
+                       for rule, node in self.logical.rules]
         return {"project": profile, "generated_at": datetime.now(timezone.utc).isoformat(), "status": status, "status_label": label,
                 "summary": summary, "score": score, "findings": findings, "strengths": strengths, "questions": questions,
                 "next_actions": actions, "criteria": assessments, "warnings": warnings, "trace": result["trace"],
                 "frame": self.frames.describe(profile["type"]), "related": self.network.related("project", depth=2), "tokenomics": tokenomics,
-                "computed_labels": self.knowledge["computed"], "recognition": recognition,
-                "limits": "Анализ основан на введённых сведениях и учебных правилах. Источники не проверялись автоматически. Балл отражает проработанность анализа; он не оценивает доходность и не предсказывает цену токена."}
+                "computed_labels": self.knowledge["computed"], "recognition": recognition, "rule_checks": rule_checks,
+                "limits": "Анализ основан на сведениях профиля и учебных правилах. Загрузка данных не подтверждает их достоверность независимой проверкой. Балл отражает проработанность анализа; он не оценивает доходность и не предсказывает цену токена."}
 
 
 def proof_lines(proof, labels, level=0):
@@ -234,10 +253,20 @@ def markdown_report(result):
     if result.get("local_ai"):
         ai = result["local_ai"]
         lines.extend(["", "## Пояснение локальной ИИ", "", f"Модель: {clean(ai['model'])}. Сервер: {clean(ai['base_url'])}.",
-                      f"Вопрос: {clean(ai['question'])}", "", quoted(ai["content"]), "",
-                      "Текст создан локальной языковой моделью и может содержать ошибки. Балл, статус и доказательства выше рассчитаны экспертными правилами."])
+                      f"Вопрос: {clean(ai['question'])}", "", quoted(ai["content"]), ""])
+        if ai.get("grounded"):
+            if ai.get('clarification'):
+                lines.append('Нужно уточнить тему вопроса. Выбор пунктов Qwen не запрашивался.')
+            elif ai.get('model_selection') is False:
+                lines.append('Пояснение сформировано по теме вопроса и введённым данным.')
+            else:
+                lines.append("Пункты Qwen проверены по теме вопроса; пояснение, балл, статус и основания сформированы из экспертного разбора.")
+                if ai["fallback"]:
+                    lines.append("Подбор Qwen уточнён по теме вопроса. Пояснение сформировано по экспертным правилам.")
+        else:
+            lines.append("Текст создан локальной языковой моделью и может содержать ошибки. Балл, статус и доказательства выше рассчитаны экспертными правилами.")
         if ai["truncated"]:
-            lines.append("Ответ ограничен лимитом длины генерации.")
+            lines.append("Выбор модели ограничен лимитом длины генерации; пояснение восстановлено по теме вопроса и экспертным правилам." if ai.get("grounded") else "Ответ ограничен лимитом длины генерации.")
     if result["warnings"]:
         lines.extend(["## Уточнения входных данных", "", *result["warnings"], ""])
     return "\n".join(lines)

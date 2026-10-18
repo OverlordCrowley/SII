@@ -126,9 +126,13 @@ class ModelStore:
         import json
         try:
             metrics = json.loads((directory / "metrics.json").read_text(encoding="utf-8"))
-            if metrics["knowledge_sha256"] != knowledge_digest(knowledge):
+            if metrics["version"] != 1 or metrics["knowledge_sha256"] != knowledge_digest(knowledge):
                 raise ValueError("Метрики не соответствуют базе знаний")
             for key in ("bayes", "neural"):
+                test = metrics[key]["test"]
+                if any(type(test[field]) not in (int, float) or not 0 <= test[field] <= 1
+                       for field in ("accuracy", "macro_f1")):
+                    raise ValueError("Некорректные метрики модели")
                 model = json.loads((directory / (key + ".json")).read_text(encoding="utf-8"))
                 if (model["version"] != 1 or model["fact_names"] != self.names or model["classes"] != CLASSES
                         or model["knowledge_sha256"] != knowledge_digest(knowledge)
@@ -154,18 +158,26 @@ class ModelStore:
                 self.models[key] = model
             self.metrics = metrics
             self.reason = ""
-        except (OSError, ValueError, KeyError, TypeError, IndexError):
+        except (OSError, ValueError, KeyError, TypeError, IndexError, OverflowError, RecursionError):
             self.models = {}
             self.reason = "Модели повреждены или устарели. Повторите команду train."
 
     def recognize(self, facts, expert_status):
         predictions = []
         features = encode(facts, self.names)
-        for key, model in self.models.items():
-            ps = probabilities(model, features)
-            status = CLASSES[max(range(len(ps)), key=ps.__getitem__)]
-            predictions.append({"model": key, "status": status, "label": CLASS_LABELS[status],
-                                "probabilities": dict(zip(CLASSES, ps)), "agrees_with_expert": status == expert_status,
-                                "test_accuracy": self.metrics[key]["test"]["accuracy"],
-                                "test_macro_f1": self.metrics[key]["test"]["macro_f1"]})
+        try:
+            for key, model in self.models.items():
+                ps = probabilities(model, features)
+                if len(ps) != len(CLASSES) or not all(math.isfinite(p) and 0 <= p <= 1 for p in ps):
+                    raise ValueError("Некорректные вероятности модели")
+                status = CLASSES[max(range(len(ps)), key=ps.__getitem__)]
+                predictions.append({"model": key, "status": status, "label": CLASS_LABELS[status],
+                                    "probabilities": dict(zip(CLASSES, ps)), "agrees_with_expert": status == expert_status,
+                                    "test_accuracy": self.metrics[key]["test"]["accuracy"],
+                                    "test_macro_f1": self.metrics[key]["test"]["macro_f1"]})
+        except (ValueError, OverflowError):
+            self.models = {}
+            # Проверенные метрики нужны уже выполняющимся параллельным запросам.
+            self.reason = "Модели повреждены или устарели. Повторите команду train."
+            predictions = []
         return {"available": bool(predictions), "predictions": predictions, "scope": SCOPE, "reason": self.reason}

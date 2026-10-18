@@ -107,3 +107,190 @@ test('user cancellation stays a cancellation rather than a connection error', as
   const pending = context.request('/api/analyze', { signal: controller.signal }); controller.abort();
   await assert.rejects(pending, error => error.name === 'AbortError');
 });
+
+function importContext(file, request) {
+  const form = { name: 'Existing project', type: 'defi', facts: { has_token: true } };
+  const operation = { signal: { aborted: false } };
+  const input = { files: [file], value: file.name };
+  const context = vm.createContext({
+    $: id => { assert.equal(id, 'file-input'); return input; },
+    TextDecoder, formRevision: 0, activeOperation: operation, innerWidth: 1280,
+    document: { documentElement: { dataset: { ui: 'dossier' } } },
+    beginOperation: () => operation, finishOperation() {},
+    acceptResponse: (op, revision) => op === operation && !op.signal.aborted && revision === context.formRevision,
+    profileBody: JSON.stringify, request,
+    populate(profile) { Object.keys(form).forEach(key => delete form[key]); Object.assign(form, { facts: {} }, profile); },
+    render(result) { context.rendered = result; },
+    async analyze() {
+      const result = await request('/api/analyze', { body: JSON.stringify(form) });
+      context.rendered = result; return result;
+    },
+    showError(message) { context.error = message; },
+  });
+  const start = html.indexOf("$('file-input').onchange=async()=>{");
+  const end = html.indexOf("for(const button of document.querySelectorAll('[data-example]'))", start);
+  assert(start >= 0 && end > start);
+  vm.runInContext(html.slice(start, end), context);
+  return { context, form, input, operation };
+}
+
+function importFile(name, raw) {
+  const bytes = new TextEncoder().encode(raw);
+  return { name, size: bytes.byteLength, arrayBuffer: async () => bytes.buffer };
+}
+
+test('a rejected text import preserves the existing form and report', async () => {
+  for (const name of ['overlong.txt', 'overlong.md']) {
+    const { context, form, input } = importContext(importFile(name, 'X'.repeat(40001)), async () => {
+      throw Error('Описание должно быть строкой длиной до 40000 символов');
+    });
+    const before = JSON.stringify(form);
+    context.rendered = { project: { name: 'Existing project' } };
+    const report = context.rendered;
+    await input.onchange();
+    assert.equal(JSON.stringify(form) === before, true, 'Rejected import changed the existing form');
+    assert.equal(context.rendered, report);
+    assert.match(context.error, /40000/);
+    assert.equal(input.value, '');
+  }
+});
+
+test('a failed or superseded text import does not replace the form', async () => {
+  for (const outcome of ['connection error', 'edited', 'cancelled']) {
+    let state;
+    state = importContext(importFile('description.txt', 'Продукт работает'), async () => {
+      if (outcome === 'connection error') throw Error('Нет соединения');
+      if (outcome === 'edited') { state.form.name = 'New input'; state.context.formRevision++; }
+      if (outcome === 'cancelled') state.operation.signal.aborted = true;
+      return { project: { name: 'description', type: 'crypto_project', facts: {} } };
+    });
+    await state.input.onchange();
+    assert.equal(state.form.name, outcome === 'edited' ? 'New input' : 'Existing project');
+    assert.equal(state.context.rendered, undefined);
+  }
+});
+
+test('JSON import uses normalized fields while retaining explicit fact ownership', async () => {
+  const raw = { name: ' BTC ', type: ' defi ', description: ' Продукт работает ', facts: { audit_available: null } };
+  const normalized = { name: 'Bitcoin', symbol: 'BTC', type: 'defi', description: 'Продукт работает', facts: {
+    audit_available: { value: null, origin: 'input' }, product_exists: { value: true, origin: 'description' },
+  } };
+  const { context, form, input } = importContext(importFile('profile.json', JSON.stringify(raw)), async () => ({ project: normalized }));
+  await input.onchange();
+  assert.equal(form.type, 'defi');
+  assert.equal(form.description, 'Продукт работает');
+  assert.equal(form.name, 'Bitcoin');
+  assert.equal(form.symbol, ''); // The ticker remains inferred when render fills it.
+  assert.deepEqual(Object.keys(form.facts), ['audit_available']);
+  assert.equal(form.facts.audit_available.value, null);
+  assert.equal(context.rendered.project, normalized);
+  assert.equal(context.error, undefined);
+});
+
+test('successful text import sends the new description and keeps its recognized facts automatic', async () => {
+  let sent;
+  const normalized = { name: 'description', description: 'Продукт работает', type: 'crypto_project', facts: {
+    product_exists: { value: true, origin: 'description' },
+  } };
+  const { context, form, input } = importContext(importFile('description.md', 'Продукт работает'), async (path, options) => {
+    assert.equal(path, '/api/analyze'); sent = JSON.parse(options.body); return { project: normalized };
+  });
+  await input.onchange();
+  assert.equal(sent.name, 'description');
+  assert.equal(sent.description, 'Продукт работает');
+  assert.deepEqual(Object.keys(form.facts), []);
+  assert.equal(context.rendered.project, normalized);
+  assert.equal(context.error, undefined);
+});
+
+function lookupContext(request) {
+  const nodes = Object.fromEntries(['coin-query', 'lookup-status', 'lookup-choices', 'report'].map(id => [id, {
+    value: id === 'coin-query' ? 'BTC' : '', textContent: '', children: [],
+    replaceChildren(...children) { this.children = children; }, scrollIntoView() {}, focus() {},
+  }]));
+  const operation = new AbortController();
+  const context = vm.createContext({
+    $: id => nodes[id], schema: {}, formRevision: 0, activeOperation: operation, lookupOperation: null,
+    beginOperation: () => operation, updateButtons() {},
+    finishOperation(op) { if (context.activeOperation === op) context.activeOperation = null; },
+    acceptResponse: (op, revision) => context.activeOperation === op && !op.signal.aborted && revision === context.formRevision,
+    profileBody: JSON.stringify, request, matchMedia: () => ({ matches: true }),
+    element: (tag, textContent) => ({ tag, textContent }),
+    populate(profile) { context.profile = profile; context.formRevision++; },
+    render(result) { context.rendered = result; }, showError(message) { context.error = message; },
+    renderLookupSources() {},
+  });
+  const lookupSource = source('lookup', 'cancelLookup').split("$('lookup-form')")[0].replace(/^function lookup/, 'async function lookup');
+  vm.runInContext(lookupSource + source('cancelLookup', 'download').split("$('lookup-cancel')")[0], context);
+  return { context, nodes, operation };
+}
+
+test('name lookup fills the collected profile and displays the automatic analysis', async () => {
+  const result = { project: { name: 'Bitcoin', symbol: 'BTC', market: { as_of: '2026-10-18' } }, score: { known: 20, total: 26 }, lookup: { notices: [] } };
+  const { context, nodes } = lookupContext(async (path, options) => {
+    assert.equal(path, '/api/research');
+    assert.deepEqual(JSON.parse(options.body), { query: 'BTC', coin_id: '' });
+    return result;
+  });
+  await context.lookup();
+  assert.equal(context.profile, result.project);
+  assert.equal(context.rendered, result);
+  assert.match(nodes['lookup-status'].textContent, /Готово: Bitcoin/);
+});
+
+test('ambiguous coin lookup offers choices without replacing the existing profile', async () => {
+  let sent;
+  const { context, nodes } = lookupContext(async (path, options) => {
+    sent = JSON.parse(options.body);
+    return { choices: [{ id: 'chosen-id', name: 'Example', symbol: 'XYZ' }] };
+  });
+  await context.lookup();
+  assert.equal(context.profile, undefined);
+  assert.equal(nodes['lookup-choices'].children[0].textContent, 'Example / XYZ · chosen-id');
+  await nodes['lookup-choices'].children[0].onclick();
+  assert.equal(sent.coin_id, 'chosen-id');
+});
+
+test('failed, cancelled and superseded coin lookups preserve the existing profile', async () => {
+  for (const outcome of ['error', 'edited', 'cancelled']) {
+    let state;
+    state = lookupContext(async () => {
+      if (outcome === 'error') throw Error('CoinGecko: лимит');
+      if (outcome === 'edited') state.context.formRevision++;
+      if (outcome === 'cancelled') state.context.cancelLookup();
+      return { project: { name: 'Wrong' } };
+    });
+    state.context.profile = { name: 'Existing' };
+    await state.context.lookup();
+    assert.equal(state.context.profile.name, 'Existing');
+    assert.equal(state.context.rendered, undefined);
+    if (outcome === 'error') assert.match(state.nodes['lookup-status'].textContent, /лимит/);
+  }
+});
+
+test('research outcomes preserve the difference between missing and negative evidence', () => {
+  const makeNode = (tag, textContent) => ({ tag, textContent, children: [], append(...children) { this.children.push(...children); }, replaceChildren(...children) { this.children = children; } });
+  const nodes = Object.fromEntries(['lookup-materials', 'lookup-outcomes', 'lookup-sources', 'lookup-notices', 'lookup-unlocks'].map(id => [id, makeNode('div')]));
+  const context = vm.createContext({ $: id => nodes[id], element: makeNode, schema: { criteria: {} } });
+  vm.runInContext(source('renderLookupSources', 'download'), context);
+  context.renderLookupSources({ notices: [], research: { criteria: {
+    yes: { label: 'Known', status: 'confirmed', evidence: 'Exact source quote' },
+    no: { label: 'Negative', status: 'refuted', evidence: 'Explicit negative statement' },
+    missing: { label: 'Missing', status: 'insufficient_evidence', evidence: '<script>untrusted</script>', source: 'https://project.example' },
+  } } });
+  const rows = nodes['lookup-outcomes'].children;
+  assert.equal(rows.length, 3);
+  assert.match(rows[0].children[0].textContent, /Есть подтверждение/);
+  assert.match(rows[1].children[0].textContent, /отрицательное подтверждение/);
+  assert.match(rows[2].children[0].textContent, /Недостаточно данных/);
+  assert.equal(rows[2].children[2].textContent, '<script>untrusted</script>');
+  assert.equal(nodes['lookup-unlocks'].hidden, true);
+  context.renderLookupSources({notices:[],research:{unlock_events:[{at:'2026-10-20T12:00:01+00:00',amount:'90300',symbol:'OP',recipient:'0xpublic',plan_id:'465',protocol:'Hedgey',block:123,block_time:'2026-10-18T20:00:00Z',source:'https://explorer.example/465',revocable_by:'0xadmin'}]}});
+  assert.equal(nodes['lookup-unlocks'].hidden, false);
+  assert.match(nodes['lookup-unlocks'].children[0].textContent,/2026-10-20 · 90300 OP/);
+  assert.match(nodes['lookup-unlocks'].children[1].textContent,/не все разблокировки/);
+  assert.match(nodes['lookup-unlocks'].children[2].children[0].children[0].textContent,/12:00:01 UTC/);
+  context.renderLookupSources({notices:[],research:{}});
+  assert.equal(nodes['lookup-unlocks'].hidden, true);
+  assert.equal(nodes['lookup-unlocks'].children.length, 0);
+});

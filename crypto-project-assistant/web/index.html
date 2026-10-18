@@ -438,6 +438,20 @@ pre { border-left-color: var(--accent); }
   <p class="ui-footnote" id="ui-storage-note">Оформление и текущий черновик сохраняются в этом браузере. «Очистить» удаляет черновик; экспорт сохраняет отдельный файл профиля.</p>
 </dialog>
 <main>
+  <section class="panel" aria-labelledby="lookup-title" style="padding:24px;margin-bottom:24px">
+    <h2 id="lookup-title">Анализ по названию монеты</h2>
+    <p class="hint">Введите название или тикер и нажмите Enter. Прочитаем открытые документы, соберём метрики и разберём все 26 критериев. API-ключи не нужны.</p>
+    <form id="lookup-form" class="ai-actions">
+      <label class="label" for="coin-query">Монета</label>
+      <input class="field" id="coin-query" placeholder="Bitcoin, BTC, Ethereum или SOL" maxlength="200" required style="flex:1;min-width:180px">
+      <button class="button primary" id="lookup-button" type="submit">Найти и проанализировать</button>
+      <button class="button" id="lookup-cancel" type="button" hidden>Отменить загрузку</button>
+    </form>
+    <p class="hint" id="lookup-status" role="status">CoinGecko, официальные документы, GitHub и доступные публичные метрики. Для пробелов дополнительно проверяются карты сайта и целевые документы. Исследование может занять до трёх минут.</p>
+    <details id="lookup-materials" hidden><summary>Источники и ход исследования</summary><details id="lookup-criteria"><summary>Результат проверки каждого критерия</summary><div id="lookup-outcomes" class="evidence-list"></div></details><div id="lookup-sources" class="evidence-list"></div><div id="lookup-notices" class="hint"></div></details>
+    <details id="lookup-unlocks" hidden aria-label="Подтверждённые события vesting"></details>
+    <div class="ai-actions" id="lookup-choices" aria-label="Найденные монеты"></div>
+  </section>
   <div class="intro">
     <div><h1>Досье криптопроекта</h1><p>Соберите сведения о продукте, токене и безопасности. Проверьте выводы и их основания.</p></div>
     <div class="examples"><div class="examples-label">Учебные примеры</div><div class="example-buttons">
@@ -509,10 +523,10 @@ pre { border-left-color: var(--accent); }
         </div>
         <div id="view-local-ai" role="tabpanel" aria-labelledby="tab-local-ai" hidden>
           <h3>Вопрос по текущему разбору</h3>
-          <p class="hint">Подключите llama.cpp с моделью Qwen в настройках ниже. Модель получает введённые сведения и результат анализа на этом компьютере.</p>
+          <p class="hint">Qwen выбирает факты и правила по вашему вопросу. Пояснение составляется из текущего экспертного разбора на этом компьютере.</p>
           <details class="group" id="ai-settings" open><summary>Подключение llama.cpp</summary>
             <label class="label"><input type="checkbox" id="ai-enabled"> Включить локальную ИИ</label>
-            <label class="label" for="ai-url">Адрес llama-server</label><input class="field" id="ai-url" value="http://127.0.0.1:8080" maxlength="250" placeholder="http://127.0.0.1:8080">
+            <label class="label" for="ai-url">Адрес llama-server</label><input class="field" id="ai-url" value="http://127.0.0.1:8081" maxlength="250" placeholder="http://127.0.0.1:8081">
             <p class="hint">Сервер на этом компьютере: localhost, 127.0.0.1 или ::1. Допускается адрес с /v1.</p>
             <label class="label" for="ai-model">Имя модели</label><input class="field" id="ai-model" maxlength="250" placeholder="Автоматически из llama.cpp">
             <label class="label" for="ai-timeout">Таймаут генерации, секунды</label><input class="field" type="number" min="5" max="300" step="1" id="ai-timeout" value="120">
@@ -523,8 +537,8 @@ pre { border-left-color: var(--accent); }
           <p class="hint">Пустой вопрос — краткое пояснение и приоритетные проверки. Настройки сохраняются при отправке.</p>
           <div class="ai-actions"><button class="button primary" id="ai-ask">Спросить ИИ</button><button class="button" id="ai-cancel" hidden>Отменить запрос</button></div>
           <div class="error" id="ai-error" role="alert" hidden></div>
-          <div id="ai-response" hidden><h3>Ответ модели</h3><p class="hint" id="ai-answer-meta"></p><p class="hint" id="ai-answer-question"></p><div class="ai-answer" id="ai-answer"></div><p class="hint" id="ai-truncated" hidden>Ответ достиг лимита длины. Задайте более узкий вопрос.</p></div>
-          <p class="limit">Ответ может содержать ошибки и попадёт в Markdown-отчёт. Балл и статус определяют экспертные правила. Модель не проверяет источники и котировки в интернете.</p>
+          <div id="ai-response" hidden><h3>Пояснение по разбору</h3><p class="hint" id="ai-answer-meta"></p><p class="hint" id="ai-answer-question"></p><p class="hint" id="ai-grounding"></p><div class="ai-answer" id="ai-answer"></div><p class="hint" id="ai-truncated" hidden>Генерация Qwen достигла лимита. Пояснение восстановлено по теме вопроса и экспертным правилам.</p></div>
+          <p class="limit">Балл, статус и основания берутся из экспертного разбора. Qwen поясняет уже загруженный профиль. Для нового рыночного снимка повторите поиск монеты в верхней форме.</p>
         </div>
         <div class="downloads"><button class="button" id="download-report">Сохранить отчёт .md</button><button class="button" id="download-profile">Сохранить профиль .json</button></div>
         <p class="limit" id="limits"></p>
@@ -536,7 +550,7 @@ pre { border-left-color: var(--accent); }
 <script>
 'use strict';
 const $=id=>document.getElementById(id);let schema,current=null,formRevision=0,analyzedRevision=-1,activeOperation=null,inferredName=false,inferredSymbol=false;const controls=new Map();const numberFields=['price_usd', 'circulating_supply', 'total_supply', 'max_supply', 'market_cap_usd', 'fdv_usd', 'volume_24h_usd', 'next_unlock_tokens'];
-let aiReady=false,activeAI=null,schemaLoading=false,draftChecked=false,draftTimer=null,aiConfigDirty=false;
+let aiReady=false,activeAI=null,schemaLoading=false,draftChecked=false,draftTimer=null,aiConfigDirty=false,lookupOperation=null;
 const draftKey='cryptoscope-draft-v1';
 const draftFields=['name','description','type','symbol','network','contract',...numberFields,'fdv-basis','as-of','unlock-date','market-source'];
 function element(tag,content,cls){const node=document.createElement(tag);if(content!==undefined)node.textContent=content;if(cls)node.className=cls;return node}
@@ -606,6 +620,9 @@ function validateForm(){
   throw Error(title+': '+(field.type==='number'?'введите конечное число от 0 до 1e30.':field.type==='date'?'укажите корректную календарную дату.':'проверьте значение и допустимую длину.'));
 }
 function updateButtons(){
+  $('lookup-button').disabled=!schema||Boolean(activeOperation);
+  $('lookup-button').textContent=lookupOperation&&activeOperation===lookupOperation?'Загружаю и анализирую…':'Найти и проанализировать';
+  $('lookup-cancel').hidden=!lookupOperation||activeOperation!==lookupOperation;
   $('analyze-button').disabled=!schema||Boolean(activeOperation);
   $('analyze-button').textContent=activeOperation?'Анализирую…':'Проанализировать';
   for(const id of ['download-report','download-profile'])$(id).disabled=!schema||Boolean(activeOperation);
@@ -632,7 +649,7 @@ function buildCriteria(){const groups=new Map();for(const [key,item] of Object.e
 function updateCount(){const count=[...controls.values()].filter(c=>c.select.value!=='').length;$('criteria-count').textContent='Заполнено '+count+' / '+controls.size;const groups=new Set([...controls.values()].map(c=>c.group));for(const group of groups){const entries=[...controls.values()].filter(c=>c.group===group);group.querySelector('.group-count').textContent=entries.filter(c=>c.select.value!=='').length+' / '+entries.length}}
 function collect(){validateForm();const facts={};for(const [key,c] of controls){if(c.manual)facts[key]={value:c.select.value===''?null:c.select.value==='true',evidence:c.note.value,source:c.source.value||'Анкета пользователя',date:c.date.value}}const market={quote_currency:'USD',fdv_basis:$('fdv-basis').value,as_of:$('as-of').value,unlock_date:$('unlock-date').value,source:$('market-source').value};for(const key of numberFields){if($(key).validity.badInput)throw Error(key+': требуется конечное неотрицательное число до 1e30 или null');market[key]=$(key).value===''?null:Number($(key).value)}return {name:$('name').value,description:$('description').value,type:$('type').value,symbol:$('symbol').value,network:$('network').value,contract:$('contract').value,facts,market}}
 function clearControls(){for(const c of controls.values()){c.select.value='';c.note.value='';c.recognition.textContent='';c.manual=false;c.source.value='';c.date.value=''}for(const group of new Set([...controls.values()].map(c=>c.group)))group.open=false;$('market-input').open=false;document.querySelector('.editor-scroll').scrollTop=0;updateCount()}
-function populate(profile){inferredName=false;inferredSymbol=false;markStale();clearControls();$('name').value=profile.name||'';$('description').value=profile.description||'';$('type').value=Object.hasOwn(schema.frames,profile.type)?profile.type:'crypto_project';for(const [key,raw] of Object.entries(profile.facts||{})){if(!controls.has(key))continue;const item=typeof raw==='object'&&raw!==null?raw:{value:raw};const c=controls.get(key);c.select.value=item.value===true?'true':item.value===false?'false':'';c.note.value=item.evidence||'';c.source.value=item.source||'';c.date.value=item.date||'';c.manual=true;c.recognition.textContent=c.source.value||'Загружено из профиля'}for(const key of ['symbol','network','contract'])$(key).value=profile[key]||'';const market=profile.market||{};for(const key of numberFields)$(key).value=market[key]??'';$('fdv-basis').value=market.fdv_basis||'total';$('as-of').value=market.as_of||'';$('unlock-date').value=market.unlock_date||'';$('market-source').value=market.source||'';updateCount()}
+function populate(profile){$('lookup-unlocks').hidden=true;$('lookup-unlocks').replaceChildren();inferredName=false;inferredSymbol=false;markStale();clearControls();$('name').value=profile.name||'';$('description').value=profile.description||'';$('type').value=Object.hasOwn(schema.frames,profile.type)?profile.type:'crypto_project';for(const [key,raw] of Object.entries(profile.facts||{})){if(!controls.has(key))continue;const item=typeof raw==='object'&&raw!==null?raw:{value:raw};const c=controls.get(key);c.select.value=item.value===true?'true':item.value===false?'false':'';c.note.value=item.evidence||'';c.source.value=item.source||'';c.date.value=item.date||'';c.manual=true;c.recognition.textContent=c.source.value||'Загружено из профиля'}for(const key of ['symbol','network','contract'])$(key).value=profile[key]||'';const market=profile.market||{};for(const key of numberFields)$(key).value=market[key]??'';$('fdv-basis').value=market.fdv_basis||'total';$('as-of').value=market.as_of||'';$('unlock-date').value=market.unlock_date||'';$('market-source').value=market.source||'';updateCount()}
 function labels(){const data={};for(const [key,item] of Object.entries(schema.criteria))data[key]=item.label;for(const rule of schema.rules)data[rule.then]=rule.label;Object.assign(data,schema.computed);return data}
 function proofText(proof,level=0){const value=proof.value===true?'ДА':proof.value===false?'НЕТ':'НЕИЗВЕСТНО';const names=labels();let output='  '.repeat(level)+(names[proof.fact]||proof.fact)+': '+value+' ['+(proof.rule||(proof.source==='calculation'?'расчёт по введённым числам':'введённое утверждение'))+']';for(const child of proof.children||[])output+='\n'+proofText(child,level+1);return output}
 function insight(item){const box=element('div',undefined,'insight '+(item.severity||'strength'));const title=element('div',undefined,'insight-title');title.append(element('strong',item.label));if(item.severity)title.append(element('span',{critical:'Препятствие',high:'Приоритет',medium:'Улучшение'}[item.severity],'badge '+item.severity));box.append(title);if(item.action)box.append(element('p',item.action));const details=element('details');details.append(element('summary','Показать объяснение ('+item.rule+')'),element('pre',proofText(item.proof)));box.append(details);return box}
@@ -653,6 +670,66 @@ async function analyze(operation){
   }catch(error){if(activeOperation===operation&&!operation.signal.aborted)showError(error.message);return null}
   finally{finishOperation(operation)}
 }
+async function lookup(coinId=''){
+  if(!schema){showError('Дождитесь загрузки базы знаний.');return}
+  const query=$('coin-query').value.trim();
+  if(!query){$('coin-query').focus();return}
+  const operation=beginOperation(),revision=formRevision;
+  lookupOperation=operation;updateButtons();$('lookup-choices').replaceChildren();
+  $('lookup-status').textContent='Ищу монету, собираю метрики и документы. По недостающим критериям дополнительно проверяю карты сайта, токеномику, управление и отчёты безопасности…';
+  try{
+    const result=await request('/api/research',{method:'POST',headers:{'Content-Type':'application/json'},body:profileBody({query,coin_id:coinId}),signal:operation.signal,timeout:180000});
+    if(!acceptResponse(operation,revision)){
+      if(activeOperation===operation)$('lookup-status').textContent='Данные изменились во время загрузки. Повторите поиск, чтобы заменить профиль.';
+      return;
+    }
+    if(result.choices){
+      $('lookup-status').textContent='Найдено несколько совпадений. Выберите нужную монету:';
+      $('lookup-choices').replaceChildren(...result.choices.map(coin=>{const button=element('button',coin.name+' / '+coin.symbol.toUpperCase()+' · '+coin.id,'button');button.type='button';button.onclick=()=>lookup(coin.id);return button}));
+      return;
+    }
+    populate(result.project);render(result);
+    $('lookup-status').textContent='Готово: '+result.project.name+' / '+result.project.symbol+'. Рассмотрены все '+result.score.total+' критериев, определено '+result.score.known+'. Прочитано источников: '+(result.lookup.research?.sources?.length||0)+'. Дата рыночного снимка: '+(result.project.market.as_of||'не указана')+'. Без достаточных доказательств ответ остаётся неизвестным.';
+    renderLookupSources(result.lookup);
+    $('report').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+  }catch(error){if(activeOperation===operation&&!operation.signal.aborted){$('lookup-status').textContent='Не удалось загрузить данные: '+error.message;showError(error.message)}}
+  finally{if(lookupOperation===operation)lookupOperation=null;finishOperation(operation)}
+}
+$('lookup-form').addEventListener('submit',event=>{event.preventDefault();lookup()});
+function cancelLookup(){
+  if(!lookupOperation)return;
+  const operation=lookupOperation;lookupOperation=null;operation.abort();finishOperation(operation);
+  $('lookup-status').textContent='Загрузка отменена. Предыдущий профиль сохранён.';
+}
+$('lookup-cancel').onclick=cancelLookup;
+$('coin-query').addEventListener('input',()=>{cancelLookup();$('lookup-choices').replaceChildren();$('lookup-status').textContent='Нажмите Enter для поиска. Предыдущий профиль сохранится до успешной загрузки.'});
+function renderLookupSources(lookup){
+  const research=lookup.research||{},sources=research.sources||[],failed=research.failed_sources||[];
+  const events=research.unlock_events||[],unlocks=$('lookup-unlocks');
+  unlocks.hidden=!events.length;unlocks.replaceChildren();
+  if(events.length){
+    const first=events[0];
+    unlocks.append(element('summary','События vesting ('+events.length+'): '+first.at.slice(0,10)+' · '+first.amount+' '+first.symbol),element('p','Проверенные договоры Hedgey в Optimism. Это часть графика '+first.symbol+', не все разблокировки команды, инвесторов и грантов. Точные суммы и UTC-время рассчитаны по состоянию контрактов; администратор может отозвать vesting. Непрерывное посекундное начисление не включено.','hint'));
+    const list=element('div',undefined,'evidence-list');
+    for(const event of events){
+      const row=element('div',undefined,'evidence-row');
+      row.append(element('strong',event.at.replace('T',' ').replace('+00:00',' UTC')+' · '+event.amount+' '+event.symbol),element('p','Получатель: '+event.recipient,'hint'),element('p',event.protocol+' · план №'+event.plan_id+' · блок '+event.block+' ('+event.block_time+')','hint'));
+      const link=element('a','Проверить план в обозревателе');link.href=event.source;link.target='_blank';link.rel='noopener noreferrer';row.append(link);
+      row.append(element('p','Администратор с правом отзыва: '+event.revocable_by,'hint'));list.append(row);
+    }
+    unlocks.append(list);
+  }
+  $('lookup-materials').hidden=false;
+  $('lookup-outcomes').replaceChildren(...Object.entries(research.criteria||{}).map(([key,item])=>{
+    const status={confirmed:'Есть подтверждение',refuted:'Есть отрицательное подтверждение',insufficient_evidence:'Недостаточно данных'}[item.status]||'Недостаточно данных';
+    const row=element('div',undefined,'evidence-row');
+    row.append(element('strong',(schema.criteria?.[key]?.label||item.label||key)+' — '+status),element('p',item.question||''),element('p',item.evidence||''));
+    if(item.source)row.append(element('p','Источник: '+item.source,'hint'));
+    return row;
+  }));
+  $('lookup-sources').replaceChildren(...sources.map(source=>{const row=element('div',undefined,'evidence-row');const link=element('a',source.url);link.href=source.url;link.target='_blank';link.rel='noopener noreferrer';row.append(link,element('p','Получено: '+source.received_at,'hint'));const criterion=schema.criteria?.[source.retrieved_for];if(criterion)row.append(element('p','Целевой поиск: '+criterion.label,'hint'));return row}));
+  $('lookup-notices').replaceChildren(...[...lookup.notices,...failed.map(source=>'Не прочитано: '+source.url+' · '+source.reason)].map(note=>element('p',note)));
+}
 function download(filename,body,type){const url=URL.createObjectURL(new Blob([body],{type}));const anchor=document.createElement('a');anchor.href=url;anchor.download=filename;document.body.append(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 $('name').addEventListener('input',()=>{
   inferredName=false;
@@ -666,7 +743,7 @@ for(const event of ['input','change'])$('project-form').addEventListener(event,e
 $('project-form').addEventListener('submit',event=>{event.preventDefault();analyze()});
 $('reset-button').onclick=()=>{
   if(activeOperation){activeOperation.abort();finishOperation(activeOperation)}
-  markStale();$('project-form').reset();clearControls();inferredName=false;inferredSymbol=false;current=null;analyzedRevision=-1;
+  markStale();$('lookup-unlocks').hidden=true;$('lookup-unlocks').replaceChildren();$('project-form').reset();clearControls();inferredName=false;inferredSymbol=false;current=null;analyzedRevision=-1;
   $('analysis-stale').hidden=true;$('report').hidden=true;$('empty').hidden=false;showError('');
   clearTimeout(draftTimer);draftTimer=null;try{localStorage.removeItem(draftKey);$('draft-status').textContent='Черновик очищен. Новые сведения будут сохраняться в этом браузере.'}catch(error){$('draft-status').textContent='Браузер не разрешает удаление черновика.'}
   for(const field of $('project-form').querySelectorAll('[aria-invalid]'))field.removeAttribute('aria-invalid');
@@ -683,14 +760,17 @@ $('file-input').onchange=async()=>{
     catch(error){throw Error('Сохраните файл в кодировке UTF-8 и откройте его снова.')}
     if(!raw.trim())throw Error('Файл пуст. Добавьте описание проекта или откройте другой файл.');
     if(!acceptResponse(operation,revision))return;
+    let profile;
     if(file.name.toLowerCase().endsWith('.json')){
-      let profile;
       try{profile=JSON.parse(raw)}catch(error){throw Error('JSON повреждён. Проверьте кавычки, запятые и закрывающие скобки.')}
       if(!profile||Array.isArray(profile)||typeof profile!=='object')throw Error('Профиль должен быть объектом JSON');
-      const result=await request('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:profileBody(profile),signal:operation.signal});
-      if(!acceptResponse(operation,revision))return;
-      populate(profile);render(result);
-    }else{populate({name:file.name.replace(/\.[^.]+$/,''),description:raw});await analyze(operation)}
+    }else profile={name:file.name.replace(/\.[^.]+$/,''),description:raw};
+    const result=await request('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:profileBody(profile),signal:operation.signal});
+    if(!acceptResponse(operation,revision))return;
+    const facts=Object.fromEntries(Object.keys(profile.facts||{}).map(key=>[key,result.project.facts[key]]));
+    populate({...result.project,facts,name:profile.name?.trim()?result.project.name:'',symbol:profile.symbol?.trim()?result.project.symbol:''});
+    render(result);
+    if(innerWidth<=850||document.documentElement.dataset.ui==='focus')$('report').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
   }catch(error){if(activeOperation===operation&&!operation.signal.aborted)showError('Не удалось открыть файл: '+error.message)}
   finally{finishOperation(operation);$('file-input').value=''}
 };
@@ -727,6 +807,7 @@ function renderAI(answer){
   $('ai-answer').textContent=answer?answer.content:'';
   $('ai-answer-meta').textContent=answer?answer.model+' · '+answer.base_url+' · '+new Date(answer.generated_at).toLocaleString('ru-RU'):'';
   $('ai-answer-question').textContent=answer?'Вопрос: '+answer.question:'';
+  $('ai-grounding').textContent=answer?.grounded?(answer.clarification?'Нужно уточнить тему вопроса. Выбор пунктов Qwen не запрашивался.':answer.fallback?'Подбор Qwen уточнён по теме вопроса. Пояснение сформировано по экспертным правилам.':answer.model_selection===false?'Пояснение сформировано по теме вопроса и введённым данным.':'Пункты Qwen проверены по теме вопроса. Балл, статус и основания взяты из экспертного разбора.'):'';
   $('ai-truncated').hidden=!answer||!answer.truncated;
 }
 function aiConfig(){

@@ -1,4 +1,4 @@
-"""Локальный интерфейс; Python stdlib, без внешних сервисов."""
+"""Локальный интерфейс и серверный автосбор данных; Python stdlib."""
 
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
@@ -8,12 +8,14 @@ import webbrowser
 from .assistant import ProjectAssistant, markdown_report, parse_profile
 from .knowledge import ROOT
 from .local_ai import CONFIG_PATH, DEFAULTS, LocalAI, LocalAIError, load_config, save_config
+from .research import CoinResearch, ResearchError
 
 
 def make_server(port=8765, local_ai_path=CONFIG_PATH):
     if type(port) is not int or not 0 <= port <= 65535:
         raise ValueError('Порт должен быть целым числом от 0 до 65535')
     assistant = ProjectAssistant()
+    research = CoinResearch(assistant.criteria)
 
     class Handler(BaseHTTPRequestHandler):
         def respond(self, status, body, kind="application/json; charset=utf-8"):
@@ -47,7 +49,7 @@ def make_server(port=8765, local_ai_path=CONFIG_PATH):
                 self.respond(404, {"error": "Страница не найдена"})
 
         def do_POST(self):
-            if self.path not in {"/api/analyze", "/api/local-ai/config", "/api/local-ai/check", "/api/local-ai/explain"}:
+            if self.path not in {"/api/analyze", "/api/research", "/api/local-ai/config", "/api/local-ai/check", "/api/local-ai/explain"}:
                 self.respond(404, {"error": "Неизвестная команда"})
                 return
             local_origins = {None, f"http://127.0.0.1:{self.server.server_port}", f"http://localhost:{self.server.server_port}"}
@@ -61,6 +63,18 @@ def make_server(port=8765, local_ai_path=CONFIG_PATH):
                 if self.headers.get("Content-Type", "").split(";")[0] != "application/json":
                     raise ValueError("Требуется JSON")
                 data = parse_profile(self.rfile.read(length).decode("utf-8"))
+                if self.path == "/api/research":
+                    if not isinstance(data, dict) or set(data) - {"query", "coin_id"}:
+                        raise ValueError("Ожидается название монеты или её идентификатор.")
+                    collected = research.lookup(data.get('query', ''), data.get('coin_id', ''))
+                    if 'choices' in collected:
+                        self.respond(200, collected)
+                    else:
+                        result = assistant.analyze(collected['profile'])
+                        self.respond(200, {**result, "markdown": markdown_report(result),
+                                           "lookup": {"notices": collected['notices'], "coin_id": collected['coin_id'],
+                                                      "research": collected.get('research', {})}})
+                    return
                 if self.path == "/api/local-ai/config":
                     self.respond(200, {"config": save_config(data, local_ai_path)})
                     return
@@ -81,6 +95,8 @@ def make_server(port=8765, local_ai_path=CONFIG_PATH):
                 self.respond(200, {**result, "markdown": markdown_report(result)})
             except LocalAIError as error:
                 self.respond(503, {"error": str(error)})
+            except ResearchError as error:
+                self.respond(502, {"error": str(error)})
             except (ValueError, UnicodeError, OSError) as error:
                 self.respond(400, {"error": str(error)})
 
@@ -92,13 +108,15 @@ def make_server(port=8765, local_ai_path=CONFIG_PATH):
 
 def serve(port=8765, open_browser=True):
     server = make_server(port)
-    address = f"http://127.0.0.1:{server.server_port}"
-    print(f"ИИ-помощник запущен: {address}", flush=True)
-    print("Для завершения нажмите Ctrl+C в этом окне.", flush=True)
-    if open_browser:
-        webbrowser.open(address)
     try:
-        server.serve_forever()
+        from .local_ai_runtime import local_ai_runtime
+        with local_ai_runtime():
+            address = f"http://127.0.0.1:{server.server_port}"
+            print(f"ИИ-помощник запущен: {address}", flush=True)
+            print("Для завершения нажмите Ctrl+C в этом окне.", flush=True)
+            if open_browser:
+                webbrowser.open(address)
+            server.serve_forever()
     except KeyboardInterrupt:
         print("\nСервер остановлен.")
     finally:

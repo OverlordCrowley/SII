@@ -1,12 +1,15 @@
 """Данные, реальные сохранённые модели и интеграция недель 9–14."""
 
 from contextlib import redirect_stdout, redirect_stderr
+from concurrent.futures import ThreadPoolExecutor
 import hashlib
 import io
 import json
 from pathlib import Path
 import tempfile
+from threading import Event
 import unittest
+from unittest.mock import patch
 
 from project_assistant.__main__ import main
 from project_assistant.assistant import ProjectAssistant, markdown_report
@@ -54,6 +57,79 @@ class SemesterTests(unittest.TestCase):
         store = ModelStore(knowledge)
         self.assertEqual(store.models, {})
         self.assertIn("устарели", store.reason)
+
+    def test_corrupt_model_metrics_do_not_interrupt_expert_analysis(self):
+        original = json.loads((ROOT / 'models/metrics.json').read_text())
+        profile = json.loads((ROOT / 'examples/ready.json').read_text())
+        corruptions = [None, [], {'version': 1}]
+        missing = json.loads(json.dumps(original))
+        del missing['bayes']
+        corruptions.append(missing)
+        missing_test = json.loads(json.dumps(original))
+        del missing_test['neural']['test']
+        corruptions.append(missing_test)
+        for field in ('accuracy', 'macro_f1'):
+            for value in (None, True, '0.9', -0.1, 1.1, float('nan'), float('inf')):
+                metrics = json.loads(json.dumps(original))
+                metrics['bayes']['test'][field] = value
+                corruptions.append(metrics)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / 'models').mkdir()
+            for key in ('bayes', 'neural'):
+                (root / 'models' / (key + '.json')).write_bytes((ROOT / 'models' / (key + '.json')).read_bytes())
+            for index, metrics in enumerate(corruptions):
+                with self.subTest(case=index):
+                    (root / 'models/metrics.json').write_text(json.dumps(metrics))
+                    with patch('project_assistant.ml.ROOT', root):
+                        result = ProjectAssistant(None).analyze(profile)
+                    self.assertEqual(result['status'], 'research')
+                    self.assertEqual(result['score']['min'], 100)
+                    self.assertFalse(result['recognition']['available'])
+                    self.assertIn('повреждены', result['recognition']['reason'])
+                    json.dumps(result, allow_nan=False)
+                    self.assertIn('Модели повреждены', markdown_report(result))
+
+    def test_model_overflow_does_not_interrupt_expert_analysis(self):
+        profile = json.loads((ROOT / 'examples/ready.json').read_text())
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / 'models').mkdir()
+            for file in (ROOT / 'models').glob('*.json'):
+                (root / 'models' / file.name).write_bytes(file.read_bytes())
+            path = root / 'models/neural.json'
+            model = json.loads(path.read_text())
+            model['w1'] = [[1e308] * len(row) for row in model['w1']]
+            model['b1'] = [0] * len(model['b1'])
+            model['w2'] = [[1e308] * len(row) for row in model['w2']]
+            model['b2'] = [0] * len(model['b2'])
+            path.write_text(json.dumps(model))
+            with patch('project_assistant.ml.ROOT', root):
+                result = ProjectAssistant(None).analyze(profile)
+            self.assertEqual(result['status'], 'research')
+            self.assertFalse(result['recognition']['available'])
+            json.dumps(result, allow_nan=False)
+
+            with patch('project_assistant.ml.ROOT', root):
+                store = ModelStore(load_knowledge())
+            started, release = Event(), Event()
+            def delayed_prediction(model, features):
+                if model['kind'] == 'bernoulli_nb' and not any(features):
+                    started.set()
+                    if not release.wait(3):
+                        raise RuntimeError('Concurrent prediction did not finish')
+                return probabilities(model, features)
+            with ThreadPoolExecutor(max_workers=1) as executor, patch('project_assistant.ml.probabilities', delayed_prediction):
+                pending = executor.submit(store.recognize, {}, 'clarify')
+                self.assertTrue(started.wait(3))
+                try:
+                    corrupted = store.recognize({'product_exists': True}, 'research')
+                finally:
+                    release.set()
+                concurrent = pending.result(timeout=3)
+            self.assertFalse(corrupted['available'])
+            json.dumps(concurrent, allow_nan=False)
+            self.assertFalse(store.recognize({}, 'clarify')['available'])
 
     def test_neural_training_learns_and_is_reproducible(self):
         rows = [([int(i == j) for j in range(4)], CLASSES[i]) for i in range(4)] * 8
